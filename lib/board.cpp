@@ -76,6 +76,8 @@ Board *Board::load( const string &infile, const string &name )
   return board;
 }
 
+
+#ifdef USE_APRILTAGS
 //===========================================================================
 //  AprilTagsBoard
 //===========================================================================
@@ -121,3 +123,4 @@ cv::Point3f AprilTagsBoard::worldLocation( const cv::Point2i &xy ) const
   return Point3f( xy.x * squareSize, xy.y * squareSize, 0 );
 }
 
+#endif

@@ -1,4 +1,4 @@
-add_library( lib_camera_calibration 
+add_library( aplcam
         bits_to_hex.cpp
         types.cpp
 	board.cpp 
@@ -24,5 +24,5 @@ add_library( lib_camera_calibration
         calibrator.cpp
         video_splitters/video_splitter_opts.cpp )
 
-target_include_directories( lib_camera_calibration 
-	PUBLIC ${CMAKE_SOURCE_DIR}/include )
+target_include_directories( aplcam
+	PUBLIC ${libaplcam_SOURCE_DIR}/include )

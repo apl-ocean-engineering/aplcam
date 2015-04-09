@@ -11,6 +11,8 @@
 
 #include <kchashdb.h>
 
+using std::string;
+
 struct SharedPoints
 {
   Distortion::ImagePointsVec imagePoints[2];
