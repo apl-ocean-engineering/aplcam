@@ -26,3 +26,4 @@ add_library( aplcam
 
 target_include_directories( aplcam
 	PUBLIC ${libaplcam_SOURCE_DIR}/include )
+

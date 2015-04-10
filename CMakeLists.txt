@@ -17,7 +17,7 @@ find_package( Ceres REQUIRED )
 
 # Packages supported by local Find*.cmake files
 list(APPEND CMAKE_MODULE_PATH "${aplcam_SOURCE_DIR}/cmake")
-#find_package( GSL REQUIRED )
+find_package( GSL REQUIRED )
 find_package( Eigen REQUIRED )
 
 #
