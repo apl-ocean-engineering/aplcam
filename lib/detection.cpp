@@ -1,4 +1,5 @@
 
+#include <opencv2/calib3d/calib3d.hpp>
 #include "detection.h"
 #include "file_utils.h"
 
@@ -148,6 +149,7 @@ SharedPoints Detection::sharedWith( Detection &a, Detection &b )
   return shared;
 }
 
+#ifdef USE_APRILTAGS
 
 //============================================================================
 //  AprilTagDetection
@@ -176,4 +178,6 @@ void AprilTagsDetection::calculateCorners( const AprilTagsBoard &board )
     }
   }
 }
+
+#endif
 

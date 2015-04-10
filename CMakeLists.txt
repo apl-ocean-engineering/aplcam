@@ -64,7 +64,7 @@ if( USE_APRILTAGS )
 		PATHS ${aplcam_SOURCE_DIR}/third_party/apriltags/ PARENT_SCOPE )
 	set( APRILTAGS_LIBS ${aplcam_BINARY_DIR}/third_party/apriltags/libapriltags.a PARENT_SCOPE )
 
-	include_directories( "${APRILTAGS_INCLUDE_DIR}" )
+	include_directories( ${APRILTAGS_INCLUDE_DIR} )
 
 endif()
 

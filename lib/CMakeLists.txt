@@ -26,5 +26,6 @@ add_library( aplcam
         video_splitters/video_splitter_opts.cpp )
 
 target_include_directories( aplcam
-	PUBLIC ${libaplcam_SOURCE_DIR}/include )
+	PUBLIC ${libaplcam_SOURCE_DIR}/include 
+        PUBLIC ${APRILTAGS_INCLUDE_DIR} )
 
