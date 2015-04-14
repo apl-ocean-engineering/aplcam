@@ -142,6 +142,9 @@ namespace AplCam {
         } else {
           processRejectedFrame( img, toDisplay );
         }
+      } else {
+        toDisplay = img;
+        processSplitFrame( img, toDisplay );
       }
 
       if( _splitterOpts.doDisplay && !toDisplay.empty() ) {

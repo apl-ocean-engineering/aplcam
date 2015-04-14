@@ -62,7 +62,8 @@ if( USE_APRILTAGS )
 
         find_path( APRILTAGS_INCLUDE_DIR AprilTags/TagDetection.h
 		PATHS ${aplcam_SOURCE_DIR}/third_party/apriltags/ PARENT_SCOPE )
-	set( APRILTAGS_LIBS ${aplcam_BINARY_DIR}/third_party/apriltags/libapriltags.a PARENT_SCOPE )
+	set( APRILTAGS_LIBS ${aplcam_BINARY_DIR}/third_party/apriltags/libapriltags.a )
+        set( APRILTAGS_LIBS ${APRILTAGS_LIBS} PARENT_SCOPE )
 
 	include_directories( ${APRILTAGS_INCLUDE_DIR} )
 
