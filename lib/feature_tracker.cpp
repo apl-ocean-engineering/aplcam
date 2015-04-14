@@ -13,8 +13,8 @@ namespace AplCam {
 
   const float FeatureTracker::_dropRadius = 5;
   const float FeatureTracker::_patchRadius = 5;
-  const int FeatureTracker::_maxMisses = 5;
-  const int FeatureTracker::_maxTracks = 1500;
+  const int FeatureTracker::_maxMisses = 10;
+  const int FeatureTracker::_maxTracks = 3000;
 
   FeatureTracker::FeatureTracker( void )
     : _previous(), _tracks()
@@ -61,12 +61,12 @@ namespace AplCam {
 
 
       Location pred = track.predict( );
-      if( doDraw ) circle( drawTo, s*pred.pt, 5, Scalar( 0,255,0), 2 );
 
       // Nice expensive square root..
       float searchXw = std::min( 30, std::max( 5, (int)ceil( 2 * sqrt( pred.cov.x )) )),
             searchYw = std::min( 30, std::max( 5, (int)ceil(2 * sqrt( pred.cov.y )) ));
       Rect searchArea( pred.pt.x - searchXw, pred.pt.y - searchYw, 2 * searchXw, 2 * searchYw );
+      if( doDraw ) circle( drawTo, s*pred.pt, std::max( searchXw, searchYw ), Scalar( 0,255,0), 1 );
       searchArea &= imageRect;
 
       Mat roi( img, searchArea );
@@ -143,6 +143,15 @@ namespace AplCam {
 
       circle( img, s*track.pt(), 5, Scalar( 0, 255, 0), 1 );
 
+      Point2f prev = track.pt();
+       for( deque< Point2f >::reverse_iterator ritr = track.history.rbegin();
+            ritr != track.history.rend(); ++ritr ) {
+          if( ritr == track.history.rbegin() ) prev = (*ritr);
+          circle( img, s*(*ritr), 5, Scalar( 0, 0, 255), 1 );
+          line( img, s*prev, s*(*ritr), Scalar( 0, 0, 255), 1 );
+          prev = (*ritr);
+        }
+
     }
   }
 
@@ -191,7 +200,7 @@ namespace AplCam {
     patch.convertTo( _patch, CV_32FC1, 1.0/255.0 );
 
     history.push_front( position );
-    while( history.size() > 10 ) history.pop_back();
+    while( history.size() > MaxHistory ) history.pop_back();
 
     _motionModel->update( position );
   }

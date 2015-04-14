@@ -125,7 +125,8 @@ namespace AplCam {
       if( _splitterOpts.seekTo > 0 ) vid->seekToSeconds( _splitterOpts.seekTo );
       if( _waitKey < 0 ) _waitKey = round(1000 * 1/vid->fps() );
 
-      if( !_splitterOpts.fpsSet ) fps = vid->fps();
+      // Hack.  Why is generate video playing too fast?
+      if( !_splitterOpts.fpsSet ) fps = vid->fps() / 2;
 
       source = vid;
     } else {
@@ -151,7 +152,7 @@ namespace AplCam {
 
       // Only once the first frame has been read
     if( _frame == 0 && _splitterOpts.doSaveVideo() ) {
-      _videoWriter.open( _splitterOpts.saveVideoTo, CV_FOURCC('X','2','6','4'), fps, img.size() );
+      _videoWriter.open( _splitterOpts.saveVideoTo, CV_FOURCC('M','J','P','G'), fps, img.size() );
     }
 
       unsigned long startTicks = getTickCount();

@@ -31,6 +31,9 @@ namespace AplCam {
     protected:
 
       struct KeyPointTrack {
+
+        const size_t MaxHistory = ULONG_MAX;
+
         KeyPointTrack( const Mat &patch, MotionModel *model );
         ~KeyPointTrack( void );
 
