@@ -59,12 +59,17 @@ namespace AplCam {
         }
       }
 
-
       Location pred = track.predict( );
+
+      // If the prediction is outside the image, drop it
+      if( tooNearEdge( img, pred.pt ) ) {
+        dropList.push_back( itr );
+        continue;
+      }
 
       // Nice expensive square root..
       float searchXw = std::min( 30, std::max( 5, (int)ceil( 2 * sqrt( pred.cov.x )) )),
-            searchYw = std::min( 30, std::max( 5, (int)ceil(2 * sqrt( pred.cov.y )) ));
+            searchYw = std::min( 30, std::max( 5, (int)ceil( 2 * sqrt( pred.cov.y )) ));
       Rect searchArea( pred.pt.x - searchXw, pred.pt.y - searchYw, 2 * searchXw, 2 * searchYw );
       if( doDraw ) circle( drawTo, s*pred.pt, std::max( searchXw, searchYw ), Scalar( 0,255,0), 1 );
       searchArea &= imageRect;
@@ -90,11 +95,15 @@ namespace AplCam {
         // If there's been a successful match, drop any keypoints which are close by
         int before = kps.size();
         vector< KeyPoint >::iterator newEnd = std::remove_if( kps.begin(), kps.end(), TxDistanceLessThan( match, _dropRadius ) );
+
         if( newEnd != kps.end() ) {
-        kps.erase( newEnd, kps.end() );
-        kpsTooClose += before - kps.size();
-        track.refeatured = std::min(10, track.refeatured+1 );;
+          kps.erase( newEnd, kps.end() );
+          kpsTooClose += before - kps.size();
+
+          // There was a FAST feature near the point, give this track a point!
+          track.refeatured = std::min(20, track.refeatured+1 );
         } else {
+          // No FAST feature near this track.  Penalty!
           --track.refeatured;
         }
 
@@ -141,25 +150,27 @@ namespace AplCam {
         itr != _tracks.end(); ++itr ) {
       KeyPointTrack &track( *itr );
 
-      circle( img, s*track.pt(), 5, Scalar( 0, 255, 0), 1 );
 
       Point2f prev = track.pt();
-       for( deque< Point2f >::reverse_iterator ritr = track.history.rbegin();
-            ritr != track.history.rend(); ++ritr ) {
-          if( ritr == track.history.rbegin() ) prev = (*ritr);
-          circle( img, s*(*ritr), 5, Scalar( 0, 0, 255), 1 );
-          line( img, s*prev, s*(*ritr), Scalar( 0, 0, 255), 1 );
-          prev = (*ritr);
-        }
+      for( deque< Point2f >::reverse_iterator ritr = track.history.rbegin();
+          ritr != track.history.rend(); ++ritr ) {
+        if( ritr == track.history.rbegin() ) prev = (*ritr);
+        circle( img, s*(*ritr), 5, Scalar( 0, 0, 255), 1 );
+        line( img, s*prev, s*(*ritr), Scalar( 0, 0, 255), 1 );
+        prev = (*ritr);
+      }
 
+      circle( img, s*track.pt(), 5, Scalar( 0, 255, 0), 2 );
     }
+
+
   }
 
 
   //===========================================================================
 
   FeatureTracker::KeyPointTrack::KeyPointTrack( const Mat &patch, MotionModel *model )
-    : _motionModel(model), _patch(), refeatured(3)
+    : _motionModel(model), _patch(), refeatured(5)
   {
     patch.convertTo( _patch, CV_32FC1, 1.0/255.0 );
   }

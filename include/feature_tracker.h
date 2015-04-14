@@ -28,11 +28,10 @@ namespace AplCam {
 
       void drawTracks( Mat &img, float scale = 1.0 );
 
-    protected:
 
       struct KeyPointTrack {
 
-        const size_t MaxHistory = ULONG_MAX;
+        static const size_t MaxHistory = ULONG_MAX;
 
         KeyPointTrack( const Mat &patch, MotionModel *model );
         ~KeyPointTrack( void );
@@ -42,6 +41,7 @@ namespace AplCam {
         void update( const Mat &patch, const Point2f &position );
 
         Point2f pt( void ) const { return Point2f( _motionModel->pt() ); }
+        Point2f vel( void ) const { return Point2f( _motionModel->vel() ); }
 
         std::shared_ptr<MotionModel> _motionModel;
         Mat _patch;
@@ -50,6 +50,25 @@ namespace AplCam {
         int missed, refeatured;
       };
 
+
+//
+//      struct TxRemoveVerticalMotion {
+//        TxRemoveVerticalMotion( void )
+//        {;}
+//
+//        bool operator()( const KeyPointTrack &pt )
+//        { 
+//          return fabs(pt.vel().y) > 2*fabs(pt.vel().x);
+//        } 
+//      }; 
+//
+//      void dropTracks( void )
+//      { 
+//        std::remove_if( _tracks.begin(), _tracks.end(), TxRemoveVerticalMotion() );
+//      }
+
+
+    protected:
 
       Mat patchROI( Mat &img, const Point2f &center )
       {
@@ -63,6 +82,9 @@ namespace AplCam {
             pt.x + _patchRadius >= img.size().width ||
             pt.y + _patchRadius >= img.size().height );
       }
+
+
+
 
       Mat  _previous;
       std::list< KeyPointTrack > _tracks;

@@ -35,6 +35,7 @@ namespace AplCam {
     virtual void update( const Point2f &loc ) = 0;
 
     virtual Point2f pt( void ) const = 0;
+    virtual Point2f vel( void ) const = 0;
   };
 
   struct DecayingVelocityMotionModel : public MotionModel {
@@ -45,6 +46,7 @@ namespace AplCam {
     virtual void update( const Point2f &loc );
 
     virtual Point2f pt( void ) const { return Point2f( _state(0), _state(1) ); }
+    virtual Point2f vel( void ) const { return Point2f( _state(2), _state(3) ); }
 
     float alpha;
     cv::Vec4f _state;

@@ -27,7 +27,7 @@ namespace AplCam {
     : MotionModel(), alpha(0.7),_state( x_0.x, x_0.y, 0, 0 ), _cov( Matx44f::eye() )
   {
     _cov(0,0) = _cov(1,1) = 5;
-    _cov(2,2) = _cov(3,3) = 25;
+    _cov(2,2) = _cov(3,3) = 2;
   }
 
   Location DecayingVelocityMotionModel::predict( void  )
@@ -44,8 +44,8 @@ namespace AplCam {
     // Process noise
     const Matx44f Q( 0, 0, 0, 0,
         0, 0, 0, 0,
-        0, 0, 25, 0,
-        0, 0, 0, 25 );
+        0, 0, 20, 0,
+        0, 0, 0, 20 );
 
     _state = F * _state;
     _cov = F * _cov * F.t() + Q;
@@ -57,7 +57,7 @@ namespace AplCam {
   {
     // Measurement matrix
     const Matx24f H( 1, 0, 0, 0,
-        0, 1, 0, 0 );
+                     0, 1, 0, 0 );
 
     // Observation covariances
     Matx21f y = Matx21f( l.x, l.y ) - H*_state;
