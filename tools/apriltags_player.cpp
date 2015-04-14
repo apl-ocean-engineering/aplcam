@@ -23,7 +23,10 @@ class AprilTagSplitterApp : public SplitterApp {
       virtual bool processSplitFrame( Mat &img, Mat &toDisplay ) 
       { 
         TagDetector detector( AprilTags::tagCodes36h11 );
-        vector<TagDetection> tags = detector.extractTags( img );
+
+        Mat grey;
+        cvtColor( img, grey, CV_BGR2GRAY );
+        vector<TagDetection> tags = detector.extractTags( grey );
 
         for( size_t i = 0; i < tags.size(); ++i ) {
           tags[i].draw( toDisplay );

@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
 
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -133,6 +134,8 @@ namespace AplCam {
     int wk = _waitKey;
     while( source->read( img )  && !done) {
 
+      unsigned long startTicks = getTickCount();
+
       toDisplay.release();
 
       if( _selector ) {
@@ -159,6 +162,10 @@ namespace AplCam {
         } else {
           imshow( winname, toDisplay );
         }
+
+        int procMs = (getTickCount() - startTicks ) / getTickFrequency() * 1000;
+
+        if( wk > 0 )  wk = std::max( 1, (wk - procMs) );
 
         char c = waitKey( wk );
         if( c == 'q' ) done=true;
