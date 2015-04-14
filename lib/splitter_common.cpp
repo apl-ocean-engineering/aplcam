@@ -47,11 +47,13 @@ namespace AplCam {
     TCLAP::SwitchArg displayArg("D", "display", "Show progress in window", cmd, false );
     TCLAP::ValueArg< string > saveFramesArg("o", "save-frames", "Location to save frames.",
         false, ".", "dir", cmd );
+    TCLAP::ValueArg< string > saveVideoArg("v", "save-video", "File to save video to.",
+        false, "", "file name", cmd );
     TCLAP::ValueArg< int > waitKeyArg("w", "wait-key", "Arg for waitkey()", 
         false, -1, "ms", cmd );
     TCLAP::ValueArg< float > seekToArg("s", "seek-to", "For video sources, seek <sec> frames into the video before starting", false, -1, "sec", cmd );
-
     TCLAP::ValueArg< float > scaleDisplayArg("S", "scale-display", "If displaying, scale to <mp> megapixels", false, -1, "megapix", cmd );
+    TCLAP::ValueArg< float > fpsArg( "f", "fps", "If creating video, specify the frames per second", false, 1, "fps", cmd );
 
     TCLAP::UnlabeledMultiArg< string > imgNamesArg("image_files", "Image files for processing", true, "file names", cmd );
 
@@ -62,7 +64,13 @@ namespace AplCam {
     seekTo = seekToArg.getValue();
     scaleDisplay = scaleDisplayArg.getValue();
     saveFramesTo = saveFramesArg.getValue();
+    _doSaveFrames = saveFramesArg.isSet();
+    saveVideoTo = saveVideoArg.getValue();
+    _doSaveVideo = saveVideoArg.isSet();
     waitKey = waitKeyArg.getValue();
+
+    fps = fpsArg.getValue();
+    fpsSet = fpsArg.isSet();
 
   }
 
@@ -70,7 +78,7 @@ namespace AplCam {
 
   bool SplitterOpts::validate( stringstream &msg )
   {
-    if( saveFramesTo.length() > 0 && !directory_exists( saveFramesTo ) ) {
+    if( doSaveFrames() && !directory_exists( saveFramesTo ) ) {
       msg << "Directory \"" << saveFramesTo << "\" doesn't exist.";
       return false;
     }
@@ -86,12 +94,12 @@ namespace AplCam {
 
 
   SplitterApp::SplitterApp( SplitterOpts options )
-    : _selector( options.makeSelector() ), _splitterOpts( options )
+    : _selector( options.makeSelector() ), _videoWriter(), _splitterOpts( options ) 
   {;}
 
 
   SplitterApp::SplitterApp( SplitterOpts options, FrameSelector *selector = NULL )
-    : _selector( selector ), _splitterOpts( options )
+    : _selector( selector ), _videoWriter(), _splitterOpts( options )
   {;}
 
 
@@ -106,6 +114,8 @@ namespace AplCam {
     if( _splitterOpts.doDisplay ) namedWindow( winname );
     int _waitKey = _splitterOpts.waitKey;
 
+    double fps = _splitterOpts.fps;
+
     FrameSource *source = NULL;
     if( _splitterOpts.imgNames.size() == 1 ) {
       // Assume it's a video
@@ -114,6 +124,8 @@ namespace AplCam {
 
       if( _splitterOpts.seekTo > 0 ) vid->seekToSeconds( _splitterOpts.seekTo );
       if( _waitKey < 0 ) _waitKey = round(1000 * 1/vid->fps() );
+
+      if( !_splitterOpts.fpsSet ) fps = vid->fps();
 
       source = vid;
     } else {
@@ -127,6 +139,7 @@ namespace AplCam {
       return false;
     }
 
+
     if( _selector == NULL ) LOG(WARNING) << "No frame selector specified.";
 
 
@@ -135,6 +148,11 @@ namespace AplCam {
     _frame = 0;
     int wk = _waitKey;
     while( source->read( img )  && !done) {
+
+      // Only once the first frame has been read
+    if( _frame == 0 && _splitterOpts.doSaveVideo() ) {
+      _videoWriter.open( _splitterOpts.saveVideoTo, CV_FOURCC('X','2','6','4'), fps, img.size() );
+    }
 
       unsigned long startTicks = getTickCount();
 
@@ -176,10 +194,14 @@ namespace AplCam {
         }
       }
 
-      if( _splitterOpts.saveFramesTo.length() > 0 ) {
+      if( _splitterOpts.doSaveFrames() ) {
         char name[80];
         snprintf( name, 79, "%s/frame_%06d.jpg", _splitterOpts.saveFramesTo.c_str(),_frame );
-          imwrite( name, img );
+        imwrite( name, img );
+      }
+
+      if( _splitterOpts.doSaveVideo() > 0 ) {
+        _videoWriter << toDisplay;
       }
 
       _frame++;

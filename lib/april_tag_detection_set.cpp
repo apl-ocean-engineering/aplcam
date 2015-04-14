@@ -2,6 +2,8 @@
 #include <iomanip>
 #include <fstream>
 
+#include <list>
+
 // AprilTags currently uses Eigen for fixed-size vectors and matrices
 #include <Eigen/Core>
 

@@ -33,7 +33,12 @@ namespace AplCam {
         seekTo(-1), 
         scaleDisplay( -1 ),
         doDisplay( false ), 
-        saveFramesTo()
+        saveFramesTo(),
+        saveVideoTo(),
+        _doSaveFrames( false ),
+        _doSaveVideo( false ),
+        fps(1),
+        fpsSet( false )
     {;}
 
       //typedef enum {EXTRACT_SINGLE, EXTRACT_INTERVAL,  NONE = -1} Verbs;
@@ -42,7 +47,10 @@ namespace AplCam {
       float  seekTo, scaleDisplay;
       bool doDisplay;
       vector< string > imgNames;
-      string saveFramesTo;
+      string saveFramesTo, saveVideoTo;
+      bool _doSaveFrames, _doSaveVideo;
+float fps;
+bool fpsSet;
 
       bool parseArgs( int argc, char **argv, stringstream &msg );
       virtual void doParse( TCLAP::CmdLine &cmd, int argc, char **argv );
@@ -51,6 +59,9 @@ namespace AplCam {
 
       FrameSelector *makeSelector( void )
       { return NULL; }
+
+      bool doSaveVideo( void ) const { return _doSaveVideo; }
+      bool doSaveFrames( void ) const { return _doSaveFrames; }
   };
 
 
@@ -74,11 +85,14 @@ namespace AplCam {
     protected:
 
       FrameSelector *_selector;
-
       int _frame;
 
+      VideoWriter _videoWriter;
+
     private:
+
       SplitterOpts _splitterOpts;
+
 
       const string winname = "input";
   };

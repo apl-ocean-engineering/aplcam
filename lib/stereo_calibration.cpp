@@ -1,10 +1,12 @@
-
+#include <string>
 
 #include "stereo_calibration.h"
 
-using namespace cv;
 
 namespace AplCam {
+
+  using namespace cv;
+  using namespace std;
 
   const string StereoCalibration::fundamentalTag = "fundamental",
              StereoCalibration::essentialTag = "essential",

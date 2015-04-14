@@ -20,6 +20,7 @@ add_library( aplcam
         camera_factory.cpp
         distortion_stereo.cpp
         stereo_calibration.cpp 
+        motion_model.cpp
         feature_tracker.cpp
         calibration_db.cpp
         calibrator.cpp

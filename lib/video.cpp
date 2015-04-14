@@ -66,7 +66,7 @@ void Video::initializeTransitionStatistics( int start, int length, TransitionVec
   meanNorm /= length;
 
   float var = 0, stddev= 0;
-  for( int i = 0; i < norms.size(); ++i ) var += pow( norms[i] - meanNorm, 2 );
+  for( size_t i = 0; i < norms.size(); ++i ) var += pow( norms[i] - meanNorm, 2 );
   stddev = sqrt( var / (length-1) );
 
   _distTimecodeNorm.mean = meanNorm;

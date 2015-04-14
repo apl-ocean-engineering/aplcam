@@ -19,7 +19,7 @@ return Vec4f( projPt[0], projPt[1], error[0], error[1] );
     std::transform( v.projPoints.begin(), v.projPoints.end(), v.errors.begin(), out.begin(), 
         TxReprojErrorsToVec );
 
-    write( fs, a, Mat(out) );
+    cv::write( fs, a, Mat(out) );
   }
 
   void write(cv::FileStorage &fs, std::string a, const ReprojErrorsVecVec &v )
@@ -32,7 +32,7 @@ return Vec4f( projPt[0], projPt[1], error[0], error[1] );
           back_inserter( out ), TxReprojErrorsToVec );
 
 
-    write( fs, a, Mat(out) );
+    cv::write( fs, a, Mat(out) );
   }
 
 }
