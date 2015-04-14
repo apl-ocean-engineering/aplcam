@@ -45,10 +45,10 @@ namespace AplCam {
   void SplitterOpts::doParse( TCLAP::CmdLine &cmd, int argc, char **argv )
   { 
     TCLAP::SwitchArg displayArg("D", "display", "Show progress in window", cmd, false );
-    TCLAP::ValueArg< string > outputDirArg("o", "output-dir", "Directory for resulting images", 
+    TCLAP::ValueArg< string > saveFramesArg("o", "save-frames", "Location to save frames.",
         false, ".", "dir", cmd );
     TCLAP::ValueArg< int > waitKeyArg("w", "wait-key", "Arg for waitkey()", 
-        false, 0, "ms", cmd );
+        false, -1, "ms", cmd );
     TCLAP::ValueArg< float > seekToArg("s", "seek-to", "For video sources, seek <sec> frames into the video before starting", false, -1, "sec", cmd );
 
     TCLAP::ValueArg< float > scaleDisplayArg("S", "scale-display", "If displaying, scale to <mp> megapixels", false, -1, "megapix", cmd );
@@ -59,17 +59,19 @@ namespace AplCam {
 
     imgNames = imgNamesArg.getValue();
     doDisplay = displayArg.getValue();
-    outputDir = outputDirArg.getValue();
     seekTo = seekToArg.getValue();
     scaleDisplay = scaleDisplayArg.getValue();
+    saveFramesTo = saveFramesArg.getValue();
+    waitKey = waitKeyArg.getValue();
+
   }
 
 
 
   bool SplitterOpts::validate( stringstream &msg )
   {
-    if( !directory_exists( outputDir ) ) {
-      msg << "Directory \"" << outputDir << "\" doesn't exist.";
+    if( saveFramesTo.length() > 0 && !directory_exists( saveFramesTo ) ) {
+      msg << "Directory \"" << saveFramesTo << "\" doesn't exist.";
       return false;
     }
 
@@ -166,13 +168,18 @@ namespace AplCam {
         int procMs = (getTickCount() - startTicks ) / getTickFrequency() * 1000;
 
         if( wk > 0 )  wk = std::max( 1, (wk - procMs) );
-
         char c = waitKey( wk );
         if( c == 'q' ) done=true;
         else if ( c == ' ' ) {
           if( wk == 0 ) wk = _waitKey;
           else wk = 0;
         }
+      }
+
+      if( _splitterOpts.saveFramesTo.length() > 0 ) {
+        char name[80];
+        snprintf( name, 79, "%s/frame_%06d.jpg", _splitterOpts.saveFramesTo.c_str(),_frame );
+          imwrite( name, img );
       }
 
       _frame++;

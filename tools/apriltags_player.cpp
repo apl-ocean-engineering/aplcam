@@ -26,11 +26,20 @@ class AprilTagSplitterApp : public SplitterApp {
 
         Mat grey;
         cvtColor( img, grey, CV_BGR2GRAY );
-        vector<TagDetection> tags = detector.extractTags( grey );
+        toDisplay = grey;
+
+
+        Mat equalized( grey.size(), grey.type() );
+        Ptr<CLAHE> clahe = createCLAHE( 40, Size(4,4));
+        clahe->apply( grey, equalized );
+
+        vector<TagDetection> tags = detector.extractTags( equalized );
 
         for( size_t i = 0; i < tags.size(); ++i ) {
           tags[i].draw( toDisplay );
         } 
+
+        imshow( "equalized", equalized );
 
         return true;
       }

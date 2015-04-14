@@ -33,7 +33,7 @@ namespace AplCam {
         seekTo(-1), 
         scaleDisplay( -1 ),
         doDisplay( false ), 
-        outputDir()
+        saveFramesTo()
     {;}
 
       //typedef enum {EXTRACT_SINGLE, EXTRACT_INTERVAL,  NONE = -1} Verbs;
@@ -42,7 +42,7 @@ namespace AplCam {
       float  seekTo, scaleDisplay;
       bool doDisplay;
       vector< string > imgNames;
-      string outputDir;
+      string saveFramesTo;
 
       bool parseArgs( int argc, char **argv, stringstream &msg );
       virtual void doParse( TCLAP::CmdLine &cmd, int argc, char **argv );
