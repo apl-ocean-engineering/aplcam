@@ -33,10 +33,10 @@ find_package( Eigen REQUIRED )
 #set(KyotoCabinet_LIBRARIES ${KyotoCabinet_LIBRARY})
 #set(KyotoCabinet_INCLUDE_DIRS ${KyotoCabinet_INCLUDE_DIR})
 #
-#find_package( Boost REQUIRED COMPONENTS thread system filesystem )
-#set( Boost_USE_MULTITHREADED ON )
-#
-#
+find_package( Boost REQUIRED COMPONENTS thread system filesystem )
+set( Boost_USE_MULTITHREADED ON )
+
+
 #include_directories( ${EIGEN_INCLUDE_DIR} 
 #	${OpenCV_INCLUDE_DIRS} 
 #        ${KyotoCabinet_INCLUDE_DIRS} )
@@ -69,10 +69,12 @@ if( USE_APRILTAGS )
 endif()
 
 set( aplcam_INCLUDE_DIR "${aplcam_SOURCE_DIR}/include" PARENT_SCOPE )
-set( aplcam_LIBS "${aplcam_BINARY_DIR}/lib/libaplcam.a" PARENT_SCOPE )
+set( aplcam_LIBS "${aplcam_BINARY_DIR}/lib/libaplcam.a" )
+set( aplcam_LIBS ${aplcam_LIBS} PARENT_SCOPE )
 
 set( tclap_INCLUDE_DIR "${aplcam_SOURCE_DIR}/third_party/tclap/include" PARENT_SCOPE)
 
 
-add_subdirectory (lib)
+add_subdirectory(lib)
+add_subdirectory(tools)
 

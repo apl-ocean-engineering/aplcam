@@ -23,6 +23,7 @@ add_library( aplcam
         feature_tracker.cpp
         calibration_db.cpp
         calibrator.cpp
+	splitter_common.cpp
         video_splitters/video_splitter_opts.cpp )
 
 target_include_directories( aplcam
