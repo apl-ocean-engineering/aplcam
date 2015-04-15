@@ -152,21 +152,24 @@ namespace AplCam {
 
       // Only once the first frame has been read
     if( _frame == 0 && _splitterOpts.doSaveVideo() ) {
-      _videoWriter.open( _splitterOpts.saveVideoTo, CV_FOURCC('M','J','P','G'), fps, img.size() );
+      _videoWriter.open( _splitterOpts.saveVideoTo, CV_FOURCC('X','2','6','4'), fps, img.size() );
     }
 
       unsigned long startTicks = getTickCount();
 
       toDisplay.release();
 
+      bool selected = false;
       if( _selector ) {
-        if( _selector->process( img ) ) {
+        selected = _selector->process( img );
+        if( selected  ) {
           toDisplay = img;
           processSplitFrame( img, toDisplay );
         } else {
           processRejectedFrame( img, toDisplay );
         }
       } else {
+        selected = true;
         toDisplay = img;
         processSplitFrame( img, toDisplay );
       }
@@ -195,9 +198,10 @@ namespace AplCam {
         }
       }
 
-      if( _splitterOpts.doSaveFrames() ) {
-        char name[80];
-        snprintf( name, 79, "%s/frame_%06d.jpg", _splitterOpts.saveFramesTo.c_str(),_frame );
+      if( selected && _splitterOpts.doSaveFrames() ) {
+        char name[256];
+        snprintf( name, 255, "%s/frame_%06d.jpg", _splitterOpts.saveFramesTo.c_str(),_frame );
+        cout << "Writing to " << name << endl;
         imwrite( name, img );
       }
 
