@@ -136,7 +136,7 @@ cv::Point3f AprilTagsBoard::worldLocation( const cv::Point2i &xy ) const
 
     ObjectPointsVec AprilTagsBoard::corners( const CornersReference ref )
 {
-  Point3f halfSize( size().width / 2.0, size().height / 2.0, 0 );
+  Point3f halfSize( squareSize * size().width / 2.0, squareSize * size().height / 2.0, 0 );
 
   ObjectPointsVec out;
   for( int x = 0; x < width; ++x ) 
