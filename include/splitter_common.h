@@ -47,18 +47,18 @@ namespace AplCam {
       float  seekTo, scaleDisplay;
       bool doDisplay;
       vector< string > imgNames;
-      string saveFramesTo, saveVideoTo;
+      string saveFramesTo, saveVideoTo, selector;
       bool _doSaveFrames, _doSaveVideo;
-float fps;
-bool fpsSet;
+
+      float fps;
+      bool fpsSet;
 
       bool parseArgs( int argc, char **argv, stringstream &msg );
       virtual void doParse( TCLAP::CmdLine &cmd, int argc, char **argv );
 
       virtual bool validate( stringstream &msg );
 
-      FrameSelector *makeSelector( void )
-      { return NULL; }
+      Ptr<FrameSelector> makeSelector( void );
 
       bool doSaveVideo( void ) const { return _doSaveVideo; }
       bool doSaveFrames( void ) const { return _doSaveFrames; }
@@ -70,7 +70,7 @@ bool fpsSet;
   {
     public:
       SplitterApp( SplitterOpts options );
-      SplitterApp( SplitterOpts options, FrameSelector *selector );
+      SplitterApp( SplitterOpts options, Ptr<FrameSelector> selector );
 
       virtual ~SplitterApp( void );
 
@@ -84,7 +84,7 @@ bool fpsSet;
 
     protected:
 
-      FrameSelector *_selector;
+      Ptr<FrameSelector> _selector;
       int _frame;
 
       VideoWriter _videoWriter;

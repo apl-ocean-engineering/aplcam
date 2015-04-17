@@ -25,6 +25,7 @@ add_library( aplcam
         calibration_db.cpp
         calibrator.cpp
 	splitter_common.cpp
+        frame_selector/keyframe_selector.cpp
         video_splitters/video_splitter_opts.cpp )
 
 target_include_directories( aplcam

@@ -55,6 +55,8 @@ namespace AplCam {
     TCLAP::ValueArg< float > scaleDisplayArg("S", "scale-display", "If displaying, scale to <mp> megapixels", false, -1, "megapix", cmd );
     TCLAP::ValueArg< float > fpsArg( "f", "fps", "If creating video, specify the frames per second", false, 1, "fps", cmd );
 
+    TCLAP::ValueArg< string > selectorArg( "r", "selector", "Splitting algorithm to use", false, "", "...", cmd );
+
     TCLAP::UnlabeledMultiArg< string > imgNamesArg("image_files", "Image files for processing", true, "file names", cmd );
 
     cmd.parse( argc, argv );
@@ -62,6 +64,7 @@ namespace AplCam {
     imgNames = imgNamesArg.getValue();
     doDisplay = displayArg.getValue();
     seekTo = seekToArg.getValue();
+    selector = selectorArg.getValue();
     scaleDisplay = scaleDisplayArg.getValue();
     saveFramesTo = saveFramesArg.getValue();
     _doSaveFrames = saveFramesArg.isSet();
@@ -71,9 +74,7 @@ namespace AplCam {
 
     fps = fpsArg.getValue();
     fpsSet = fpsArg.isSet();
-
   }
-
 
 
   bool SplitterOpts::validate( stringstream &msg )
@@ -86,6 +87,13 @@ namespace AplCam {
     return true;
   }
 
+  Ptr<FrameSelector> SplitterOpts::makeSelector( void )
+  {
+    if( selector == "keyframe" )
+      return Ptr<FrameSelector>( new KeyframeSelector );
+
+    return Ptr<FrameSelector>();
+  }
 
 
 
@@ -98,14 +106,14 @@ namespace AplCam {
   {;}
 
 
-  SplitterApp::SplitterApp( SplitterOpts options, FrameSelector *selector = NULL )
+  SplitterApp::SplitterApp( SplitterOpts options, Ptr<FrameSelector> selector )
     : _selector( selector ), _videoWriter(), _splitterOpts( options )
   {;}
 
 
   SplitterApp::~SplitterApp( void )
   {
-    if( _selector != NULL ) delete _selector;
+    ;
   }
 
 
@@ -141,7 +149,7 @@ namespace AplCam {
     }
 
 
-    if( _selector == NULL ) LOG(WARNING) << "No frame selector specified.";
+    if( _selector.empty() ) LOG(WARNING) << "No frame selector specified.";
 
 
     Mat img, toDisplay;

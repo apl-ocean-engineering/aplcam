@@ -9,6 +9,7 @@
 
 using namespace std;
 using namespace cv;
+using namespace AplCam;
 
 Detection *Board::detectPattern( const Mat &gray, vector< Point2f > &pointbuf )
 {
@@ -77,6 +78,16 @@ Board *Board::load( const string &infile, const string &name )
 }
 
 
+ObjectPointsVec Board::corners( const CornersReference ref )
+{
+  return ObjectPointsVec();
+}
+
+    std::vector< int > Board::ids( void )
+{
+return vector< int >();
+}
+
 #ifdef USE_APRILTAGS
 //===========================================================================
 //  AprilTagsBoard
@@ -122,5 +133,31 @@ cv::Point3f AprilTagsBoard::worldLocation( const cv::Point2i &xy ) const
 {
   return Point3f( xy.x * squareSize, xy.y * squareSize, 0 );
 }
+
+    ObjectPointsVec AprilTagsBoard::corners( const CornersReference ref )
+{
+  Point3f halfSize( size().width / 2.0, size().height / 2.0, 0 );
+
+  ObjectPointsVec out;
+  for( int x = 0; x < width; ++x ) 
+    for( int y = 0; y < height; ++y ) 
+      if( ref == BOARD_UL ) 
+        out.push_back( worldLocation( Point2i( x, y ) ) );
+      else
+        out.push_back( worldLocation( Point2i(x,y) ) - halfSize );
+
+  return out;
+}
+
+std::vector< int > AprilTagsBoard::ids( void )
+{
+  vector< int > out;
+  for( int x = 0; x < width; ++x ) 
+    for( int y = 0; y < height; ++y ) 
+      out.push_back( _ids.at< int >( y, x ) );
+
+  return out;
+}
+
 
 #endif

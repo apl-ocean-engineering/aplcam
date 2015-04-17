@@ -22,13 +22,6 @@ namespace AplCam {
   class FeatureTracker {
     public:
 
-      FeatureTracker( void );
-
-      void update( Mat &img, vector< KeyPoint > &kps, Mat &drawTo, float scale = 1.0 );
-
-      void drawTracks( Mat &img, float scale = 1.0 );
-
-
       struct KeyPointTrack {
 
         static const size_t MaxHistory = ULONG_MAX;
@@ -50,6 +43,16 @@ namespace AplCam {
         int missed, refeatured;
       };
 
+
+
+      FeatureTracker( void );
+
+      void update( Mat &img, vector< KeyPoint > &kps, Mat &drawTo, float scale = 1.0 );
+
+      void drawTracks( Mat &img, float scale = 1.0 ) { drawTracks( _tracks, img, scale ); }
+      void drawTracks( const std::list<KeyPointTrack> &tracks, Mat &img, float scale = 1.0 );
+
+      const std::list<KeyPointTrack> &tracks() const { return _tracks; }
 
 //
 //      struct TxRemoveVerticalMotion {

@@ -1,6 +1,8 @@
 #ifndef __FRAME_SELECTOR_H__
 #define __FRAME_SELECTOR_H__
 
+#include <vector>
+
 #include <opencv2/core/core.hpp>
 
 namespace AplCam {
@@ -48,6 +50,8 @@ namespace AplCam {
       virtual bool process( Mat &img );
 
     protected:
+
+      std::vector<cv::KeyPoint> _kfKeyPoints;
 
   };
 

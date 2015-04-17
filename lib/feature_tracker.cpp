@@ -142,18 +142,18 @@ namespace AplCam {
   }
 
 
-  void FeatureTracker::drawTracks( Mat &img, float scale )
+  void FeatureTracker::drawTracks( const list<KeyPointTrack> &tracks, Mat &img, float scale )
   {
     float s = 1.0/scale;
 
-    for( list<KeyPointTrack>::iterator itr = _tracks.begin();
-        itr != _tracks.end(); ++itr ) {
-      KeyPointTrack &track( *itr );
+    for( list<KeyPointTrack>::const_iterator itr = tracks.begin();
+        itr != tracks.end(); ++itr ) {
+      const KeyPointTrack &track( *itr );
 
 
       Point2f prev = track.pt();
-      for( deque< Point2f >::reverse_iterator ritr = track.history.rbegin();
-          ritr != track.history.rend(); ++ritr ) {
+      for( deque< Point2f >::const_reverse_iterator ritr = track.history.rbegin();
+                                                    ritr != track.history.rend(); ++ritr ) {
         if( ritr == track.history.rbegin() ) prev = (*ritr);
         circle( img, s*(*ritr), 5, Scalar( 0, 0, 255), 1 );
         line( img, s*prev, s*(*ritr), Scalar( 0, 0, 255), 1 );

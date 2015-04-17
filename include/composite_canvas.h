@@ -84,6 +84,7 @@ rect[1] = Rect( rect[0].width, 0, rect[0].width, rect[0].height );
 
     operator Mat &() { return canvas; }
     operator cv::_InputArray() { return cv::_InputArray(canvas); }
+    operator cv::_InputOutputArray() { return cv::_InputOutputArray(canvas); }
 
     Mat &operator[]( int i ){ return roi[i]; }
     const Mat &operator[]( int i ) const { return roi[i]; }

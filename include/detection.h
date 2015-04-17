@@ -36,6 +36,13 @@ struct Detection
 
   int size( void ) const { return points.size(); }
 
+  void add( const Distortion::ObjectPoint &obj, const Distortion::ImagePoint &img, const int id )
+  {
+    corners.push_back( obj );
+    points.push_back( img );
+    ids.push_back( id );
+  }
+
   virtual void calculateCorners( const Board &board );
   virtual void drawCorners(  const Board &board, cv::Mat &view ) const;
 
