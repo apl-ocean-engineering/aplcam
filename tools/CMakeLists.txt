@@ -16,9 +16,8 @@ add_executable( video_splitter video_splitter.cpp )
 
 
 if( USE_APRILTAGS )
-
   add_executable( apriltags_player apriltags_player.cpp )
-  target_link_libraries( apriltags_player ${APRILTAGS_LIBS} )
+  target_link_libraries( apriltags_player ${APRILTAGS_LIBS} ${OpenCV_LIBS} )
 endif()
 
 
