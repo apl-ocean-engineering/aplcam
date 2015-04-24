@@ -91,6 +91,14 @@ rect[1] = Rect( rect[0].width, 0, rect[0].width, rect[0].height );
 
     Size size( void ) const { return canvas.size(); }
 
+    void copyConvert( int i, const Mat &mat, float alpha = 1 )
+    {
+      if( mat.type() == canvas.type() )
+        mat.copyTo( roi[i] );
+      else
+        mat.convertTo( roi[i], canvas.type(), alpha );
+    }
+
     Mat scaled( float scale ) const {
       Mat out;
       resize( canvas, out, Size(), scale, scale, cv::INTER_LINEAR );
