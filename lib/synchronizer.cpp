@@ -175,11 +175,11 @@ IndexPair Synchronizer::getSpan( const TransitionVec &transitions, int start, in
   //}
 
   int startIdx = 0;
-  for( int i = 0; i < transitions.size(); ++i )
+  for( size_t i = 0; i < transitions.size(); ++i )
     if( transitions[i].frame > start ) { startIdx = i; break; }
 
   int endIdx = transitions.size();
-  for( int i = startIdx; i < transitions.size(); ++i ) 
+  for( size_t i = startIdx; i < transitions.size(); ++i ) 
     if( transitions[i].frame > (start+length) ) {endIdx = i; break;}
 
 
@@ -212,7 +212,7 @@ bool Synchronizer::shiftSpan( const TransitionVec &transitions, IndexPair &pair,
   pair.first += direction;
   pair.second = transitions.size();
   int max = transitions[pair.first].frame + length;
-  for( int i = pair.first; i < transitions.size(); ++i ) 
+  for( size_t i = pair.first; i < transitions.size(); ++i ) 
     if( transitions[i].frame > max ) {pair.second = i; break;}
 
   return true;
@@ -370,7 +370,7 @@ bool KFSynchronizer::nextSynchronizedFrames( cv::Mat &video0, cv::Mat &video1 )
   trans1 = _video1.transitionsAfter( std::max(_video1.frame(), _lastObs[1] ) );
 
   if( (trans0.size() > 0) and (trans0.size() == trans1.size()) ) {
-    for( int i = 0; i < trans0.size(); ++i ) {
+    for( size_t i = 0; i < trans0.size(); ++i ) {
       int dt = trans1[i] - trans0[i];
 
       if( (dt >= (_offset-2)) && (dt <= (_offset+2))) {
