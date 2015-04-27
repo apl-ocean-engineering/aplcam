@@ -52,7 +52,7 @@ add_definitions( -std=c++11 )
 
 option( USE_TBB "Use TBB" ON )
 if( USE_TBB )
-  add_definitions( -DUSE_TBB -DTBB_USE_DEBUG=1 )
+  add_definitions( -DUSE_TBB )   # -DTBB_USE_DEBUG=1
 endif()
 
 option( USE_APRILTAGS "Use AprilTags" ON )
