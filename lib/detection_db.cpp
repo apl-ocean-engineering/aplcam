@@ -9,16 +9,24 @@ using namespace cv;
 
 namespace AplCam {
 
+  const string DetectionDb::MetaKey = "meta",
+        DetectionDb::MetaFpsKey = "fps",
+        DetectionDb::MetaWidthKey = "width",
+        DetectionDb::MetaHeightKey = "height",
+        DetectionDb::MetaLengthKey = "length";
+
+
+
   //============================================================================
   //  DetectionDb
   //============================================================================
 
   DetectionDb::DetectionDb( void )
-    : _db(), _cursor(NULL)
+    : _db(), _cursor(NULL), _imageSize( 0, 0), _vidLength(0), _fps(1.0)
   {;}
 
   DetectionDb::DetectionDb( const string &dbFile, bool writer )
-    : _db(), _cursor(NULL)
+    : _db(), _cursor(NULL), _imageSize( 0,0 ), _vidLength(0), _fps(1.0)
   {
     open( dbFile, writer );
   }
@@ -41,6 +49,9 @@ namespace AplCam {
   {
     int flags = (writer==true) ? (HashDB::OWRITER | HashDB::OCREATE) : (HashDB::OREADER);
     if( !_db.open( dbFile, flags ) ) return false;
+
+    loadMeta();
+
     return true;
   }
 
@@ -143,4 +154,41 @@ namespace AplCam {
     return string( frameKey );
   }
 
+  bool DetectionDb::setMeta( unsigned int length, int width, int height, float fps )
+  {
+    _fps = fps;
+    _imageSize = Size( width, height );
+    _vidLength = length;
+
+    return saveMeta();
+  }
+
+
+  bool DetectionDb::saveMeta( void )
+  {
+    FileStorage fs("foo.yml", FileStorage::WRITE | FileStorage::MEMORY );
+
+    write( fs, MetaFpsKey, _fps );
+    write( fs, MetaWidthKey, _imageSize.width );
+    write( fs, MetaHeightKey, _imageSize.height );
+    write( fs,  MetaLengthKey,  _vidLength );
+
+    return _db.set( MetaKey, fs.releaseAndGetString() );
+  }
+
+  void DetectionDb::loadMeta( void )
+  {
+    string metaStr;
+    if( _db.get( MetaKey, &metaStr ) ) {
+      FileStorage fs( metaStr, FileStorage::READ | FileStorage::MEMORY );
+
+      fs[ MetaFpsKey ] >> _fps;
+      float width, height;
+      fs[ MetaWidthKey ] >> width;
+      fs[ MetaHeightKey ] >> height;
+      _imageSize = Size( width, height );
+      fs[ MetaLengthKey ] >> _vidLength;
+
+    }
+  }
 }

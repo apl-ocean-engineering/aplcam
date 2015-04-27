@@ -24,6 +24,11 @@ namespace AplCam {
         {;}
 
         virtual void generate( DetectionDb &db, DetectionSet &set ) = 0;
+
+        bool isValidFrame( const string &key )
+        {
+          return key != DetectionDb::MetaKey;
+        }
     };
 
 
@@ -36,7 +41,8 @@ namespace AplCam {
           DB::Cursor *cur = db.cursor();
           cur->jump();
           string key;
-          while( cur->get_key( &key, true ) ) set.addDetection( db, stoi(key) );
+          while( cur->get_key( &key, true ) ) 
+            if( isValidFrame( key ) ) set.addDetection( db, stoi(key) );
           set.setName( "all" );
 
           //delete cur;
@@ -54,6 +60,8 @@ namespace AplCam {
           cur->jump();
           string key, value;
           while( cur->get_key( &key, true ) ){
+            if( !isValidFrame( key ) ) continue;
+
             int frame = stoi( key );
             Detection *detection = db.load( frame );
             if( detection ) {
@@ -93,7 +101,9 @@ namespace AplCam {
           cur->jump();
 
           string key;
-          while( cur->get_key( &key, true) ) keys.push_back(key);
+          while( cur->get_key( &key, true) ) 
+            if( isValidFrame( key ) ) keys.push_back(key);
+
 //          delete cur;
 
           long int c = std::min( _count, (long int)keys.size() );

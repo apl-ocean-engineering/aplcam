@@ -47,12 +47,30 @@ namespace AplCam {
 
       kyotocabinet::DB::Cursor *cursor( void );
 
+      cv::Size imageSize( void ) const { return _imageSize; }
+      int vidLength( void ) const { return _vidLength; }
+      float fps( void ) const { return _fps; }
+
+      bool setMeta( unsigned int length, int width, int height, float fps );
+
+      static const string MetaKey,
+                          MetaFpsKey,
+                          MetaWidthKey,
+                          MetaHeightKey,
+                          MetaLengthKey;
+
     protected:
 
-
+      bool saveMeta( void );
+      void loadMeta( void );
 
       HashDB _db;
       kyotocabinet::DB::Cursor *_cursor;
+
+      // Metadata
+      cv::Size _imageSize;
+      int _vidLength;
+      float _fps;
 
   };
 }
