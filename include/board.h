@@ -41,7 +41,7 @@ class Board {
     virtual Detection *detectPattern( const cv::Mat &gray, std::vector< cv::Point2f > &pointbuf );
 
     typedef enum { BOARD_UL, BOARD_CENTER } CornersReference;
-    virtual ObjectPointsVec corners( const CornersReference ref = BOARD_UL );
+    virtual ObjectPointsVec corners( void );  // const CornersReference ref = BOARD_UL );
     virtual std::vector< int > ids( void );
 
     static Board *load( const std::string &infile, const std::string &name );
@@ -84,7 +84,7 @@ class AprilTagsBoard : public Board {
 
     virtual Detection *detectPattern( const cv::Mat &gray, vector< cv::Point2f > &pointbuf );
 
-    virtual ObjectPointsVec corners( const CornersReference ref = BOARD_UL );
+    virtual ObjectPointsVec corners( void ); // const CornersReference ref = BOARD_UL );
     virtual std::vector< int > ids( void );
 
     bool find( const int id, cv::Point2i &xy  ) const;

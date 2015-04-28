@@ -78,7 +78,7 @@ Board *Board::load( const string &infile, const string &name )
 }
 
 
-ObjectPointsVec Board::corners( const CornersReference ref )
+ObjectPointsVec Board::corners( void ) // const CornersReference ref )
 {
   return ObjectPointsVec();
 }
@@ -131,20 +131,21 @@ bool AprilTagsBoard::find( const int id, cv::Point2i &xy  ) const
 
 cv::Point3f AprilTagsBoard::worldLocation( const cv::Point2i &xy ) const
 {
-  return Point3f( xy.x * squareSize, xy.y * squareSize, 0 );
+  Point3f halfSize( squareSize * size().width / 2.0, squareSize * size().height / 2.0, 0 );
+  return Point3f( xy.x * squareSize, xy.y * squareSize, 0 ) - halfSize;
 }
 
-    ObjectPointsVec AprilTagsBoard::corners( const CornersReference ref )
+ObjectPointsVec AprilTagsBoard::corners( void ) // const CornersReference ref )
 {
   Point3f halfSize( squareSize * size().width / 2.0, squareSize * size().height / 2.0, 0 );
 
   ObjectPointsVec out;
   for( int x = 0; x < width; ++x ) 
     for( int y = 0; y < height; ++y ) 
-      if( ref == BOARD_UL ) 
-        out.push_back( worldLocation( Point2i( x, y ) ) );
-      else
-        out.push_back( worldLocation( Point2i(x,y) ) - halfSize );
+      //if( ref == BOARD_UL ) 
+      //  out.push_back( worldLocation( Point2i( x, y ) ) );
+      //else
+        out.push_back( worldLocation( Point2i(x,y) ) );
 
   return out;
 }
