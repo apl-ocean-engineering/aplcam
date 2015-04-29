@@ -1,6 +1,6 @@
 
-#ifndef __VIDEO_SPLITTER_OPTS_H__
-#define __VIDEO_SPLITTER_OPTS_H__
+#ifndef __CALIB_FRAME_SELECTOR_OPTS_H__
+#define __CALIB_FRAME_SELECTOR_OPTS_H__
 
 #include <limits.h>
 #include <unistd.h>
@@ -10,12 +10,12 @@
 
 namespace AplCam {
 
-  namespace VideoSplitters {
+  namespace CalibFrameSelectors {
 
     using std::string;
 
-    struct RandomSplitterOpts {
-      RandomSplitterOpts()
+    struct RandomSelectorOpts {
+      RandomSelectorOpts()
         : count(-1) {;}
 
       long int count;
@@ -24,8 +24,8 @@ namespace AplCam {
       bool parseOpts( int argc, char **argv, string &msg );
     };
 
-    struct IntervalSplitterOpts {
-      IntervalSplitterOpts()
+    struct IntervalSelectorOpts {
+      IntervalSelectorOpts()
         : start(0), end(INT_MAX), interval(1) {;}
 
       int start, end, interval;

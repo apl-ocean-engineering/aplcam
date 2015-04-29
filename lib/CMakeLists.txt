@@ -23,10 +23,9 @@ add_library( aplcam
         motion_model.cpp
         feature_tracker.cpp
         calibration_db.cpp
-        calibrator.cpp
 	splitter_common.cpp
         frame_selector/keyframe_selector.cpp
-        video_splitters/video_splitter_opts.cpp )
+        calib_frame_selectors/calib_frame_selector_opts.cpp )
 
 target_include_directories( aplcam
 	PUBLIC ${libaplcam_SOURCE_DIR}/include 

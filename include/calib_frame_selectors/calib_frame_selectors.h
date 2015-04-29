@@ -1,7 +1,7 @@
 
 
-#ifndef __VIDEO_SPLITTER_H__
-#define __VIDEO_SPLITTER_H__
+#ifndef __CALIB_FRAME_SELECTOR_H__
+#define __CALIB_FRAME_SELECTOR_H__
 
 #include <kchashdb.h>
 
@@ -9,18 +9,18 @@
 #include "random.h"
 #include "detection_set.h"
 
-#include "video_splitter_opts.h"
+#include "calib_frame_selector_opts.h"
 
 
 namespace AplCam {
 
-  namespace VideoSplitters {
+  namespace CalibFrameSelectors {
 
     using kyotocabinet::DB;
 
-    class VideoSplitter {
+    class FrameSelector {
       public:
-        VideoSplitter()
+        FrameSelector()
         {;}
 
         virtual void generate( DetectionDb &db, DetectionSet &set ) = 0;
@@ -32,9 +32,9 @@ namespace AplCam {
     };
 
 
-    class AllVideoSplitter : public VideoSplitter {
+    class AllFrameSelector : public FrameSelector {
       public:
-        AllVideoSplitter( void ) {;}
+        AllFrameSelector( void ) {;}
 
         virtual void generate( DetectionDb &db, DetectionSet &set )
         {
@@ -50,9 +50,9 @@ namespace AplCam {
         }
     };
 
-    class AllGoodVideoSplitter : public VideoSplitter {
+    class AllGoodFrameSelector : public FrameSelector {
       public:
-        AllGoodVideoSplitter( void ) {;}
+        AllGoodFrameSelector( void ) {;}
 
         virtual void generate( DetectionDb &db, DetectionSet &set )
         {
@@ -81,14 +81,14 @@ namespace AplCam {
 
 
 
-    class RandomVideoSplitter : public VideoSplitter {
+    class RandomFrameSelector : public FrameSelector {
       public:
-        RandomVideoSplitter( int c )
+        RandomFrameSelector( int c )
           : _count( c )
         {;}
 
 
-        RandomVideoSplitter( const RandomSplitterOpts &opts ) 
+        RandomFrameSelector( const RandomSelectorOpts &opts ) 
           : _count( opts.count )
         {;}
 
@@ -125,13 +125,13 @@ namespace AplCam {
         long int _count;
     };
 
-    class IntervalVideoSplitter : public VideoSplitter {
+    class IntervalFrameSelector : public FrameSelector {
       public:
-        IntervalVideoSplitter( int s, int i, int e = INT_MAX )
+        IntervalFrameSelector( int s, int i, int e = INT_MAX )
           : _start( s ), _end( e ), _interval( i )
         {;}
 
-        IntervalVideoSplitter( const IntervalSplitterOpts &opts )
+        IntervalFrameSelector( const IntervalSelectorOpts &opts )
           : _start( opts.start ), _end(opts.end), _interval( opts.interval )
         {;}
 

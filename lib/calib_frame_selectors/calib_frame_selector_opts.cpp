@@ -1,17 +1,17 @@
 #include <stdlib.h>
 
-#include "video_splitters/video_splitter_opts.h"
+#include "calib_frame_selectors/calib_frame_selector_opts.h"
 
 namespace AplCam {
-  namespace VideoSplitters {
+  namespace CalibFrameSelectors {
 
-    //-- RandomSplitterOpts --
-    struct option RandomSplitterOpts::long_options[] = {
+    //-- RandomSelectorOpts --
+    struct option RandomSelectorOpts::long_options[] = {
       { "count", required_argument, NULL, 'c' },
       { 0, 0, 0, 0}
     };
 
-    bool RandomSplitterOpts::parseOpts( int argc, char **argv, string &msg )
+    bool RandomSelectorOpts::parseOpts( int argc, char **argv, string &msg )
     {
       char optVal;
       int indexPtr;
@@ -34,15 +34,15 @@ namespace AplCam {
     }
 
 
-    //-- IntervalSplitterOpts --
-    struct option IntervalSplitterOpts::long_options[] = {
+    //-- IntervalSelectorOpts --
+    struct option IntervalSelectorOpts::long_options[] = {
       { "start", required_argument, NULL, 's' },
       { "end", required_argument, NULL, 'e' },
       { "interval", required_argument, NULL, 'i' },
       { 0, 0, 0, 0}
     };
 
-    bool IntervalSplitterOpts::parseOpts( int argc, char **argv, string &msg )
+    bool IntervalSelectorOpts::parseOpts( int argc, char **argv, string &msg )
     {
       char optVal;
       int indexPtr;
