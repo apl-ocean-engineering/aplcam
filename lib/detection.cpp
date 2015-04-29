@@ -38,6 +38,17 @@ void Detection::drawCorners( const Board &board, Mat &view ) const
   drawChessboardCorners( view, board.size(), Mat(points), found );
 }
 
+Mat Detection::boardToImageH( void ) const
+{
+  // Calculate homography from board to image, then project board's corners into image
+
+  // Need to flatten corners to points
+  ImagePointsVec crn;
+  for( size_t i = 0; i < corners.size(); ++i ) crn.push_back( ImagePoint( corners[i][0], corners[i][1] ) );
+return getPerspectiveTransform( points, crn );
+
+}
+
 //============================================================================
 //  Serialization/unserialization methods
 //============================================================================

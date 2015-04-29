@@ -43,6 +43,7 @@ class Board {
     typedef enum { BOARD_UL, BOARD_CENTER } CornersReference;
     virtual ObjectPointsVec corners( void );  // const CornersReference ref = BOARD_UL );
     virtual std::vector< int > ids( void );
+    virtual void extents( ObjectPointsVec &ext );
 
     static Board *load( const std::string &infile, const std::string &name );
 

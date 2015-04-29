@@ -70,5 +70,35 @@ namespace AplCam {
       return true;
     }
 
+    //-- KeyframeSelectorOpts --
+    struct option KeyframeSelectorOpts::long_options[] = {
+      { "min-overlap", required_argument, NULL, 'm' },
+      { 0, 0, 0, 0}
+    };
+
+    bool KeyframeSelectorOpts::parseOpts( int argc, char **argv, string &msg )
+    {
+      char optVal;
+      int indexPtr;
+      while( (optVal = getopt_long( argc, argv, "m:", long_options, &indexPtr )) != -1 ) {
+        switch( optVal ) {
+          case 'm':
+            minOverlap = atoi( optarg );
+            break;
+          default:
+            return false;
+        }
+      }
+
+      if( minOverlap < 0.0 || minOverlap > 1.0 ) {
+        msg = "Minimum overlap out of bounds";
+        return false;
+      }
+
+      return true;
+    }
+
+
+
   }
 }

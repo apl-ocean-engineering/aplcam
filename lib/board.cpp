@@ -88,6 +88,12 @@ ObjectPointsVec Board::corners( void ) // const CornersReference ref )
 return vector< int >();
 }
 
+
+void Board::extents( ObjectPointsVec &vec )
+{
+  ;
+}
+
 #ifdef USE_APRILTAGS
 //===========================================================================
 //  AprilTagsBoard
@@ -158,6 +164,15 @@ std::vector< int > AprilTagsBoard::ids( void )
       out.push_back( _ids.at< int >( y, x ) );
 
   return out;
+}
+
+void AprilTagsBoard::extents( ObjectPointsVec &vec )
+{
+  vec.resize(4);
+  vec[0] = worldLocation( Point2i( 0,0 ) );
+  vec[1] = worldLocation( Point2i( width-1,0 ) );
+  vec[2] = worldLocation( Point2i( width-1,height-1 ) );
+  vec[3] = worldLocation( Point2i( 0,height-1 ) );
 }
 
 

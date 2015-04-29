@@ -50,10 +50,13 @@ struct Detection
   virtual void serialize( std::string &str ) const; 
   virtual void serializeToFileStorage( cv::FileStorage &fs ) const;
 
+  Mat boardToImageH( void ) const;
+
   static Detection *unserialize( const std::string &str );
   static Detection *loadCache( const std::string &cacheFile );
   static Detection *unserializeFromFileStorage( const cv::FileStorage &fs );
   static SharedPoints sharedWith( Detection &a, Detection &b );
+
 };
 
 #ifdef USE_APRILTAGS

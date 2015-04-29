@@ -34,6 +34,18 @@ namespace AplCam {
       bool parseOpts( int argc, char **argv, string &msg );
     };
 
+    struct KeyframeSelectorOpts {
+      KeyframeSelectorOpts()
+        : minOverlap( 0.2 ) {;}
+
+      float minOverlap;
+
+      static struct option long_options[];
+      bool parseOpts( int argc, char **argv, string &msg );
+    };
+
+
+
   }
 }
 

@@ -153,6 +153,27 @@ namespace AplCam {
 
     };
 
+    class KeyframeFrameSelector : public FrameSelector {
+      public:
+        KeyframeFrameSelector( const Board &board )
+          : _board(board), _minOverlap( 0.3 )
+        {;}
+
+        KeyframeFrameSelector( const Board &board, const KeyframeSelectorOpts &opts )
+          : _board( board ),_minOverlap( 0.3 )
+        {;}
+
+        virtual void generate( DetectionDb &db, DetectionSet &set );
+
+      protected:
+
+        const Board &_board;
+        float _minOverlap;
+
+    };
+
+ 
+
 
   }
 }
