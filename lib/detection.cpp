@@ -6,6 +6,8 @@
 using namespace std;
 using namespace cv;
 
+using namespace AplCam;
+
 void Detection::calculateCorners( const Board &board )
 { 
   corners.resize(0);

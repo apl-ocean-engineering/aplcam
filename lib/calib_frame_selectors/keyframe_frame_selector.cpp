@@ -2,20 +2,22 @@
 
 #include "calib_frame_selectors/calib_frame_selectors.h"
 
+using namespace cv;
+
 namespace AplCam {
   namespace CalibFrameSelectors {
 
 
     struct PerspectiveMapTx {
-      PerspectiveMapTx( const Mat &h )
+      PerspectiveMapTx( const Matx33d &h )
         : _h(h) {;}
 
-      Mat _h;
+      Matx33d _h;
 
       Point2f operator()( const Point2f &in )
       {
-        Point3f o = _h * Point3f( in.x, in.y, 1 );
-        return Point2f( o.x/o.z, o.y/o.z );
+        Vec3f o = _h * Vec3f( in.x, in.y, 1 );
+        return Point2f( o[0]/o[2], o[1]/o[2] );
       }
 
     };
@@ -23,11 +25,9 @@ namespace AplCam {
 
     void KeyframeFrameSelector::generate( DetectionDb &db, DetectionSet &set )
     {
-      set.clear();
-
       Detection *det;
       
-      vector<Point2f> boardExtent;
+      ObjectPointsVec boardExtent;
       _board.extents( boardExtent );
 
       // Calculate mapping that will take _board to unit square
@@ -36,55 +36,56 @@ namespace AplCam {
       for( size_t i = 0; i < boardExtent.size(); ++i ) {
         xmin = std::min( xmin, boardExtent[i][0] ); 
         xmax = std::max( xmax, boardExtent[i][0] ); 
-        ymin = std::min( ymin, boardExtent[i][0] ); 
-        ymay = std::may( ymay, boardExtent[i][0] ); 
+        ymin = std::min( ymin, boardExtent[i][1] ); 
+        ymax = std::max( ymax, boardExtent[i][1] ); 
       }
 
       vector< Point2f > bd, sq;
-      bd.push_back( xmin, ymin );
-      bd.push_back( xmax, ymin );
-      bd.push_back( xmax, ymax );
-      bd.push_back( xmin, ymax );
+      bd.push_back( Point2f( xmin, ymin ) );
+      bd.push_back( Point2f( xmax, ymin ) );
+      bd.push_back( Point2f( xmax, ymax ) );
+      bd.push_back( Point2f( xmin, ymax ) );
 
-      sq.push_back( 0, 0 );
-      sq.push_back( 1, 0 );
-      sq.push_back( 1, 1 );
-      sq.push_back( 0, 1 );
+      sq.push_back( Point2f( 0, 0 ) );
+      sq.push_back( Point2f( 1, 0 ) );
+      sq.push_back( Point2f( 1, 1 ) );
+      sq.push_back( Point2f( 0, 1 ) );
 
-      Mat toUnitSq = getPerspectiveTransform( bd, sq );
-      Mat toUnitSqInv( toUnitSq.inv() );
-      Mat prevH;
+      Matx33d toUnitSq = getPerspectiveTransform( bd, sq );
+      Matx33d toUnitSqInv( toUnitSq.inv() );
+      Matx33d prevH;
 
 
+      bool first = true;
       size_t vidLength = db.vidLength();
       for( size_t i = 0; i < vidLength; ++i ) {
         det = db.load( i );
 
         if( det ) {
 
-          Mat h = det->boardToImageH();
+          Matx33d h = det->boardToImageH();
 
-          if( prevH.empty() ) {
-            set.add( det, i );
+          if( first ) {
+            set.addDetection( det, i );
             prevH = h;
+            first = false;
             continue;
           }
 
           // Draw points from unit square, transform to board space, to image space, then back again.
 
           const int numRand = 10;
-        int inOverlap = 0;
-        for( int p = 0; p < numRand; ++p ) {
-Point3f i( drand48(), drand(), 1.0 );
-Point3f o = toUnitSq * prevH.inv() * h * toUnitSqInv;
+          int inOverlap = 0;
+          for( int p = 0; p < numRand; ++p ) {
+            Vec3f i( drand48(), drand48(), 1.0 );
+            Vec3f o = toUnitSq * prevH.inv() * h * toUnitSqInv * i;
+            Point2f op( o[0]/o[2], o[1]/o[2] );
 
-Point2f op( o.x/o.z, o.y/o.z );
+            cout << op << endl;
+            if( op.x >= 0.0 && op.x < 1.0 && op.y >= 0.0 && op.y < 1.0 ) ++inOverlap;
+          }
 
-cout << op << endl;
-if( op.x >= 0.0 && op.x < 1.0 && op.y >= 0.0 && op.y < 1.0 ) ++inOverlap;
-        }
-
-        float overlap = inOverlap * 1.0 / numRand;
+          float overlap = inOverlap * 1.0 / numRand;
 
         cout << "Overlap " << overlap << endl;
 

@@ -50,7 +50,7 @@ struct Detection
   virtual void serialize( std::string &str ) const; 
   virtual void serializeToFileStorage( cv::FileStorage &fs ) const;
 
-  Mat boardToImageH( void ) const;
+  cv::Mat boardToImageH( void ) const;
 
   static Detection *unserialize( const std::string &str );
   static Detection *loadCache( const std::string &cacheFile );

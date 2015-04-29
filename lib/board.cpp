@@ -89,7 +89,7 @@ return vector< int >();
 }
 
 
-void Board::extents( ObjectPointsVec &vec )
+void Board::extents( ObjectPointsVec &vec ) const
 {
   ;
 }
@@ -166,7 +166,7 @@ std::vector< int > AprilTagsBoard::ids( void )
   return out;
 }
 
-void AprilTagsBoard::extents( ObjectPointsVec &vec )
+void AprilTagsBoard::extents( ObjectPointsVec &vec ) const
 {
   vec.resize(4);
   vec[0] = worldLocation( Point2i( 0,0 ) );

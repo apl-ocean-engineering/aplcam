@@ -43,7 +43,7 @@ class Board {
     typedef enum { BOARD_UL, BOARD_CENTER } CornersReference;
     virtual ObjectPointsVec corners( void );  // const CornersReference ref = BOARD_UL );
     virtual std::vector< int > ids( void );
-    virtual void extents( ObjectPointsVec &ext );
+    virtual void extents( ObjectPointsVec &ext ) const;
 
     static Board *load( const std::string &infile, const std::string &name );
 
@@ -87,6 +87,7 @@ class AprilTagsBoard : public Board {
 
     virtual ObjectPointsVec corners( void ); // const CornersReference ref = BOARD_UL );
     virtual std::vector< int > ids( void );
+    virtual void extents( ObjectPointsVec &ext ) const;
 
     bool find( const int id, cv::Point2i &xy  ) const;
     cv::Point3f worldLocation( const cv::Point2i &xy ) const;
