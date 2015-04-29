@@ -12,6 +12,8 @@
 #include <ceres/ceres.h>
 #include <ceres/rotation.h>
 
+#include <boost/thread.hpp>
+
 #include <iostream>
 #include <iomanip>
 using namespace std;
@@ -223,6 +225,9 @@ const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350,
     options.linear_solver_type = ceres::DENSE_SCHUR;
     options.max_num_iterations = criteria.maxCount;
     options.minimizer_progress_to_stdout = true;
+
+    // This should be configurable by the end user
+    options.num_threads = boost::thread::hardware_concurrency();
 
     ceres::Solver::Summary summary;
     ceres::Solve(options, &problem, &summary);
