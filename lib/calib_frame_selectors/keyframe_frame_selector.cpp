@@ -1,8 +1,9 @@
 #include <stdlib.h>
 
-#include "calib_frame_selectors/calib_frame_selectors.h"
+#include <iostream>
+#include <iomanip>
 
-#define DO_DRAW
+#include "calib_frame_selectors/calib_frame_selectors.h"
 
 using namespace cv;
 
@@ -42,8 +43,6 @@ namespace AplCam {
         ymax = std::max( ymax, boardExtent[i][1] ); 
       }
 
-      cout << xmin << " " << xmax << " : " << ymin << " " << ymax << endl;
-
       vector< Point2f > bd, sq;
       bd.push_back( Point2f( xmin, ymin ) );
       bd.push_back( Point2f( xmax, ymin ) );
@@ -71,6 +70,8 @@ namespace AplCam {
         det = db.load( i );
 
         if( det ) {
+
+          if( det->points.size() < 4 ) continue;
 
           Matx33d h = det->boardToImageH();
 
@@ -119,21 +120,22 @@ namespace AplCam {
             continue;
           }
 
+          // Estimate overlap numerically
           // Draw points from unit square, transform to board space, to image space, then back again.
-
-          const int numRand = 10000;
+          const int numRand = 1000;
           int inOverlap = 0;
+          Matx33f tx = toUnitSq * prevHinv * h * toUnitSqInv; 
           for( int p = 0; p < numRand; ++p ) {
-            Vec3f i( drand48(), drand48(), 1.0 );
-            Vec3f o = toUnitSq * prevHinv * h * toUnitSqInv * i;
+            Vec3f o = tx * Vec3f( drand48(), drand48(), 1.0 );
             Point2f op( o[0]/o[2], o[1]/o[2] );
 
-            if( op.x >= 0.0 && op.x < 1.0 && op.y >= 0.0 && op.y < 1.0 ) ++inOverlap;
+            if( op.x >= 0.0 && op.x < 1.0 && 
+                op.y >= 0.0 && op.y < 1.0 ) ++inOverlap;
           }
 
           float overlap = inOverlap * 1.0 / numRand;
 
-          cout << "Overlap " << overlap << endl;
+          //cout << std::setprecision(2) << "Overlap " << overlap << endl;
 
 #ifdef DO_DRAW
           imshow( KeyframeDebugWindowName, canvas );

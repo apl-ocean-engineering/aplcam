@@ -83,7 +83,7 @@ namespace AplCam {
       while( (optVal = getopt_long( argc, argv, "m:", long_options, &indexPtr )) != -1 ) {
         switch( optVal ) {
           case 'm':
-            minOverlap = atoi( optarg );
+            minOverlap = atof( optarg );
             break;
           default:
             return false;
