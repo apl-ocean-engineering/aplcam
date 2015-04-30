@@ -47,7 +47,7 @@ Mat Detection::boardToImageH( void ) const
   // Need to flatten corners to points
   ImagePointsVec crn;
   for( size_t i = 0; i < corners.size(); ++i ) crn.push_back( ImagePoint( corners[i][0], corners[i][1] ) );
-return getPerspectiveTransform( points, crn );
+  return findHomography( crn, points );
 
 }
 

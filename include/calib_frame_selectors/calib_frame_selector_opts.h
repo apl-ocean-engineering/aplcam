@@ -12,6 +12,8 @@ namespace AplCam {
 
   namespace CalibFrameSelectors {
 
+    typedef enum { SPLIT_ALL, SPLIT_RANDOM, SPLIT_INTERVAL, SPLIT_KEYFRAME, SPLIT_NONE = -1 } Type_t;
+
     using std::string;
 
     struct RandomSelectorOpts {

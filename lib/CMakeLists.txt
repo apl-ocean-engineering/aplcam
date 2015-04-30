@@ -26,6 +26,7 @@ add_library( aplcam
 	splitter_common.cpp
         frame_selector/keyframe_selector.cpp
         calib_frame_selectors/calib_frame_selector_opts.cpp 
+        calib_frame_selectors/random_frame_selector.cpp 
         calib_frame_selectors/keyframe_frame_selector.cpp )
 
 target_include_directories( aplcam
