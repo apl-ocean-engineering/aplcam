@@ -29,7 +29,7 @@ namespace AplCam {
     void KeyframeFrameSelector::generate( DetectionDb &db, DetectionSet &set )
     {
       Detection *det;
-      
+
       ObjectPointsVec boardExtent;
       _board.extents( boardExtent );
 
@@ -60,20 +60,21 @@ namespace AplCam {
 
 #ifdef DO_DRAW
       const string KeyframeDebugWindowName = "keyframe_frame_selector_debug";
-        namedWindow( KeyframeDebugWindowName );
-        ImagePointsVec prevPts;
+      namedWindow( KeyframeDebugWindowName );
+      ImagePointsVec prevPts;
 #endif
+
 
       bool first = true;
       size_t vidLength = db.vidLength();
       for( size_t i = 0; i < vidLength; ++i ) {
         det = db.load( i );
 
-        if( det ) {
+        if( det == NULL ) continue;
 
-          if( det->points.size() < 4 ) continue;
+        if( det->points.size() < 4 ) continue;
 
-          Matx33d h = det->boardToImageH();
+        Matx33d h = det->boardToImageH();
 
 #ifdef DO_DRAW
         Mat canvas( Mat::zeros( 1080, 1920, CV_8UC3 ) ) ;
@@ -110,51 +111,54 @@ namespace AplCam {
 #endif
 
 
-          if( first ) {
-            set.addDetection( det, i );
-            prevHinv = h.inv();
+        if( first ) {
+          set.addDetection( det, i );
+          prevHinv = h.inv();
 #ifdef DO_DRAW
-        prevPts = det->points;
+          prevPts = det->points;
 #endif
-            first = false;
-            continue;
-          }
+          first = false;
+          continue;
+        }
 
-          // Estimate overlap numerically
-          // Draw points from unit square, transform to board space, to image space, then back again.
-          const int numRand = 1000;
-          int inOverlap = 0;
-          Matx33f tx = toUnitSq * prevHinv * h * toUnitSqInv; 
-          for( int p = 0; p < numRand; ++p ) {
-            Vec3f o = tx * Vec3f( drand48(), drand48(), 1.0 );
-            Point2f op( o[0]/o[2], o[1]/o[2] );
+        // Estimate overlap numerically
+        // Draw points from unit square, transform to board space, to image space, then back again.
+        const int numRand = 1000;
+        int inOverlap = 0;
+        Matx33f tx = toUnitSq * prevHinv * h * toUnitSqInv; 
+        for( int p = 0; p < numRand; ++p ) {
+          Vec3f o = tx * Vec3f( drand48(), drand48(), 1.0 );
+          Point2f op( o[0]/o[2], o[1]/o[2] );
 
-            if( op.x >= 0.0 && op.x < 1.0 && 
-                op.y >= 0.0 && op.y < 1.0 ) ++inOverlap;
-          }
+          if( op.x >= 0.0 && op.x < 1.0 && 
+              op.y >= 0.0 && op.y < 1.0 ) ++inOverlap;
+        }
 
-          float overlap = inOverlap * 1.0 / numRand;
+        float overlap = inOverlap * 1.0 / numRand;
 
-          //cout << std::setprecision(2) << "Overlap " << overlap << endl;
+        //cout << std::setprecision(2) << "Overlap " << overlap << endl;
 
 #ifdef DO_DRAW
-          imshow( KeyframeDebugWindowName, canvas );
-          waitKey(0);
+        imshow( KeyframeDebugWindowName, canvas );
+        waitKey(0);
 #endif
 
 
-          if( overlap < _minOverlap ) {
-            set.addDetection( det, i );
-            prevHinv = h.inv();
+        if( overlap < _minOverlap ) {
+          set.addDetection( det, i );
+          prevHinv = h.inv();
 #ifdef DO_DRAW
-        prevPts = det->points;
+          prevPts = det->points;
 #endif
-          } else {
-            // Only delete if not added to a set
-            delete det;
-          }
+        } else {
+          // Only delete if not added to a set
+          delete det;
         }
       }
+
+      stringstream strm;
+      strm << "keyframe(" << std::setprecision(2)  << _minOverlap << ")_" << intsToHex( set.frames() );
+      set.setName( strm.str() );
 
     }
 
