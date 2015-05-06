@@ -171,7 +171,7 @@ SharedPoints Detection::sharedWith( Detection &a, Detection &b )
 void HoughCircleDetection::drawCorners( const Board &board, Mat &view ) const
 {
   for( size_t i = 0; i < _circles.size() ; ++i ) {
-    circle( view, Point( _circles[i][0], _circles[i][1] ), _circles[i][2], Scalar( 0, 0, 255 ), -1 );
+    circle( view, Point( _circles[i][0], _circles[i][1] ), _circles[i][2], Scalar( 0, 0, 255 ), 2 );
   }
 }
 
