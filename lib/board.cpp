@@ -40,6 +40,12 @@ Detection *Board::detectPattern( const Mat &gray, vector< Point2f > &pointbuf )
   return detect;
 }
 
+    Detection *Board::detectPattern( const cv::Mat &gray )
+{
+  vector< Point2f > pointbuf;
+  return detectPattern( gray, pointbuf );
+}
+
 
 Board *Board::load( const string &infile, const string &name )
 {
@@ -62,6 +68,8 @@ Board *Board::load( const string &infile, const string &name )
   Board *board = NULL;
   if( type_s.compare("chessboard" ) == 0 ) {
     board = new Board( CHESSBOARD, width, height, squares, name );
+  } else if( type_s.compare("hough_circle" ) == 0 ) {
+    board = new HoughCircleBoard( name );
   } else if( type_s.compare("apriltags_36h11" ) == 0) {
 #ifdef USE_APRILTAGS
     board = new AprilTagsBoard( width, height, squares, name );
@@ -77,22 +85,81 @@ Board *Board::load( const string &infile, const string &name )
   return board;
 }
 
+cv::Point3f Board::worldLocation( const cv::Point2i &xy ) const
+{
+  Point3f halfSize( squareSize * size().width / 2.0, squareSize * size().height / 2.0, 0 );
+  return Point3f( xy.x * squareSize, xy.y * squareSize, 0 ) - halfSize;
+}
 
 ObjectPointsVec Board::corners( void ) // const CornersReference ref )
 {
-  return ObjectPointsVec();
+  Point3f halfSize( squareSize * size().width / 2.0, squareSize * size().height / 2.0, 0 );
+
+  ObjectPointsVec out;
+  for( int x = 0; x < width; ++x ) 
+    for( int y = 0; y < height; ++y ) 
+      //if( ref == BOARD_UL ) 
+      //  out.push_back( worldLocation( Point2i( x, y ) ) );
+      //else
+        out.push_back( worldLocation( Point2i(x,y) ) );
+
+  return out;
 }
 
-    std::vector< int > Board::ids( void )
+std::vector< int > Board::ids( void )
 {
-return vector< int >();
+  return vector< int >();
 }
-
 
 void Board::extents( ObjectPointsVec &vec ) const
 {
-  ;
+  vec.resize(4);
+  vec[0] = worldLocation( Point2i( 0,0 ) );
+  vec[1] = worldLocation( Point2i( width-1,0 ) );
+  vec[2] = worldLocation( Point2i( width-1,height-1 ) );
+  vec[3] = worldLocation( Point2i( 0,height-1 ) );
 }
+
+
+
+//===========================================================================
+//  HoughCircleBoard
+//===========================================================================
+
+void HoughCircleBoard::loadCallback( FileStorage &fs )
+{
+  //fs["ids"] >> _ids;
+}
+
+Detection *HoughCircleBoard::detectPattern( const cv::Mat &gray )
+{
+  Mat blurred;
+  GaussianBlur( gray, blurred, Size(9,9), 2,2 );
+
+  vector<Vec3f> circles;
+  HoughCircles( blurred, circles, HOUGH_GRADIENT, 2, gray.rows/4, 200, 100 );
+
+  return new HoughCircleDetection( circles );
+}
+
+
+//===========================================================================
+//  HoughCircleBoard
+//===========================================================================
+
+void CircleGridBoard::loadCallback( FileStorage &fs )
+{
+}
+
+Detection *CircleGridBoard::detectPattern( const cv::Mat &gray, vector< cv::Point2f > &pointbuf )
+{
+  Detection *detect = new Detection();
+  detect->found = findCirclesGrid( gray, size(), detect->points );
+
+  detect->calculateCorners( *this );
+  return detect;
+}
+
 
 #ifdef USE_APRILTAGS
 //===========================================================================
@@ -135,27 +202,6 @@ bool AprilTagsBoard::find( const int id, cv::Point2i &xy  ) const
   return false;
 }
 
-cv::Point3f AprilTagsBoard::worldLocation( const cv::Point2i &xy ) const
-{
-  Point3f halfSize( squareSize * size().width / 2.0, squareSize * size().height / 2.0, 0 );
-  return Point3f( xy.x * squareSize, xy.y * squareSize, 0 ) - halfSize;
-}
-
-ObjectPointsVec AprilTagsBoard::corners( void ) // const CornersReference ref )
-{
-  Point3f halfSize( squareSize * size().width / 2.0, squareSize * size().height / 2.0, 0 );
-
-  ObjectPointsVec out;
-  for( int x = 0; x < width; ++x ) 
-    for( int y = 0; y < height; ++y ) 
-      //if( ref == BOARD_UL ) 
-      //  out.push_back( worldLocation( Point2i( x, y ) ) );
-      //else
-        out.push_back( worldLocation( Point2i(x,y) ) );
-
-  return out;
-}
-
 std::vector< int > AprilTagsBoard::ids( void )
 {
   vector< int > out;
@@ -165,15 +211,5 @@ std::vector< int > AprilTagsBoard::ids( void )
 
   return out;
 }
-
-void AprilTagsBoard::extents( ObjectPointsVec &vec ) const
-{
-  vec.resize(4);
-  vec[0] = worldLocation( Point2i( 0,0 ) );
-  vec[1] = worldLocation( Point2i( width-1,0 ) );
-  vec[2] = worldLocation( Point2i( width-1,height-1 ) );
-  vec[3] = worldLocation( Point2i( 0,height-1 ) );
-}
-
 
 #endif

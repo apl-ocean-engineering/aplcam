@@ -59,6 +59,21 @@ struct Detection
 
 };
 
+struct HoughCircleDetection : public Detection 
+{
+  HoughCircleDetection( vector< cv::Vec3f > circles )
+    : _circles( circles ) 
+  {
+    corners.clear();
+    corners.push_back( AplCam::ObjectPoint(0,0) );
+  }
+
+
+  virtual void drawCorners(  const Board &board, cv::Mat &view ) const;
+
+  vector< cv::Vec3f > _circles;
+};
+
 #ifdef USE_APRILTAGS
 struct AprilTagsDetection : public Detection
 {

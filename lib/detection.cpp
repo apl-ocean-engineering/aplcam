@@ -48,8 +48,10 @@ Mat Detection::boardToImageH( void ) const
   ImagePointsVec crn;
   for( size_t i = 0; i < corners.size(); ++i ) crn.push_back( ImagePoint( corners[i][0], corners[i][1] ) );
   return findHomography( crn, points );
-
 }
+
+
+
 
 //============================================================================
 //  Serialization/unserialization methods
@@ -161,6 +163,19 @@ SharedPoints Detection::sharedWith( Detection &a, Detection &b )
 
   return shared;
 }
+
+//============================================================================
+// HoughCircleDetection
+//============================================================================
+
+void HoughCircleDetection::drawCorners( const Board &board, Mat &view ) const
+{
+  for( size_t i = 0; i < _circles.size() ; ++i ) {
+    circle( view, Point( _circles[i][0], _circles[i][1] ), _circles[i][2], Scalar( 0, 0, 255 ), -1 );
+  }
+}
+
+
 
 #ifdef USE_APRILTAGS
 

@@ -21,8 +21,8 @@ namespace AplCam {
     CompositeCanvas( const Size &sz, int type )
       : canvas( sz, type )
     {
-rect[0] = Rect( 0,0, sz.width/2, sz.height );
-rect[1] = Rect( rect[0].width, 0, rect[0].width, rect[0].height );
+      rect[0] = Rect( 0,0, sz.width/2, sz.height );
+      rect[1] = Rect( rect[0].width, 0, rect[0].width, rect[0].height );
 
       roi[0] = Mat( canvas, rect[0] );
       roi[1] = Mat( canvas, rect[1] );
@@ -62,25 +62,25 @@ rect[1] = Rect( rect[0].width, 0, rect[0].width, rect[0].height );
       roi[1] = Mat( canvas, rect[1] );
 
       if( doCopy ) {
-      mat0.copyTo( roi[0] );
-      mat1.copyTo( roi[1] );
+        mat0.copyTo( roi[0] );
+        mat1.copyTo( roi[1] );
       }
     }
 
 
-//    CompositeCanvas( const ImagePair &pair )
-//      : canvas()
-//    {
-//      // I really should do this with undistorted images...
-//      canvas.create( std::max( pair[0].size().height, pair[1].size().height ),
-//          pair[0].size().width + pair[1].size().width,
-//          pair[0].img().type() );
-//
-//      rect[0] = Rect( 0, 0, pair[0].size().width, pair[0].size().height );
-//      rect[1] = Rect( rect[0].width, 0, pair[1].size().width, pair[1].size().height );
-//      roi[0] = Mat( canvas, rect[0] );
-//      roi[1] = Mat( canvas, rect[1] );
-//    }
+    //    CompositeCanvas( const ImagePair &pair )
+    //      : canvas()
+    //    {
+    //      // I really should do this with undistorted images...
+    //      canvas.create( std::max( pair[0].size().height, pair[1].size().height ),
+    //          pair[0].size().width + pair[1].size().width,
+    //          pair[0].img().type() );
+    //
+    //      rect[0] = Rect( 0, 0, pair[0].size().width, pair[0].size().height );
+    //      rect[1] = Rect( rect[0].width, 0, pair[1].size().width, pair[1].size().height );
+    //      roi[0] = Mat( canvas, rect[0] );
+    //      roi[1] = Mat( canvas, rect[1] );
+    //    }
 
     operator Mat &() { return canvas; }
     operator cv::_InputArray() { return cv::_InputArray(canvas); }
@@ -124,7 +124,7 @@ rect[1] = Rect( rect[0].width, 0, rect[0].width, rect[0].height );
       canvas.create( Size( sz.width, sz.height*2 ), type );
 
       rect[0] = Rect( 0,0, sz.width, sz.height );
-rect[1] = Rect( 0, rect[0].height, rect[0].width, rect[0].height );
+      rect[1] = Rect( 0, rect[0].height, rect[0].width, rect[0].height );
 
       roi[0] = Mat( canvas, rect[0] );
       roi[1] = Mat( canvas, rect[1] );
@@ -149,9 +149,14 @@ rect[1] = Rect( 0, rect[0].height, rect[0].width, rect[0].height );
       return false;
     }
 
+    double get( int flag )
+    {
+      return _video.get( flag );
+    }
+
     bool seek( double frame ) { return _video.set( CV_CAP_PROP_POS_FRAMES, frame ); }
     bool rewind( void )       { return seek(0); }
-      
+
 
     std::string _filepath;
     cv::VideoCapture _video;

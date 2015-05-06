@@ -15,7 +15,7 @@
 #include <AprilTags/Tag36h11.h>
 #endif
 
-enum Pattern { CHESSBOARD, CIRCLES_GRID, ASYMMETRIC_CIRCLES_GRID, APRILTAGS };
+enum Pattern { CHESSBOARD, HOUGH_CIRCLE, CIRCLES_GRID, ASYMMETRIC_CIRCLES_GRID, APRILTAGS };
 
 // Forward decl
 struct Detection;
@@ -39,11 +39,17 @@ class Board {
     cv::Size size( void ) const { return cv::Size( width,height ); }
 
     virtual Detection *detectPattern( const cv::Mat &gray, std::vector< cv::Point2f > &pointbuf );
+    virtual Detection *detectPattern( const cv::Mat &gray );
 
-    typedef enum { BOARD_UL, BOARD_CENTER } CornersReference;
+    //typedef enum { BOARD_UL, BOARD_CENTER } CornersReference;
+
     virtual ObjectPointsVec corners( void );  // const CornersReference ref = BOARD_UL );
+
     virtual std::vector< int > ids( void );
+
     virtual void extents( ObjectPointsVec &ext ) const;
+
+virtual cv::Point3f worldLocation( const cv::Point2i &xy ) const;
 
     static Board *load( const std::string &infile, const std::string &name );
 
@@ -53,6 +59,9 @@ class Board {
       {
         case CHESSBOARD:
           return "chessboard";
+          break;
+        case HOUGH_CIRCLE:
+          return "hough_circle";
           break;
         case CIRCLES_GRID:
           return "circles_grid";
@@ -75,6 +84,46 @@ class Board {
   private:
 };
 
+class HoughCircleBoard : public Board {
+  public:
+    HoughCircleBoard( const std::string &nam )
+      : Board( HOUGH_CIRCLE, 1, 1, 0.0, nam )
+    {;}
+
+    virtual ~HoughCircleBoard() {;}
+
+    virtual Detection *detectPattern( const cv::Mat &gray, std::vector< cv::Point2f > &pointbuf )
+    { return detectPattern( gray ); }
+
+    virtual Detection *detectPattern( const cv::Mat &gray );
+
+  protected:
+
+    virtual void loadCallback( cv::FileStorage &fs );
+
+  private:
+};
+
+
+class CircleGridBoard : public Board {
+  public:
+    CircleGridBoard( int w, int h, float squareSize, const std::string &nam )
+      : Board( CIRCLES_GRID, w, h, squareSize, nam )
+    {;}
+
+    virtual ~CircleGridBoard() {;}
+
+    virtual Detection *detectPattern( const cv::Mat &gray, std::vector< cv::Point2f > &pointbuf );
+
+  protected:
+
+    virtual void loadCallback( cv::FileStorage &fs );
+
+  private:
+};
+
+
+
 #ifdef USE_APRILTAGS
 class AprilTagsBoard : public Board {
   public:
@@ -85,12 +134,9 @@ class AprilTagsBoard : public Board {
 
     virtual Detection *detectPattern( const cv::Mat &gray, vector< cv::Point2f > &pointbuf );
 
-    virtual ObjectPointsVec corners( void ); // const CornersReference ref = BOARD_UL );
     virtual std::vector< int > ids( void );
-    virtual void extents( ObjectPointsVec &ext ) const;
 
     bool find( const int id, cv::Point2i &xy  ) const;
-    cv::Point3f worldLocation( const cv::Point2i &xy ) const;
 
   protected:
 
