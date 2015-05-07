@@ -138,18 +138,16 @@ Detection *HoughCircleBoard::detectPattern( const cv::Mat &img )
   Vec3f  targetColorF( targetColor[0]/256, targetColor[1]/256, targetColor[2]/256 );
 
   const string hWindow = "channel0 - H",
-               sWindow = "channel1 - S",
-               vWindow = "channel2 - V";
+        sWindow = "channel1 - S",
+        vWindow = "channel2 - V";
   const string diffWindow = "diff";
-  const string smaxWindow = "smax";
   const string enhancedWindow = "enhanced";
 
-  namedWindow( hWindow );
-  namedWindow( sWindow );
-  namedWindow( vWindow );
+  //  namedWindow( hWindow );
+  //  namedWindow( sWindow );
+  //  namedWindow( vWindow );
 
   namedWindow( diffWindow );
-  namedWindow(smaxWindow);
   namedWindow(enhancedWindow);
 
   // Compute Hue value for target color
@@ -169,70 +167,82 @@ Detection *HoughCircleBoard::detectPattern( const cv::Mat &img )
   vector<Mat> channels;
   split( hsv, channels );
 
-  imshow( hWindow, channels[0] / 360.0 );
-  imshow( sWindow, channels[1] );
-  imshow( vWindow, channels[2] );
+  //  imshow( hWindow, channels[0] / 360.0 );
+  //  imshow( sWindow, channels[1] );
+  //  imshow( vWindow, channels[2] );
 
 
-//  channels[1] = Mat::ones( channels[1].size(), channels[1].type() );
-//  channels[2] = Mat::ones( channels[2].size(), channels[2].type() );
-//  Mat smax;
-//  merge( channels, smax );
-//  Mat smaxBGR;
-//  cvtColor( smax, smaxBGR, CV_HSV2BGR );
-//  imshow(smaxWindow, smax );
+  Mat diff( channels[0].size(), CV_32FC1 );
+  assert( diff.type() == CV_32FC1 && 
+      channels[0].type() == CV_32FC1 && 
+      channels[1].type() == CV_32FC1 && 
+      channels[2].type() == CV_32FC1 );
 
-Mat diff( channels[0].size(), CV_32FC1 );
-assert( diff.type() == CV_32FC1 && 
-    channels[0].type() == CV_32FC1 && 
-    channels[1].type() == CV_32FC1 && 
-    channels[2].type() == CV_32FC1 );
+  float *d = (float *)diff.data,
+        *h = (float *)channels[0].data,
+        *s = (float *)channels[1].data, 
+        *v = (float *)channels[2].data;
 
-float *d = (float *)diff.data,
-      *h = (float *)channels[0].data,
-      *s = (float *)channels[1].data, 
-      *v = (float *)channels[2].data;
+  for( int i = 0; i < (diff.rows * diff.cols); i++ )  {
+    d[i] = (cos( (h[i] * M_PI/180.0) - targetAng ) + 1) * 0.5;
+    d[i] *= s[i] * v[i];
+    d[i] = powf( d[i], 2 );
+    //cout << v[i] << " - ";
+    //v[i] *= d[i];
+    //cout << v[i] << endl;
+  }
 
-for( int i = 0; i < (diff.rows * diff.cols); i++ )  {
-  d[i] = (cos( (h[i] * M_PI/180.0) - targetAng ) + 1) * 0.5;
-  d[i] *= s[i] * v[i];
-  d[i] = powf( d[i], 0.3 );
-  //cout << v[i] << " - ";
-  //v[i] *= d[i];
-  //cout << v[i] << endl;
-}
+  // Normalize diff so max(diff) = 1
+  double mn, mx;
+  minMaxLoc( diff, &mn, &mx );
+  diff *= 1.0/mx;
 
-double mn, mx;
-minMaxLoc( diff, &mn, &mx );
-diff *= 1.0/mx;
+  imshow( diffWindow, diff );
 
-imshow( diffWindow, diff );
+  Mat diffBlur;
+  dilate( diff, diff, Mat() );
+  GaussianBlur( diff, diffBlur, Size(7,7), 3, 3  );
 
-Mat diffBlur;
-dilate( diff, diff, Mat() );
-GaussianBlur( diff, diffBlur, Size(7,7), 3, 3  );
-multiply( channels[2], diffBlur, channels[2] );
+  // V = V * diff
+  //multiply( channels[2], diffBlur, channels[2] );
+  diff.copyTo( channels[2] );
 
-Mat enhanced, enhancedBGR;
-merge( channels, enhanced );
-cvtColor( enhanced, enhancedBGR, CV_HSV2BGR );
+  // S = 1 - diff
+  subtract( Scalar(1), diff, channels[1] );
+
+  Mat enhanced, enhancedBGR;
+  merge( channels, enhanced );
+  cvtColor( enhanced, enhancedBGR, CV_HSV2BGR );
 
   imshow(enhancedWindow, enhancedBGR );
 
-  Mat gray = channels[2];
-  //cvtColor( enhancedBGR, gray, CV_BGR2GRAY );
-  
+  Mat gray, enhancedGray;
+  // Mat scaled = channels[2] * 255.0;
+  cvtColor( enhancedBGR, enhancedGray, CV_BGR2GRAY );
+  enhancedGray.convertTo( gray, CV_8UC1, 255 );
+
+  diff.convertTo( gray, CV_8UC1, 255 );
+
   const string grayWindow = "gray";
   namedWindow( grayWindow );
   imshow( grayWindow, gray );
 
-  waitKey(0);
 
   Mat blurred;
   GaussianBlur( gray, blurred, Size(9,9), 2,2 );
 
+
+  Mat canny;
+  cv::Canny( blurred, canny, 50, 100 );
+  const string cannyWindow = "canny";
+  namedWindow( cannyWindow );
+  canny *= 255;
+  imshow( cannyWindow, canny );
+
+
   vector<Vec3f> circles;
-  HoughCircles( blurred, circles, HOUGH_GRADIENT, 2, gray.rows/4, 200, 100 );
+  const float accumRes = 1, minDist = 4;
+  HoughCircles( blurred, circles, HOUGH_GRADIENT, accumRes, minDist, 100, 25 );
 
   return new HoughCircleDetection( circles );
 }
