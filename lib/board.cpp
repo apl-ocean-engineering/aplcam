@@ -131,8 +131,56 @@ void HoughCircleBoard::loadCallback( FileStorage &fs )
   //fs["ids"] >> _ids;
 }
 
-Detection *HoughCircleBoard::detectPattern( const cv::Mat &gray )
+Detection *HoughCircleBoard::detectPattern( const cv::Mat &img )
 {
+  // Pull out color
+Scalar targetColor( 0, 128, 255 );
+
+namedWindow("channel0");
+namedWindow("channel1");
+namedWindow("channel2");
+
+namedWindow("h0");
+namedWindow("h1");
+
+float alpha = 0.5 * ( 2* targetColor[2]/256 - targetColor[1]/256 - targetColor[0]/256 );
+float beta = sqrt(3)/2 * ( targetColor[1]/256 - targetColor[0]/256 );
+float ang = atan2( beta, alpha );
+
+Scalar targetCS( cos( ang ), sin( ang ) );
+
+Mat flt, hsv;
+img.convertTo( flt, CV_32FC3 );
+cvtColor( flt, hsv, CV_BGR2HSV );
+vector<Mat> channels;
+split( hsv, channels );
+
+imshow("channel0", channels[0] / 360 );
+imshow("channel1", channels[1] );
+imshow("channel2", channels[2] );
+
+
+// Make cos and sin matrices 
+Mat h[2];
+polarToCart( Mat(), channels[0] * M_PI/180.0, h[0], h[1] );
+Mat hue;
+merge( h, 2, hue );
+
+imshow("h0", h[0] );
+imshow("h1", h[1] );
+
+// Make cos and sin from target
+Mat targetHue( hue.size(), hue.type(), targetCS );
+Mat diff = hue - targetHue;
+
+Mat gray;
+cvtColor( img, gray, CV_BGR2GRAY );
+//dot.convertTo( gray, CV_8UC1 );
+//cout << gray;
+//imshow( "gray", gray );
+
+waitKey(0);
+
   Mat blurred;
   GaussianBlur( gray, blurred, Size(9,9), 2,2 );
 
