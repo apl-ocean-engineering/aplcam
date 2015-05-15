@@ -150,7 +150,7 @@ Detection *HoughCircleBoard::detectPattern( const cv::Mat &img )
   namedWindow( diffWindow );
   namedWindow(enhancedWindow);
 
-  // Compute Hue value for target color
+  // Compute hue value for target color
   float B = targetColorF[0], G = targetColorF[1], R = targetColorF[2];
   float alpha = 0.5 * ( 2* R - B - G );
   float beta = 0.86603 * ( G - B );    // Constant is sqrt(3)/2
@@ -158,10 +158,8 @@ Detection *HoughCircleBoard::detectPattern( const cv::Mat &img )
 
   //Scalar targetCS( cos( ang ), sin( ang ) );
 
-  Mat imgF;
-  img.convertTo( imgF, CV_32FC3 );
-  imgF *= 1.0/255;
-  Mat hsv;
+  Mat imgF, hsv;
+  img.convertTo( imgF, CV_32FC3, 1.0/255 );
   cvtColor( imgF, hsv, CV_BGR2HSV );
 
   vector<Mat> channels;
@@ -187,9 +185,6 @@ Detection *HoughCircleBoard::detectPattern( const cv::Mat &img )
     d[i] = (cos( (h[i] * M_PI/180.0) - targetAng ) + 1) * 0.5;
     d[i] *= s[i] * v[i];
     d[i] = powf( d[i], 2 );
-    //cout << v[i] << " - ";
-    //v[i] *= d[i];
-    //cout << v[i] << endl;
   }
 
   // Normalize diff so max(diff) = 1
@@ -203,34 +198,26 @@ Detection *HoughCircleBoard::detectPattern( const cv::Mat &img )
   dilate( diff, diff, Mat() );
   GaussianBlur( diff, diffBlur, Size(7,7), 3, 3  );
 
-  // V = V * diff
-  //multiply( channels[2], diffBlur, channels[2] );
-  diff.copyTo( channels[2] );
-
+  // V = diff
   // S = 1 - diff
-  subtract( Scalar(1), diff, channels[1] );
+  diffBlur.copyTo( channels[2] );
+  subtract( Scalar(1), diffBlur, channels[1] );
 
-  Mat enhanced, enhancedBGR;
-  merge( channels, enhanced );
-  cvtColor( enhanced, enhancedBGR, CV_HSV2BGR );
+//  Mat enhanced, enhancedBGR;
+//  merge( channels, enhanced );
+//  cvtColor( enhanced, enhancedBGR, CV_HSV2BGR );
+//
+//  imshow(enhancedWindow, enhancedBGR );
 
-  imshow(enhancedWindow, enhancedBGR );
-
-  Mat gray, enhancedGray;
-  // Mat scaled = channels[2] * 255.0;
-  cvtColor( enhancedBGR, enhancedGray, CV_BGR2GRAY );
-  enhancedGray.convertTo( gray, CV_8UC1, 255 );
-
+  Mat gray; 
   diff.convertTo( gray, CV_8UC1, 255 );
 
   const string grayWindow = "gray";
   namedWindow( grayWindow );
   imshow( grayWindow, gray );
 
-
   Mat blurred;
   GaussianBlur( gray, blurred, Size(9,9), 2,2 );
-
 
   Mat canny;
   cv::Canny( blurred, canny, 50, 100 );
