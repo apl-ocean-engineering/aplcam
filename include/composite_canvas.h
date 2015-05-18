@@ -157,6 +157,10 @@ namespace AplCam {
     bool seek( double frame ) { return _video.set( CV_CAP_PROP_POS_FRAMES, frame ); }
     bool rewind( void )       { return seek(0); }
 
+    double fps( void )        { return _video.get( CV_CAP_PROP_FPS ); }
+    Size   fullSize( void )   { return cv::Size( _video.get( CV_CAP_PROP_FRAME_WIDTH ),
+                                                 _video.get( CV_CAP_PROP_FRAME_HEIGHT ) ); }
+
 
     std::string _filepath;
     cv::VideoCapture _video;

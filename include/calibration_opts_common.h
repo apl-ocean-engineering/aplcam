@@ -14,13 +14,13 @@ namespace AplCam {
   class CalibrationOptsCommon {
     public:
 
-    typedef enum { ANGULAR_POLYNOMIAL, RADIAL_POLYNOMIAL } CalibrationType_t;
+    typedef enum { CALIBRATION_NONE, ANGULAR_POLYNOMIAL, RADIAL_POLYNOMIAL } CalibrationType_t;
 
     CalibrationOptsCommon()
       : dataDir("../data"),
       boardName(), cameraName(), calibrationFile(),
       calibFlags(0),
-      calibType( ANGULAR_POLYNOMIAL )
+      calibType( CALIBRATION_NONE )
     {;}
 
     string dataDir;
@@ -53,6 +53,7 @@ namespace AplCam {
     {
       if( boardName.empty() ) { msg = "Board name not set"; return false; }
       if( cameraName.empty() ) { msg = "Camea name not set"; return false; }
+      if( calibType == CALIBRATION_NONE ) { msg = "Calibration type not specified"; return false; }
 
       if( calibrationFile.empty() ) calibrationFile = cameraPath( mkCameraFileName() );
 
