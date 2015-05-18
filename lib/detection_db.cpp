@@ -81,6 +81,11 @@ namespace AplCam {
     return (_db.check( key ) != -1 ); 
   }
 
+  bool DetectionDb::has_meta( void )
+  {
+    return has( MetaKey );
+  }
+
   bool DetectionDb::update( const int frame, const Detection &detection )
   {
     return update( FrameToKey( frame ), detection );

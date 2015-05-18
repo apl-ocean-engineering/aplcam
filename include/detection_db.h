@@ -32,6 +32,7 @@ namespace AplCam {
 
       bool has( const int frame );
       bool has( const string &key );
+      bool has_meta( void );
 
       bool update( const int frame, const Detection &detection );
       bool update( const string &key, const Detection &detection );
