@@ -274,7 +274,7 @@ namespace Distortion {
 
       // 
     
-    typedef enum { CALIBRATION_NONE, ANGULAR_POLYNOMIAL, RADIAL_POLYNOMIAL, RADIAL8_POLYNOMIAL } CalibrationType_t;
+    typedef enum { CALIBRATION_NONE, ANGULAR_POLYNOMIAL, RADIAL_POLYNOMIAL, RADIAL8_POLYNOMIAL, CERES_RADIAL } CalibrationType_t;
 
     static CalibrationType_t ParseCalibrationType( const std::string &arg );
     static DistortionModel *MakeDistortionModel( CalibrationType_t type );

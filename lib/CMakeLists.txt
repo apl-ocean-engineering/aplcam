@@ -17,6 +17,7 @@ add_library( aplcam
         distortion_model.cpp
         angular_polynomial.cpp
         radial_polynomial.cpp
+        ceres_radial_polynomial.cpp
         camera_factory.cpp
         distortion_stereo.cpp
         stereo_calibration.cpp 

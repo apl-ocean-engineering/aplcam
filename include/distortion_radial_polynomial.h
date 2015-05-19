@@ -69,6 +69,40 @@ namespace Distortion {
 
   };
 
+  class CeresRadialPolynomial : public RadialPolynomial {
+    public:
+
+      CeresRadialPolynomial( void );
+      CeresRadialPolynomial( const Vec8d &distCoeffs );
+      CeresRadialPolynomial( const Vec5d &distCoeffs );
+      CeresRadialPolynomial( const Vec4d &distCoeffs );
+      CeresRadialPolynomial( const Vec8d &distCoeffs, const Matx33d &cam );
+      CeresRadialPolynomial( const Vec5d &distCoeffs, const Matx33d &cam );
+      CeresRadialPolynomial( const Vec4d &distCoeffs, const Matx33d &cam );
+
+      void set( const double *c, const double alpha )
+      {
+        setCamera( c[0], c[1], c[2], c[3], alpha );
+      }
+
+      static const std::string Name( void ) { return "CeresRadialPolynomial"; }
+      virtual const std::string name( void ) const { return CeresRadialPolynomial::Name(); }
+
+      //virtual cv::FileStorage &write( cv::FileStorage &out ) const;
+      static CeresRadialPolynomial *Load( cv::FileStorage &in );
+
+    protected: 
+
+      virtual bool doCalibrate( const ObjectPointsVecVec &objectPoints, 
+          const ImagePointsVecVec &imagePoints, const Size& image_size,
+          CalibrationResult &result,
+          int flags = 0, 
+          cv::TermCriteria criteria = cv::TermCriteria(cv::TermCriteria::COUNT+cv::TermCriteria::EPS, 100, DBL_EPSILON)  );
+
+  };
+
+
+
 
 }
 

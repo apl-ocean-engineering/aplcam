@@ -1,4 +1,7 @@
 
+#include <iostream>
+using namespace std;
+
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "distortion_model.h"
@@ -91,8 +94,11 @@ namespace Distortion {
 
   DistortionModel::CalibrationType_t DistortionModel::ParseCalibrationType( const string &arg )
     {
+      cout << arg << endl;
       if( arg == "angular" ) {
         return ANGULAR_POLYNOMIAL;
+      } else if ( arg == "ceres_radial" ) {
+        return CERES_RADIAL;
       } else if ( arg == "radial8" ) {
         return RADIAL8_POLYNOMIAL;
       } else if ( arg.compare("radial") == 0 ) {
@@ -112,6 +118,10 @@ namespace Distortion {
 //          cout << "Using angular polynomial (Olson) calibration" << endl; 
           return new Distortion::AngularPolynomial; 
           break; 
+
+        case CERES_RADIAL:
+          return new Distortion::CeresRadialPolynomial;
+          break;
 
         case RADIAL8_POLYNOMIAL: 
 //          cout << "Using radial polynomial (normal OpenCV) 8-coefficient calibration" << endl; 

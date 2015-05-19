@@ -6,9 +6,13 @@
 #include "image.h"
 #include "file_utils.h"
 
+#include "distortion_model.h"
+
 namespace AplCam {
 
   using std::string;
+
+  using Distortion::DistortionModel;
 
 
   class CalibrationOptsCommon {
@@ -19,7 +23,7 @@ namespace AplCam {
       : dataDir("../data"),
       boardName(), cameraName(), calibrationFile(),
       calibFlags(0),
-      calibType( CALIBRATION_NONE )
+      calibType( DistortionModel::CALIBRATION_NONE )
     {;}
 
     string dataDir;
@@ -27,7 +31,7 @@ namespace AplCam {
     string cameraName;
     string calibrationFile;
     int calibFlags;
-    CalibrationType_t calibType;
+    DistortionModel::CalibrationType_t calibType;
 
     const string boardPath( void ) const
     { return dataDir + "/boards/" + boardName + ".yml"; }
@@ -52,7 +56,7 @@ namespace AplCam {
     {
       if( boardName.empty() ) { msg = "Board name not set"; return false; }
       if( cameraName.empty() ) { msg = "Camea name not set"; return false; }
-      if( calibType == CALIBRATION_NONE ) { msg = "Calibration type not specified"; return false; }
+      if( calibType == DistortionModel::CALIBRATION_NONE ) { msg = "Calibration type not specified"; return false; }
 
       if( calibrationFile.empty() ) calibrationFile = cameraPath( mkCameraFileName() );
 
