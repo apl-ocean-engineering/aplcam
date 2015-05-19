@@ -97,11 +97,9 @@ namespace Distortion {
       cout << arg << endl;
       if( arg == "angular" ) {
         return ANGULAR_POLYNOMIAL;
-      } else if ( arg == "ceres_radial" ) {
+      } else if ( arg == "radial" ) {
         return CERES_RADIAL;
-      } else if ( arg == "radial8" ) {
-        return RADIAL8_POLYNOMIAL;
-      } else if ( arg.compare("radial") == 0 ) {
+      } else if ( arg.compare("cv_radial") == 0 ) {
         return RADIAL_POLYNOMIAL;
       } 
 
