@@ -1,4 +1,8 @@
 #include <string>
+#include <iostream>
+#include <iomanip>
+
+#include <opencv2/calib3d.hpp>
 
 #include "stereo_calibration.h"
 
@@ -8,10 +12,33 @@ namespace AplCam {
   using namespace cv;
   using namespace std;
 
+
+  void StereoCalibration::dumpDecomp( void ) const {
+
+    Mat qx, qy, qz, Rq, Qq;
+    RQDecomp3x3( R, Rq, Qq, qx, qy, qz );
+
+    //  //  cout << "qx: " << endl << qx << endl;
+    //  //  cout << "qy: " << endl << qy << endl;
+    //  //  cout << "qz: " << endl << qz << endl;
+
+    cout << "Euler around x: " << acos( qx.at<double>(1,1) ) * 180.0/M_PI << endl;
+    cout << "Euler around y: " << acos( qy.at<double>(0,0) ) * 180.0/M_PI << endl;
+    cout << "Euler around z: " << acos( qz.at<double>(0,0) ) * 180.0/M_PI << endl;
+
+    cout << "Translation: " << setw(8) << t.at<double>(0,0) << " " << t.at<double>(1,0) << " " << t.at<double>(2,0) << endl;
+  }
+
   const string StereoCalibration::fundamentalTag = "fundamental",
-             StereoCalibration::essentialTag = "essential",
-             StereoCalibration::rotationTag = "rotation",
-             StereoCalibration::translationTag = "translation";
+        StereoCalibration::essentialTag = "essential",
+        StereoCalibration::rotationTag = "rotation",
+        StereoCalibration::translationTag = "translation";
+
+  void StereoCalibration::save( const std::string &filename ) const 
+  {
+    FileStorage fs( filename, FileStorage::WRITE );
+    save( fs );
+  }
 
   void StereoCalibration::save( FileStorage &fs ) const
   {
@@ -91,32 +118,32 @@ namespace AplCam {
     //    fs << "image_points" << imagePtMat;
     //  }
   }
-  
-      bool StereoCalibration::load( cv::FileStorage &fs )
-      {
+
+  bool StereoCalibration::load( cv::FileStorage &fs )
+  {
     fs[ fundamentalTag ] >> F;
     fs[ essentialTag ] >> E;
     fs[ rotationTag ] >> R;
     fs[ translationTag ] >> t;
 
     return true;
-      }
+  }
 
-      bool StereoCalibration::load( const string &filename )
-      {
-FileStorage fs( filename, FileStorage::READ );
-if( !fs.isOpened() ) return false;
+  bool StereoCalibration::load( const string &filename )
+  {
+    FileStorage fs( filename, FileStorage::READ );
+    if( !fs.isOpened() ) return false;
 
-return load( fs );
-      }
+    return load( fs );
+  }
 
-      //===========================================================================
-      // StereoRectification
-      // 
+  //===========================================================================
+  // StereoRectification
+  // 
   const string StereoRectification::rect0Tag = "rectification_0",
-             StereoRectification::rect1Tag = "rectification_1",
-             StereoRectification::proj0Tag = "projection_0",
-             StereoRectification::proj1Tag = "projection_1";
+        StereoRectification::rect1Tag = "rectification_1",
+        StereoRectification::proj0Tag = "projection_0",
+        StereoRectification::proj1Tag = "projection_1";
 
   void StereoRectification::save( FileStorage &fs ) const
   {
@@ -127,9 +154,9 @@ return load( fs );
     fs << proj1Tag << P[1];
   }
 
-      
-      bool StereoRectification::load( cv::FileStorage &fs )
-      {
+
+  bool StereoRectification::load( cv::FileStorage &fs )
+  {
     fs[ rect0Tag ] >> R[0];
     fs[ rect1Tag ] >> R[1];
     fs[ proj0Tag ] >> P[0];
@@ -138,15 +165,15 @@ return load( fs );
     if( R[0].empty() || R[1].empty() || P[0].empty() || P[1].empty() ) return false;
 
     return true;
-      }
+  }
 
-      bool StereoRectification::load( const string &filename )
-      {
-FileStorage fs( filename, FileStorage::READ );
-if( !fs.isOpened() ) return false;
+  bool StereoRectification::load( const string &filename )
+  {
+    FileStorage fs( filename, FileStorage::READ );
+    if( !fs.isOpened() ) return false;
 
-return load( fs );
-      }
+    return load( fs );
+  }
 
 
 

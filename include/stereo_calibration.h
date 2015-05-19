@@ -15,7 +15,10 @@ namespace AplCam {
     public:
       StereoCalibration() {;}
 
+      void dumpDecomp( void ) const;
+
       void save( cv::FileStorage &fs ) const ;
+      void save( const std::string &filename ) const;
 
       bool load( cv::FileStorage &fs );
       bool load( const std::string &filename );
