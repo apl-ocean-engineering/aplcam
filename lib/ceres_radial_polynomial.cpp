@@ -50,9 +50,53 @@ namespace Distortion {
 
   // Ceres functor for solving radial calibration problem
   //  Based on the Bundler solver used in their examples
-  struct RadialDistortionReprojError {
+
+  struct ReprojectionError {
+    ReprojectionError(double obs_x, double obs_y, double world_x, double world_y )
+      : observedX(obs_x), observedY(obs_y), worldX( world_x ), worldY( world_y ) {;}
+
+    template <typename T>
+      void txToCameraFrame( const T *pose, T *p ) const
+      {
+        T point[3] = { T( worldX ), T( worldY ), T( 0.0 ) };
+        ceres::AngleAxisRotatePoint(pose, point, p);
+        p[0] += pose[3]; 
+        p[1] += pose[4]; 
+        p[2] += pose[5];
+      }
+
+    template <typename T>
+      bool projectAndComputeError(const T* const camera,
+          const T* const alpha,
+          const T* const pp,
+          T* residuals) const
+      {
+        const T &fx = camera[0];
+        const T &fy = camera[1];
+        const T &cx = camera[2];
+        const T &cy = camera[3];
+        const T &xpp = pp[0],
+              &ypp = pp[1];
+
+        T predictedX = fx*(xpp + alpha[0]*ypp) + cx;
+        T predictedY = fy* ypp                 + cy;
+
+        // The error is the difference between the predicted and observed position.
+        residuals[0] = predictedX - T(observedX);
+        residuals[1] = predictedY - T(observedY);
+        return true;
+      }
+
+
+    double observedX, observedY;
+    double worldX, worldY;
+  };
+
+  struct RadialDistortionReprojError : public ReprojectionError {
     RadialDistortionReprojError(double obs_x, double obs_y, double world_x, double world_y )
-      : observedX(obs_x), observedY(obs_y), worldX( world_x ), worldY( world_y ) {}
+      : ReprojectionError( obs_x, obs_y, world_x, world_y ) 
+    {;}
+
 
     template <typename T>
       bool operator()(const T* const camera,
@@ -69,7 +113,7 @@ namespace Distortion {
         //    2 focal length
         //    2 camera center
         //
-        // alpha is a 1-vector (separate so it can be set Constant/Variable)
+        // alpha is a 1-vector (separate so it can be set fixed/constant)
         //
         // k12 is a 2-vector: k1 and k2 by opencv
         // p12 is a 2-vector: p1 and p2 by opencv
@@ -81,17 +125,9 @@ namespace Distortion {
         //    3 translations
         // pose[0,1,2] are an angle-axis rotation.
         //
-        T point[3] = { T( worldX ), T( worldY ), T( 0.0 ) };
         T p[3];
-        ceres::AngleAxisRotatePoint(pose, point, p);
-        p[0] += pose[3]; 
-        p[1] += pose[4]; 
-        p[2] += pose[5];
+        txToCameraFrame( pose, p );
 
-        const T &fx = camera[0];
-        const T &fy = camera[1];
-        const T &cx = camera[2];
-        const T &cy = camera[3];
         const T &k1 = k12[0], &k2 = k12[1];
         const T &p1 = p12[0], &p2 = p12[1];
         const T &k4 = k456[0], &k5 = k456[1], &k6 = k456[2];
@@ -101,28 +137,33 @@ namespace Distortion {
         T r4 = r2*r2;
         T r6 = r2*r4;
 
-        T xpp = xp * ( T(1) + k1*r2 + k2*r4 + k3[0]*r6 ) / ( T(1) + k4*r2 + k5*r4 + k6*r6 ) + T(2)*p1*xp*yp + p2*(r2 + T(2)*xp*xp);
-        T ypp = yp * ( T(1) + k1*r2 + k2*r4 + k3[0]*r6 ) / ( T(1) + k4*r2 + k5*r4 + k6*r6 ) + p1*(r2 + T(2)*yp*yp) + T(2)*p2*xp*yp;;
+        T pp[2] = { xp * ( T(1) + k1*r2 + k2*r4 + k3[0]*r6 ) / ( T(1) + k4*r2 + k5*r4 + k6*r6 ) + T(2)*p1*xp*yp + p2*(r2 + T(2)*xp*xp),
+          yp * ( T(1) + k1*r2 + k2*r4 + k3[0]*r6 ) / ( T(1) + k4*r2 + k5*r4 + k6*r6 ) + p1*(r2 + T(2)*yp*yp) + T(2)*p2*xp*yp };
 
-        T predictedX = fx*(xpp + alpha[0]*ypp) + cx;
-        T predictedY = fy* ypp                 + cy;
-
-        // The error is the difference between the predicted and observed position.
-        residuals[0] = predictedX - T(observedX);
-        residuals[1] = predictedY - T(observedY);
-        return true;
+        return projectAndComputeError( camera, alpha, pp, residuals );
       }
 
-    // Factory to hide the construction of the CostFunction object from
-    // the client code.
-    static ceres::CostFunction* Create(const double observed_x, const double observed_y, 
-        const double world_x, const double world_y ) {
-      return (new ceres::AutoDiffCostFunction<RadialDistortionReprojError, 2, 4,1,2,2,1,3, 6>(
-            new RadialDistortionReprojError(observed_x, observed_y, world_x, world_y)));
+  };
+
+  struct RadialDistortionFactory {
+    RadialDistortionFactory( double *camera, double *alpha, double *dist, double *pose )
+      : camera_(camera), alpha_(alpha), dist_(dist), pose_(pose)
+    {;}
+
+    void add( ceres::Problem &problem, const ObjectPoint &obj, const ImagePoint &img )
+    {
+      ceres::CostFunction *costFunction = (new ceres::AutoDiffCostFunction<RadialDistortionReprojError, 2, 4,1,2,2,1,3, 6>(
+            new RadialDistortionReprojError( img[0], img[1], obj[0], obj[1] ) ) );
+
+      double *k12  = &(dist_[0]);
+      double *p12  = &(dist_[2]);
+      double *k3   = &(dist_[4]);
+      double *k456 = &(dist_[5]);
+
+      problem.AddResidualBlock( costFunction, NULL, camera_, alpha_, k12, p12, k3, k456, pose_ );
     }
 
-    double observedX, observedY;
-    double worldX, worldY;
+    double *camera_, *alpha_, *dist_, *pose_;
   };
 
   bool CeresRadialPolynomial::doCalibrate(
@@ -166,27 +207,31 @@ namespace Distortion {
 
     cout << "From " << objectPoints.size() << " images, using " << totalPoints << " from " << goodImages << " images" << endl;
 
-    double camera[9] = { _fx, _fy, _cx, _cy };
+    double camera[4] = { _fx, _fy, _cx, _cy };
     double alpha = _alpha;
 
     // Inherently fragile.  Store coeffs in a double array instead?
-    double k12[2] = { _distCoeffs[0], _distCoeffs[1] },
-           p12[2] = { _distCoeffs[2], _distCoeffs[3] },
-           k3[1]  = { _distCoeffs[4] },
-           k456[3] = { _distCoeffs[5], _distCoeffs[6], _distCoeffs[7] };
+    //    double k12[2] = { _distCoeffs[0], _distCoeffs[1] },
+    //           p12[2] = { _distCoeffs[2], _distCoeffs[3] },
+    //           k3[1]  = { _distCoeffs[4] },
+    //           k456[3] = { _distCoeffs[5], _distCoeffs[6], _distCoeffs[7] };
 
     if( ! (flags & CV_CALIB_RATIONAL_MODEL ) ) {
-      k456[0] = 0.0;
-      k456[1] = 0.0;
-      k456[2] = 0.0;
+      _distCoeffs[5] = 0.0;
+      _distCoeffs[6] = 0.0;
+      _distCoeffs[7] = 0.0;
+    } else {
+      cout << "Using rational model (with k4-k6)" << endl;
     }
 
     if( flags & CV_CALIB_ZERO_TANGENT_DIST ) {
-      p12[0] = 0.0;
-      p12[1] = 0.0;
+      _distCoeffs[2] = 0.0;
+      _distCoeffs[3] = 0.0;
+      cout << "Fixing tangential distortion to zero" << endl;
     }
 
     double *pose = new double[ goodImages * 6];
+    RadialDistortionFactory factory( camera, &alpha, (_distCoeffs.val), pose );
 
     ceres::Problem problem;
     for( size_t i = 0, idx = 0; i < objectPoints.size(); ++i ) {
@@ -205,16 +250,16 @@ namespace Distortion {
         ++idx;
 
         for( size_t j = 0; j < imagePoints[i].size(); ++j ) {
-          ceres::CostFunction *costFunction = RadialDistortionReprojError::Create( imagePoints[i][j][0], imagePoints[i][j][1],
-                                                                              objectPoints[i][j][0], objectPoints[i][j][1] );
-          problem.AddResidualBlock( costFunction, NULL, camera, &alpha, k12, p12, k3, k456, p );
+          factory.add( problem, objectPoints[i][j], imagePoints[i][j] );
         }
       }
     }
 
     if( flags & CALIB_FIX_SKEW ) problem.SetParameterBlockConstant( &alpha );
-    if( flags & CV_CALIB_ZERO_TANGENT_DIST ) problem.SetParameterBlockConstant( p12 );
-    if( ! (flags & CV_CALIB_RATIONAL_MODEL ) ) problem.SetParameterBlockConstant( k456 );
+
+    // Fragile
+    if( flags & CV_CALIB_ZERO_TANGENT_DIST ) problem.SetParameterBlockConstant( &(_distCoeffs[2]) );
+    if( ! (flags & CV_CALIB_RATIONAL_MODEL ) ) problem.SetParameterBlockConstant( &(_distCoeffs[5]) );
 
     ceres::Solver::Options options;
     options.linear_solver_type = ceres::DENSE_SCHUR;
@@ -239,7 +284,7 @@ namespace Distortion {
     delete[] pose;
 
     result.totalTime = summary.total_time_in_seconds;
-    
+
     // N.b. the Ceres cost is 1/2 || f(x) ||^2
     //
     // Whereas we usually use the RMS reprojection error
@@ -255,16 +300,6 @@ namespace Distortion {
 
     set(camera, alpha);
 
-    // Ugly and awkward
-    _distCoeffs[0] = k12[0];
-    _distCoeffs[1] = k12[1];
-    _distCoeffs[2] = p12[0];
-    _distCoeffs[3] = p12[1];
-    _distCoeffs[4] = k3[0];
-    _distCoeffs[5] = k456[0];
-    _distCoeffs[6] = k456[1];
-    _distCoeffs[7] = k456[2];
-
     result.rms = reprojectionError( objectPoints, result.rvecs, result.tvecs, imagePoints, result.reprojErrors, result.status );
 
     cout << "Final camera: " << endl << matx() << endl;
@@ -272,63 +307,6 @@ namespace Distortion {
 
     return true;
   }
-
-//  bool CeresRadialPolynomial::doCalibrate(
-//      const ObjectPointsVecVec &objectPoints, 
-//      const ImagePointsVecVec &imagePoints, 
-//      const Size& imageSize,
-//      CalibrationResult &result,
-//      int flags, 
-//      cv::TermCriteria criteria)
-//  {
-//
-//    Mat camera( mat() );
-//    Mat dist( _distCoeffs );
-//
-//    vector<Mat> _rvecs, _tvecs;
-//
-//    ObjectPointsVecVec _objPts;
-//    ImagePointsVecVec _imgPts;
-//
-//    for( size_t i = 0; i < objectPoints.size(); ++i ) {
-//      if( result.status[i] ) {
-//        _objPts.push_back( objectPoints[i] );
-//        _imgPts.push_back( imagePoints[i] );
-//      }
-//    }
-//
-//    //for( int i = 0; i < objectPoints.size(); ++i ) 
-//    //  cout << i << " " << objectPoints[i].size() << " " << imagePoints[i].size() << endl;
-//
-//    int before = getTickCount();
-//    result.rms = calibrateCamera( _objPts, _imgPts, imageSize, camera, dist, _rvecs, _tvecs, flags, criteria );
-//    result.totalTime = (getTickCount() - before)/getTickFrequency();
-//
-//
-//    setCamera( camera );
-//
-//    // _distCoeffs will be variable length
-//    double *d = dist.ptr<double>(0);
-//
-//    for( unsigned int i = 0; i < 4; ++i ) _distCoeffs[i] = d[i];
-//    if( (dist.rows*dist.cols) == 5 )  _distCoeffs[4] = d[4];
-//    if( (dist.rows*dist.cols) == 8 ) {
-//      _distCoeffs[5] = d[5];
-//      _distCoeffs[6] = d[6];
-//      _distCoeffs[7] = d[7];
-//    }
-//
-//    for( size_t i =0, k = 0; i < objectPoints.size(); ++i ) {
-//      if( result.status[i] ) {
-//        result.rvecs[i] = _rvecs[k];
-//        result.tvecs[i] = _tvecs[k];
-//        ++k;
-//      }
-//    }
-//
-//    result.good = true;
-//    return result.good;
-//  }
 
   CeresRadialPolynomial *CeresRadialPolynomial::Load( cv::FileStorage &in )
   {
