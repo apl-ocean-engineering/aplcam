@@ -2,6 +2,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "distortion_model.h"
+#include "distortion_angular_polynomial.h"
+#include "distortion_radial_polynomial.h"
 
 namespace Distortion {
 
@@ -80,6 +82,58 @@ namespace Distortion {
       }
     }
   }
+
+
+  //
+  // 
+  //
+  //
+
+  DistortionModel::CalibrationType_t DistortionModel::ParseCalibrationType( const string &arg )
+    {
+      if( arg == "angular" ) {
+        return ANGULAR_POLYNOMIAL;
+      } else if ( arg == "radial8" ) {
+        return RADIAL8_POLYNOMIAL;
+      } else if ( arg.compare("radial") == 0 ) {
+        return RADIAL_POLYNOMIAL;
+      } 
+
+      return CALIBRATION_NONE;
+    }
+
+
+
+  DistortionModel *DistortionModel::MakeDistortionModel( CalibrationType_t type )
+    {
+      // Could/should farm this out to distortion.. 
+      switch( type ) { 
+        case ANGULAR_POLYNOMIAL: 
+//          cout << "Using angular polynomial (Olson) calibration" << endl; 
+          return new Distortion::AngularPolynomial; 
+          break; 
+
+        case RADIAL8_POLYNOMIAL: 
+//          cout << "Using radial polynomial (normal OpenCV) 8-coefficient calibration" << endl; 
+//          return new Distortion::RadialPolynomial( CV_CALIB_RATIONAL_MODEL ); 
+return NULL;
+          break; 
+
+        case RADIAL_POLYNOMIAL: 
+//          cout << "Using radial polynomial (normal OpenCV) calibration" << endl; 
+          return new Distortion::RadialPolynomial; 
+          break; 
+
+        case CALIBRATION_NONE: 
+        default: 
+//          cout << "Not calibration model specified!" << endl; 
+          return NULL; 
+      }
+
+      return NULL;
+    }
+
+
 
 
 }

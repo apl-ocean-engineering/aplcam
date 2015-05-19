@@ -272,6 +272,12 @@ namespace Distortion {
       { undistortImage( distorted, undistorted, mat(), distorted.size() ); }
 
 
+      // 
+    
+    typedef enum { CALIBRATION_NONE, ANGULAR_POLYNOMIAL, RADIAL_POLYNOMIAL, RADIAL8_POLYNOMIAL } CalibrationType_t;
+
+    static CalibrationType_t ParseCalibrationType( const std::string &arg );
+    static DistortionModel *MakeDistortionModel( CalibrationType_t type );
 
 
 

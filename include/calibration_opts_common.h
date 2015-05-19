@@ -14,7 +14,6 @@ namespace AplCam {
   class CalibrationOptsCommon {
     public:
 
-    typedef enum { CALIBRATION_NONE, ANGULAR_POLYNOMIAL, RADIAL_POLYNOMIAL } CalibrationType_t;
 
     CalibrationOptsCommon()
       : dataDir("../data"),
@@ -59,8 +58,7 @@ namespace AplCam {
 
       return true;
     }
-
-    string mkCameraFileName( void ) const
+      string mkCameraFileName( void ) const
     {
       char strtime[32], buffer[80];
       time_t tt;
