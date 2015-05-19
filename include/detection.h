@@ -55,7 +55,7 @@ struct Detection
   static Detection *unserialize( const std::string &str );
   static Detection *loadCache( const std::string &cacheFile );
   static Detection *unserializeFromFileStorage( const cv::FileStorage &fs );
-  static SharedPoints sharedWith( Detection &a, Detection &b );
+  static SharedPoints sharedWith( const Detection &a,  const Detection &b );
 
 };
 

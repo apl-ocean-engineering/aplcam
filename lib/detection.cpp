@@ -141,7 +141,7 @@ Detection *Detection::unserializeFromFileStorage( const FileStorage &fs )
   return detection;
 }
 
-SharedPoints Detection::sharedWith( Detection &a, Detection &b )
+SharedPoints Detection::sharedWith( const Detection &a, const Detection &b )
 {
   SharedPoints shared;
 
