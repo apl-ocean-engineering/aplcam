@@ -56,9 +56,9 @@ namespace Distortion {
       : observedX(obs_x), observedY(obs_y), worldX( world_x ), worldY( world_y ) {;}
 
     template <typename T>
-      void txToCameraFrame( const T *pose, T *p ) const
+      void txToCameraFrame( const T* const pose, T *p ) const
       {
-        T point[3] = { T( worldX ), T( worldY ), T( 0.0 ) };
+        const T point[3] = { T( worldX ), T( worldY ), T( 0.0 ) };
         ceres::AngleAxisRotatePoint(pose, point, p);
         p[0] += pose[3]; 
         p[1] += pose[4]; 
@@ -137,8 +137,9 @@ namespace Distortion {
         T r4 = r2*r2;
         T r6 = r2*r4;
 
-        T pp[2] = { xp * ( T(1) + k1*r2 + k2*r4 + k3[0]*r6 ) / ( T(1) + k4*r2 + k5*r4 + k6*r6 ) + T(2)*p1*xp*yp + p2*(r2 + T(2)*xp*xp),
-          yp * ( T(1) + k1*r2 + k2*r4 + k3[0]*r6 ) / ( T(1) + k4*r2 + k5*r4 + k6*r6 ) + p1*(r2 + T(2)*yp*yp) + T(2)*p2*xp*yp };
+        T pp[2];
+        pp[0] = xp * ( T(1) + k1*r2 + k2*r4 + k3[0]*r6 ) / ( T(1) + k4*r2 + k5*r4 + k6*r6 ) + T(2)*p1*xp*yp + p2*(r2 + T(2)*xp*xp);
+        pp[1] = yp * ( T(1) + k1*r2 + k2*r4 + k3[0]*r6 ) / ( T(1) + k4*r2 + k5*r4 + k6*r6 ) + p1*(r2 + T(2)*yp*yp) + T(2)*p2*xp*yp;
 
         return projectAndComputeError( camera, alpha, pp, residuals );
       }
@@ -146,11 +147,11 @@ namespace Distortion {
   };
 
   struct RadialDistortionFactory {
-    RadialDistortionFactory( double *camera, double *alpha, double *dist, double *pose )
-      : camera_(camera), alpha_(alpha), dist_(dist), pose_(pose)
+    RadialDistortionFactory( double *camera, double *alpha, double *dist )
+      : camera_(camera), alpha_(alpha), dist_(dist)
     {;}
 
-    void add( ceres::Problem &problem, const ObjectPoint &obj, const ImagePoint &img )
+    void add( ceres::Problem &problem, const ObjectPoint &obj, const ImagePoint &img, double *pose )
     {
       ceres::CostFunction *costFunction = (new ceres::AutoDiffCostFunction<RadialDistortionReprojError, 2, 4,1,2,2,1,3, 6>(
             new RadialDistortionReprojError( img[0], img[1], obj[0], obj[1] ) ) );
@@ -160,7 +161,7 @@ namespace Distortion {
       double *k3   = &(dist_[4]);
       double *k456 = &(dist_[5]);
 
-      problem.AddResidualBlock( costFunction, NULL, camera_, alpha_, k12, p12, k3, k456, pose_ );
+      problem.AddResidualBlock( costFunction, NULL, camera_, alpha_, k12, p12, k3, k456, pose );
     }
 
     double *camera_, *alpha_, *dist_, *pose_;
@@ -231,7 +232,7 @@ namespace Distortion {
     }
 
     double *pose = new double[ goodImages * 6];
-    RadialDistortionFactory factory( camera, &alpha, (_distCoeffs.val), pose );
+    RadialDistortionFactory factory( camera, &alpha, (_distCoeffs.val) );
 
     ceres::Problem problem;
     for( size_t i = 0, idx = 0; i < objectPoints.size(); ++i ) {
@@ -250,12 +251,13 @@ namespace Distortion {
         ++idx;
 
         for( size_t j = 0; j < imagePoints[i].size(); ++j ) {
-          factory.add( problem, objectPoints[i][j], imagePoints[i][j] );
+          factory.add( problem, objectPoints[i][j], imagePoints[i][j], p );
         }
       }
     }
 
-    if( flags & CALIB_FIX_SKEW ) problem.SetParameterBlockConstant( &alpha );
+    //if( flags & CALIB_FIX_SKEW )
+    problem.SetParameterBlockConstant( &alpha );
 
     // Fragile
     if( flags & CV_CALIB_ZERO_TANGENT_DIST ) problem.SetParameterBlockConstant( &(_distCoeffs[2]) );

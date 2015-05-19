@@ -78,18 +78,18 @@ namespace Distortion {
   class PinholeCamera : public Camera {
     public:
 
-      // Must be equal to OpenCV's to avoid nasty conversions
-      enum{
-        CALIB_USE_INTRINSIC_GUESS   = 1,
-        CALIB_RECOMPUTE_EXTRINSIC   = 2,
-        CALIB_CHECK_COND            = 4,
-        CALIB_FIX_SKEW              = 8,
-        CALIB_FIX_K1                = 16,
-        CALIB_FIX_K2                = 32,
-        CALIB_FIX_K3                = 64,
-        CALIB_FIX_K4                = 128,
-        CALIB_FIX_INTRINSIC         = 256
-      };
+     // Must be equal to OpenCV's to avoid nasty conversions
+//     enum{
+//       CALIB_FIX_SKEW              = 
+//       CALIB_RECOMPUTE_EXTRINSIC   = 2,
+//       CALIB_CHECK_COND            = 4,
+//       CALIB_FIX_SKEW              = 8,
+//       CALIB_FIX_K1                = 16,
+//       CALIB_FIX_K2                = 32,
+//       CALIB_FIX_K3                = 64,
+//       CALIB_FIX_K4                = 128,
+//       CALIB_FIX_INTRINSIC         = 256
+//     };
 
 
       PinholeCamera( void );

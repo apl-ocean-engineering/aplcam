@@ -219,7 +219,9 @@ const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350,
       }
     }
 
-    if( flags & CALIB_FIX_SKEW ) problem.SetParameterBlockConstant( &alpha );
+    //if( flags & CALIB_FIX_SKEW )
+    // Skew is always fixed in OpenCV 3.0.  
+      problem.SetParameterBlockConstant( &alpha );
 
     ceres::Solver::Options options;
     options.linear_solver_type = ceres::DENSE_SCHUR;
