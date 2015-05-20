@@ -1,6 +1,8 @@
 
 #include <string>
 
+#include <iostream>
+
 #include <opencv2/core/core.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <vector>
@@ -749,8 +751,8 @@ namespace Distortion {
           0, 0, 1, 0);
     else
       Proj2  = (Mat_<double>(3,4) << fc_new, 0, cc_new[1].x, 0,
-                                     0, fc_new, cc_new[1].y, t.at<double>(1)*fc_new,
-                                     0, 0, 1, 0);
+          0, fc_new, cc_new[1].y, t.at<double>(1)*fc_new,
+          0, 0, 1, 0);
 
 
     // Generate ROIs
@@ -835,26 +837,41 @@ namespace Distortion {
   //
 
   void triangulate( const PinholeCamera &cam1, const PinholeCamera &cam2,
-                   const StereoCalibration &calib,
-                   ImagePointsVec &imagePoints1,
-                   ImagePointsVec &imagePoints2,
-                   ObjectPointsVec &worldPoints )
+      const StereoCalibration &calib,
+      ImagePointsVec &imagePoints1,
+      ImagePointsVec &imagePoints2,
+      ObjectPointsVec &worldPoints )
 
   {
     // Need to generate projection matrices for the two cameras
-    Matx34d proj1, proj2;
+    //
+    // As we're using normalized points, should be [ I | 0 ] and [ R | t ]
 
-    worldPoints.clear();
-    worldPoints.resize( imagePoints1.size() );
+    Mat proj1( Mat::eye(3,4, CV_32F) ), proj2( 3,4, CV_32F );
+    Mat rRoi( proj2, Rect(0,0,3,3) );
+    calib.R.convertTo( rRoi, CV_32F );
+    Mat tRoi( proj2, Rect(3,0,1,3) );
+    calib.t.convertTo( tRoi, CV_32F );
+
+    Mat triPts;
 
     ImagePointsVec undistorted1( imagePoints1.size() ), undistorted2( imagePoints2.size() );
 
-    std::transform( imagePoints1.begin(), imagePoints1.end(), undistorted1.begin(), cam1.makeUndistorter( ) );
+    // These points normalized and undistorted, but not reimaged
+    std::transform( imagePoints1.begin(), imagePoints1.end(), undistorted1.begin(), cam1.makeUndistorter( false ) );
+    std::transform( imagePoints2.begin(), imagePoints2.end(), undistorted2.begin(), cam2.makeUndistorter( false ) ); 
 
-    std::transform( imagePoints2.begin(), imagePoints2.end(), undistorted2.begin(), cam2.makeUndistorter( ) ); 
+    cv::triangulatePoints( proj1, proj2, undistorted1, undistorted2, triPts );
 
-    cv::triangulatePoints( proj1, proj2, undistorted1, undistorted2, worldPoints );
+    // Translate triPts into worldPts
+    worldPoints.clear();
+    for( int i = 0; i < triPts.cols; i++ ) {
+      ObjectPoint obj(  triPts.at<float>( 0, i ) / triPts.at<float>( 3, i ),
+          triPts.at<float>( 1, i ) / triPts.at<float>( 3, i ),
+          triPts.at<float>( 2, i ) / triPts.at<float>( 3, i ) );
 
+      worldPoints.push_back( obj );
+    }
   }
 
 
