@@ -832,5 +832,30 @@ namespace Distortion {
   //        newImageSize, (CvRect*)validPixROI1, (CvRect*)validPixROI2);
   //}
   //
+  //
+
+  void triangulate( const PinholeCamera &cam1, const PinholeCamera &cam2,
+                   const StereoCalibration &calib,
+                   ImagePointsVec &imagePoints1,
+                   ImagePointsVec &imagePoints2,
+                   ObjectPointsVec &worldPoints )
+
+  {
+    // Need to generate projection matrices for the two cameras
+    Matx34d proj1, proj2;
+
+    worldPoints.clear();
+    worldPoints.resize( imagePoints1.size() );
+
+    ImagePointsVec undistorted1( imagePoints1.size() ), undistorted2( imagePoints2.size() );
+
+    std::transform( imagePoints1.begin(), imagePoints1.end(), undistorted1.begin(), cam1.makeUndistorter( ) );
+
+    std::transform( imagePoints2.begin(), imagePoints2.end(), undistorted2.begin(), cam2.makeUndistorter( ) ); 
+
+    cv::triangulatePoints( proj1, proj2, undistorted1, undistorted2, worldPoints );
+
+  }
+
 
 }

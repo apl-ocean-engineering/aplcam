@@ -7,6 +7,8 @@
 #include "types.h"
 #include "distortion_model.h"
 
+#include "stereo_calibration.h"
+
 namespace Distortion {
 
   using namespace AplCam;
@@ -33,6 +35,12 @@ namespace Distortion {
                           Mat &_Qmat, int flags,
                           double alpha, const Size &newImageSize,
                           Rect &validPixROI1, Rect &validPixROI2 );
+
+  void triangulate( const PinholeCamera &cam1, const PinholeCamera &cam2,
+                   const StereoCalibration &calib,
+                   ImagePointsVec &_imagePoints1,
+                   ImagePointsVec &_imagePoints2,
+                   ObjectPointsVec &_worldPoints );
   
    //void stereoRectify( const PinholeCamera &cam1, const PinholeCamera &cam2,
    //                       const Size &imageSize, const Mat &_Rmat, const Mat &_Tmat,
