@@ -160,6 +160,8 @@ namespace AplCam {
     double fps( void )        { return _video.get( CV_CAP_PROP_FPS ); }
     Size   fullSize( void )   { return cv::Size( _video.get( CV_CAP_PROP_FRAME_WIDTH ),
                                                  _video.get( CV_CAP_PROP_FRAME_HEIGHT ) ); }
+    Size   frameSize( void )   { return cv::Size( _video.get( CV_CAP_PROP_FRAME_WIDTH ) / 2.0,
+                                                 _video.get( CV_CAP_PROP_FRAME_HEIGHT ) ); }
 
 
     std::string _filepath;
