@@ -26,7 +26,9 @@ namespace AplCam {
     cout << "Euler around y: " << acos( qy.at<double>(0,0) ) * 180.0/M_PI << endl;
     cout << "Euler around z: " << acos( qz.at<double>(0,0) ) * 180.0/M_PI << endl;
 
-    cout << "Translation: " << setw(8) << t.at<double>(0,0) << " " << t.at<double>(1,0) << " " << t.at<double>(2,0) << endl;
+    Matx31d tMatx( t );
+    double len = sqrt( tMatx.ddot(tMatx) );
+    cout << "Translation: " << setw(8) << tMatx.t() << "  length: " << len << endl;
   }
 
   const string StereoCalibration::fundamentalTag = "fundamental",
