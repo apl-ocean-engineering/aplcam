@@ -7,11 +7,11 @@ using namespace std;
 using namespace cv;
 
 
-const Rect Video::TimeCodeROI = timeCodeROI_1920x1080;
+using namespace TimeCode_1920x1080;
 
-  Video::Video( const string &file )
+Video::Video( const string &file )
 : capture( file.c_str() ),filename( file ),
-  _distTimecodeNorm(), _distDt(), _transitionStatisticsInitialized( false )
+    _distTimecodeNorm(), _distDt(), _transitionStatisticsInitialized( false )
 {
   // Should be more flexible about this..
   assert( (height() == 1080) && (width() == 1920) );
@@ -47,19 +47,12 @@ void Video::initializeTransitionStatistics( int start, int length, TransitionVec
     Mat fullImage;
     capture >> fullImage;
 
-    Mat timeCodeROI( fullImage, TimeCodeROI ), curr;
-    cv::cvtColor( timeCodeROI, curr, CV_BGR2GRAY );
+    ExtractTimeCode( fullImage, timecodes[at] );
 
-    curr.copyTo(timecodes[at]);
+    if( !prev.empty() )
+      meanNorm += (norms[ at ] = cv::norm( prev, timecodes[at], NORM_L2 ));
 
-    if( prev.empty() ) {
-      prev = curr;
-      continue;
-    }
-
-    meanNorm += (norms[ at ] = cv::norm( prev, curr, NORM_L2 ));
-
-    prev = curr;
+    prev = timecodes[at];
   }
 
   // Gather statistics on the norms
@@ -98,7 +91,7 @@ void Video::initializeTransitionStatistics( int start, int length, TransitionVec
   normFile << i << " " << norms[i] << ' ' << p_norm << ' ' << p_dt << ' ' << p << endl; 
 #endif
 
-cout << "Have " << transitions.size() << " transitions" << endl;
+  cout << "Have " << transitions.size() << " transitions" << endl;
 }
 
 
@@ -116,7 +109,7 @@ bool Video::detectTransition( float norm, int dt )
   }
 
   bool result =  (p_norm * p_dt) > pThreshold;
- // cout << dt << ' ' << std::setw(12) << norm << ' ' << std::setw(12) << p_norm << ' ' << std::setw(12) << p_dt << ' ' << std::setw(12) << (p_norm * p_dt) <<  (result ? " Y" : "") << endl; 
+  // cout << dt << ' ' << std::setw(12) << norm << ' ' << std::setw(12) << p_norm << ' ' << std::setw(12) << p_dt << ' ' << std::setw(12) << (p_norm * p_dt) <<  (result ? " Y" : "") << endl; 
   return result;
 }
 
@@ -128,15 +121,15 @@ bool Video::detectTransition( const Mat &before, const Mat &after, int dt )
 void Video::dumpTransitions( const TransitionVec &transitions, const string &filename )
 {
   const int vspacing = 3, hspacing = 2;
-  Mat canvas( Mat::zeros( Size( 3 * (hspacing + TimeCodeROI.width), transitions.size() * (TimeCodeROI.height + vspacing) ),
-        CV_8UC1 ) );
+  Mat canvas( Mat::zeros( Size( 3 * (hspacing + timeCodeROI.width), transitions.size() * (timeCodeROI.height + vspacing) ),
+                         CV_8UC1 ) );
 
   int i = 0;
   for( TransitionVec::const_iterator itr = transitions.begin(); itr != transitions.end(); ++itr, ++i ) {
 
-    Mat beforeROI( canvas, Rect( 0, i * (TimeCodeROI.height + vspacing), TimeCodeROI.width, TimeCodeROI.height ) );
-    Mat  afterROI( canvas, Rect( TimeCodeROI.width + hspacing, i * (TimeCodeROI.height + vspacing), TimeCodeROI.width, TimeCodeROI.height ) );
-    Mat  diffROI( canvas, Rect( 2*(TimeCodeROI.width + hspacing), i * (TimeCodeROI.height + vspacing), TimeCodeROI.width, TimeCodeROI.height ) );
+    Mat beforeROI( canvas, Rect( 0, i * (timeCodeROI.height + vspacing), timeCodeROI.width, timeCodeROI.height ) );
+    Mat  afterROI( canvas, Rect( timeCodeROI.width + hspacing, i * (timeCodeROI.height + vspacing), timeCodeROI.width, timeCodeROI.height ) );
+    Mat  diffROI( canvas, Rect( 2*(timeCodeROI.width + hspacing), i * (timeCodeROI.height + vspacing), timeCodeROI.width, timeCodeROI.height ) );
 
     itr->before.copyTo( beforeROI );
     itr->after.copyTo( afterROI );
@@ -145,7 +138,7 @@ void Video::dumpTransitions( const TransitionVec &transitions, const string &fil
 
     stringstream strm;
     strm << itr->frame;
-    putText( diffROI, strm.str(), Point( 0, TimeCodeROI.height ), FONT_HERSHEY_SIMPLEX, 0.6, Scalar(255,255,255) );
+    putText( diffROI, strm.str(), Point( 0, timeCodeROI.height ), FONT_HERSHEY_SIMPLEX, 0.6, Scalar(255,255,255) );
   }
 
   imwrite( filename, canvas );
@@ -169,7 +162,7 @@ vector<int> Video::transitionsAfter( int after )
 
 
 // Note setting _lookaheadFrames relies on capture() being initialized..
-  VideoLookahead::VideoLookahead( const string &filename, float lookaheadSecs )
+VideoLookahead::VideoLookahead( const string &filename, float lookaheadSecs )
 : Video( filename ), _lookaheadFrames( lookaheadSecs * fps() )
 {;}
 
@@ -215,14 +208,14 @@ bool VideoLookahead::read( cv::Mat &mat )
 
     if( _future.size() > 0 ) {
       Mat prevTimecode( _future.back().timecode() );
-      _future.push( framein );
+      _future.push( CachedFrame( framein, filename ) );
 
       if( detectTransition( prevTimecode, _future.back().timecode(), dt ) ) {
         cout  << filename << ":  Believe there's a transition at frame " << frame << endl;
         _transitions.insert( make_pair( frame, TimecodeTransition( frame, prevTimecode, _future.back().timecode() ) ) );
       }
     } else {
-      _future.push( framein );
+      _future.push( CachedFrame( framein, filename ) );
     }
   }
 
@@ -247,9 +240,72 @@ bool VideoLookahead::drop( void )
 const Mat &CachedFrame::timecode( void ) 
 {
   if( _timecode.empty() ) {
-    Mat timeCodeROI( image, Video::TimeCodeROI ), curr;
-    cv::cvtColor( timeCodeROI, _timecode, CV_BGR2GRAY );
+    ExtractTimeCode( image, _timecode, _name );
   }
 
   return _timecode;
 }
+
+
+void ExtractTimeCode( const Mat &img, Mat &dest, const string windowName )
+{
+  Mat roi( img, timeCodeROI );
+  Mat aboveROI( img, timeCodeAboveROI ), belowROI( img, timeCodeBelowROI );
+
+  Mat bg( Size( timeCodeROI.width, timeCodeROI.height ), img.type() );
+  Mat roiTop( bg, Rect( 0, 0, timeCodeAboveROI.width, timeCodeAboveROI.height ) );
+  Mat roiBottom( bg, Rect( 0, timeCodeROI.height - timeCodeBelowROI.height, timeCodeBelowROI.width, timeCodeBelowROI.height ) );
+
+  aboveROI.copyTo( roiTop );
+  belowROI.copyTo( roiBottom );
+
+  //Mat roiBlur;
+  //GaussianBlur( roi, roiBlur, Size(3,3), 0, 0 );
+  GaussianBlur( bg, bg, Size(5,5), 0, 0 );
+
+  Mat roiG, bgG;
+  cv::cvtColor( roi, roiG, CV_BGR2GRAY );
+  cv::cvtColor( bg, bgG, CV_BGR2GRAY );
+
+  Mat diff;
+  absdiff( roiG, bgG, diff );
+  Mat mask;
+  threshold( diff, mask, 16, 255, THRESH_BINARY );
+
+  dilate( mask, mask, Mat() );
+  erode( mask, mask, Mat() );
+
+  Mat masked;
+  roiG.copyTo( masked, mask );
+
+  // Try just taking a subset
+
+  int w = floor( timeCodeROI.width * 0.8 ), 
+      width = timeCodeROI.width - w;
+
+  Mat subset( masked, Rect( w, 0, width, timeCodeROI.height ) );
+  subset.copyTo( dest );
+
+
+
+  if( !windowName.empty() ) {
+    Size roiSize = roi.size();
+    Mat output( Size(roiSize.width, roiSize.height * 5), roi.type() ),
+        top( output, Rect(0,0, roiSize.width, roiSize.height ) ),
+        midtop( output, Rect( 0, roiSize.height, roiSize.width, roiSize.height ) ),
+        middle( output, Rect( 0, 2*roiSize.height, roiSize.width, roiSize.height ) ),
+        midbot( output, Rect( 0, 3*roiSize.height, roiSize.width, roiSize.height ) ),
+        bottom( output, Rect( 0, 4*roiSize.height, roiSize.width, roiSize.height ) );
+    roi.copyTo( top );
+    bg.copyTo( midtop );
+    cvtColor( diff, middle, CV_GRAY2BGR );
+    cvtColor( mask, midbot, CV_GRAY2BGR );
+    cvtColor( masked, bottom, CV_GRAY2BGR );
+    //diff.copyTo( bottom );
+    imshow( windowName, output);
+    waitKey( 1 );
+  }
+
+}
+
+

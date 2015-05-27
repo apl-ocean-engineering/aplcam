@@ -62,11 +62,12 @@ struct Gaussian {
 
 typedef pair< int, int > IndexPair;
 
+
+void ExtractTimeCode( const cv::Mat &img, cv::Mat &dest, const std::string windowName = "" );
+
 class Video
 {
   public:
-    static const cv::Rect TimeCodeROI;
-
     Video( const string &file );
 
     string filename;
@@ -125,8 +126,8 @@ class Video
 struct CachedFrame
 {
   public:
-    CachedFrame( cv::Mat &img )
-      : image( img.clone() ), _timecode()
+    CachedFrame( cv::Mat &img, const std::string &nm = "" )
+      : image( img.clone() ), _timecode(), _name( nm )
     {;}
 
     cv::Mat image;
@@ -137,6 +138,7 @@ struct CachedFrame
 
   private:
       cv::Mat _timecode;
+      std::string _name;
 };
 
 class VideoLookahead : public Video
