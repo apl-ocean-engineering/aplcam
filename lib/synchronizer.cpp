@@ -350,7 +350,6 @@ bool KFSynchronizer::nextSynchronizedFrames( cv::Mat &video0, cv::Mat &video1 )
   bool result = Synchronizer::nextSynchronizedFrames( video0, video1 );
 
   const int rep = 10;
-  cout << _count << endl;
   if( _count++ > rep ) {
     _count = 0;
 
@@ -358,13 +357,16 @@ bool KFSynchronizer::nextSynchronizedFrames( cv::Mat &video0, cv::Mat &video1 )
     trans0 = _video0.transitionsAfter( std::max(_video0.frame(), _lastObs[0] ) );
     trans1 = _video1.transitionsAfter( std::max(_video1.frame(), _lastObs[1] ) );
 
-    if( trans0.size() > 5 || trans1.size() > 5 ) {
+    cout << "Got " << trans0.size() << " and " << trans1.size() << " transitions" << endl;
+
+    if( trans0.size() > 2 || trans1.size() > 2 ) {
       cout << "I think one of the transitions is flapping, no check for transitions." << endl;
       return result;
     }
 
-    if( (trans0.size() > 0) and (trans0.size() == trans1.size()) ) {
-      for( size_t i = 0; i < trans0.size(); ++i ) {
+
+    if( (trans0.size() > 0) && (trans1.size() > 0) ) {
+      for( size_t i = 0; i < std::min( trans0.size(), trans1.size() ); ++i ) {
         int dt = trans1[i] - trans0[i];
 
         int future0 = trans0[i] - _video0.frame(),
@@ -372,9 +374,11 @@ bool KFSynchronizer::nextSynchronizedFrames( cv::Mat &video0, cv::Mat &video1 )
         int future = std::min( future0, future1 );
         int predOffset = _kf[ future ];
 
+          cout << "Estimated offset of dt = " << dt << " at " << future << " frames in the future." << endl;
+
         if( (dt >= (predOffset-5)) && (dt <= (predOffset+5))) {
 
-          cout << "Updating estimate of offset with dt = " << dt << " at " << future << " frames in the future." << endl;
+          cout << "Accepting updated estimate!" << endl;
 
           _kf.update( dt, future );
 
@@ -465,15 +469,18 @@ int SynchroKalmanFilter::update( int obs, int future )
   cout << "h: " << endl << h << endl;
   cout << "Inno: " << endl << inno << endl;
 
+  // Zero innovation, no update
+  if( inno.isZero() ) return 0;
+
   MatrixXd innoCov( states(), states() );
   innoCov = h * _cov * h.transpose() + _r;
 
- // cout << "Innocov: " << endl << innoCov << endl;
+  cout << "Innocov: " << endl << innoCov << endl;
 
   MatrixXd kg( states(), states() );
   kg = _cov * h.transpose() * innoCov.inverse();
 
-  //cout << "KG: " << endl << kg << endl;
+  cout << "KG: " << endl << kg << endl;
 
   _state = _state + kg * inno;
   _cov = ( MatrixXd::Identity( states(), states() ) - kg * h ) * _cov;
