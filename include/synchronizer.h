@@ -71,7 +71,7 @@ class SynchroKalmanFilter
 
   private:
 
-    int depth( void ) const { return _state.rows(); }
+    int states( void ) const { return _state.rows(); }
 
     Eigen::VectorXd _state;
     Eigen::MatrixXd _cov;

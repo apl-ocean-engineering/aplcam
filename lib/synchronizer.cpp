@@ -408,27 +408,37 @@ int KFSynchronizer::estimateOffset( const TransitionVec &trans0,  const Transiti
 
 
   SynchroKalmanFilter::SynchroKalmanFilter( int depth )
-: _state(depth), _cov( depth, depth ),
-  _f( depth, depth ), _q( depth, depth ), _r()
+: _state(depth+1), _cov( states(), states() ),
+  _f( states(), states() ), _q( states(), states() ), _r()
 {
-  float cov0 = 0.05;
+  float cov0 = 0.05, cov1 = 0.05;
 
-  _cov.setIdentity();
-  _cov *= cov0;
+  
+  _cov.setZero();
+  _cov.topLeftCorner( depth, depth ).setIdentity();
+  _cov.topLeftCorner( depth, depth ) *= cov0;
+  _cov( depth, depth ) = cov1;
 
   // Set the state propagation matrix
   _f.setZero();
-  _f.topRightCorner( depth-1, depth-1 ).setIdentity();
+  _f.topRightCorner( depth, depth ).setIdentity();
+  //_f.col( depth ).setOnes();
   _f(depth-1,depth-1) = 1;
-  _q.setIdentity();
-  _q *= cov0;
+  _f(depth,depth) = 1;
 
+  // Set the additive noise term
+  _q.topLeftCorner( depth, depth ).setIdentity();
+  _q.topLeftCorner( depth, depth ) *= cov0;
+
+  _q( depth, depth ) = cov1;
+
+  _state.setZero();
   _r.setZero();
 }
 
 void SynchroKalmanFilter::setOffset( int offset )
 {
-  _state.fill( offset );
+  _state.head( states()-1 ).fill( offset );
 }
 
 int SynchroKalmanFilter::predict( void )
@@ -448,29 +458,29 @@ int SynchroKalmanFilter::update( int obs, int future )
   y(0,0) = obs;
 
   // generate an H matrix
-  RowVectorXd h( depth() );
+  RowVectorXd h( states() );
   h.setZero();
   h( future ) = 1.0;
 
-  MatrixXd inno( depth(), depth() );
+  MatrixXd inno( states(), states() );
   inno = y - h * _state;
 
   //cout << "Inno: " << endl << inno << endl;
 
-  MatrixXd innoCov( depth(), depth() );
+  MatrixXd innoCov( states(), states() );
   innoCov = h * _cov * h.transpose() + _r;
 
-  //cout << "Innocov: " << endl << innoCov << endl;
+ // cout << "Innocov: " << endl << innoCov << endl;
 
-  MatrixXd kg( depth(), depth() );
+  MatrixXd kg( states(), states() );
   kg = _cov * h.transpose() * innoCov.inverse();
 
   //cout << "KG: " << endl << kg << endl;
 
   _state = _state + kg * inno;
-  _cov = ( MatrixXd::Identity( depth(), depth() ) - kg * h ) * _cov;
+  _cov = ( MatrixXd::Identity( states(), states() ) - kg * h ) * _cov;
 
-  //  cout << "States after prediction: " << endl << _state << endl;
+    cout << "States after prediction: " << endl << _state << endl;
 
   return 0;
 }
