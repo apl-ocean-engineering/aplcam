@@ -473,8 +473,9 @@ int SynchroKalmanFilter::update( int obs, int future )
   if( inno.isZero() ) return 0;
 
   MatrixXd innoCov( states(), states() );
-  innoCov = h * _cov * h.transpose() + _r;
+  innoCov = h * _cov * h.transpose(); // + _r;
 
+  //cout << "Cov: " << endl << _cov << endl;
   cout << "Innocov: " << endl << innoCov << endl;
 
   MatrixXd kg( states(), states() );

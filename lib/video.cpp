@@ -270,10 +270,10 @@ void ExtractTimeCode( const Mat &img, Mat &dest, const string windowName )
   Mat diff;
   absdiff( roiG, bgG, diff );
   Mat mask;
-  threshold( diff, mask, 16, 255, THRESH_BINARY );
+  threshold( diff, mask, 24, 255, THRESH_BINARY );
 
-  dilate( mask, mask, Mat() );
-  erode( mask, mask, Mat() );
+  //dilate( mask, mask, Mat() );
+  //erode( mask, mask, Mat() );
 
   Mat masked;
   roiG.copyTo( masked, mask );
