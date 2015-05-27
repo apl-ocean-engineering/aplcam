@@ -373,7 +373,7 @@ bool KFSynchronizer::nextSynchronizedFrames( cv::Mat &video0, cv::Mat &video1 )
     for( size_t i = 0; i < trans0.size(); ++i ) {
       int dt = trans1[i] - trans0[i];
 
-      if( (dt >= (_offset-2)) && (dt <= (_offset+2))) {
+      if( (dt >= (_offset-5)) && (dt <= (_offset+5))) {
         int future0 = trans0[i] - _video0.frame(),
             future1 = trans1[i] - _video1.frame();
         int future = std::min( future0, future1 );
