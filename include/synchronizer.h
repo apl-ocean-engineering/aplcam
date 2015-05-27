@@ -69,6 +69,8 @@ class SynchroKalmanFilter
 
     void setOffset( int offset );
 
+    int operator[]( const int i ) { return _state[i]; }
+
   private:
 
     int states( void ) const { return _state.rows(); }
@@ -97,6 +99,8 @@ class KFSynchronizer : public Synchronizer
     int _lastObs[2];
 
     SynchroKalmanFilter _kf;
+
+    int _count;
 };
 
 

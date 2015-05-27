@@ -261,7 +261,7 @@ void ExtractTimeCode( const Mat &img, Mat &dest, const string windowName )
 
   //Mat roiBlur;
   //GaussianBlur( roi, roiBlur, Size(3,3), 0, 0 );
-  GaussianBlur( bg, bg, Size(5,5), 0, 0 );
+  GaussianBlur( bg, bg, Size(3,3), 0, 0 );
 
   Mat roiG, bgG;
   cv::cvtColor( roi, roiG, CV_BGR2GRAY );

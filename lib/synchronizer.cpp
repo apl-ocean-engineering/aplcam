@@ -115,27 +115,11 @@ bool Synchronizer::nextSynchronizedFrames( cv::Mat &video0, cv::Mat &video1 )
 bool Synchronizer::nextCompositeFrame( AplCam::CompositeCanvas &canvas )
 {
 
-//  img.create( compositeSize(), CV_8UC3 );
-//
-//  Mat video0ROI( img, Rect( 0, 0, Scale*_video0.width(), Scale*_video0.height() ) );
-//  Mat video1ROI( img, Rect( Scale*_video0.width(), 0, Scale*_video1.width(), Scale*_video1.height() ) );
-
 
   Mat frame0, frame1;
   if( nextSynchronizedFrames( frame0, frame1 ) ) {
     canvas = AplCam::CompositeCanvas( frame0, frame1 );
-    //if( Scale != 1.0 )
-    //  resize( frame0, video0ROI, video0ROI.size() );
-    //else
-    //  frame0.copyTo( video0ROI );
-
-    //if( Scale != 1.0 )
-    //  resize( frame1, video1ROI, video1ROI.size() );
-    //else
-    //  frame1.copyTo( video1ROI );
   } else return false;
-
-  cout << "Frames: " << _video0.frame() << ' ' << _video1.frame() <<  ' ' << _offset << endl;
 
   return true;
 }
@@ -339,7 +323,8 @@ int Synchronizer::bootstrap( float window, float maxDelta, int seekTo )
 
   KFSynchronizer::KFSynchronizer( VideoLookahead &video0, VideoLookahead &video1 )
 : Synchronizer( video0, video1 ), _lvideo0( video0 ), _lvideo1( video1 ),
-  _kf( std::min( _lvideo0.lookaheadFrames(), _lvideo1.lookaheadFrames() ) )
+  _kf( std::min( _lvideo0.lookaheadFrames(), _lvideo1.lookaheadFrames() ) ),
+    _count( 0 )
 {
   _lastObs[0] = _lastObs[1] = 0;
 }
@@ -364,31 +349,43 @@ bool KFSynchronizer::nextSynchronizedFrames( cv::Mat &video0, cv::Mat &video1 )
 
   bool result = Synchronizer::nextSynchronizedFrames( video0, video1 );
 
+  const int rep = 10;
+  cout << _count << endl;
+  if( _count++ > rep ) {
+    _count = 0;
 
-  vector<int> trans0, trans1;
-  trans0 = _video0.transitionsAfter( std::max(_video0.frame(), _lastObs[0] ) );
-  trans1 = _video1.transitionsAfter( std::max(_video1.frame(), _lastObs[1] ) );
+    vector<int> trans0, trans1;
+    trans0 = _video0.transitionsAfter( std::max(_video0.frame(), _lastObs[0] ) );
+    trans1 = _video1.transitionsAfter( std::max(_video1.frame(), _lastObs[1] ) );
 
-  if( (trans0.size() > 0) and (trans0.size() == trans1.size()) ) {
-    for( size_t i = 0; i < trans0.size(); ++i ) {
-      int dt = trans1[i] - trans0[i];
+    if( trans0.size() > 5 || trans1.size() > 5 ) {
+      cout << "I think one of the transitions is flapping, no check for transitions." << endl;
+      return result;
+    }
 
-      if( (dt >= (_offset-5)) && (dt <= (_offset+5))) {
+    if( (trans0.size() > 0) and (trans0.size() == trans1.size()) ) {
+      for( size_t i = 0; i < trans0.size(); ++i ) {
+        int dt = trans1[i] - trans0[i];
+
         int future0 = trans0[i] - _video0.frame(),
             future1 = trans1[i] - _video1.frame();
         int future = std::min( future0, future1 );
+        int predOffset = _kf[ future ];
 
-        cout << "Updating estimate of offset with dt = " << dt << " at " << future << " frames in the future." << endl;
+        if( (dt >= (predOffset-5)) && (dt <= (predOffset+5))) {
 
-        _kf.update( dt, future );
+          cout << "Updating estimate of offset with dt = " << dt << " at " << future << " frames in the future." << endl;
 
-        _lastObs[0] = trans0[i];
-        _lastObs[1] = trans1[i];
-      } else {
-        cerr << "Encontered large offset at frames " << trans0[i] << ", " << trans1[i] << " : dt = " << dt << " when offset = " << _offset << endl;
+          _kf.update( dt, future );
+
+          _lastObs[0] = trans0[i];
+          _lastObs[1] = trans1[i];
+        } else {
+          cerr << "Estimated offset disagrees with prediction at frames " << trans0[i] << ", " << trans1[i] << " : dt = " << dt << " when offset = " << _offset << ", predicted to be = " << predOffset << endl;
+        }
+
+
       }
-
-
     }
   }
 
@@ -465,7 +462,8 @@ int SynchroKalmanFilter::update( int obs, int future )
   MatrixXd inno( states(), states() );
   inno = y - h * _state;
 
-  //cout << "Inno: " << endl << inno << endl;
+  cout << "h: " << endl << h << endl;
+  cout << "Inno: " << endl << inno << endl;
 
   MatrixXd innoCov( states(), states() );
   innoCov = h * _cov * h.transpose() + _r;
