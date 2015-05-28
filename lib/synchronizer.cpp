@@ -1,4 +1,6 @@
 
+#include <algorithm>
+
 #include <Eigen/LU>
 
 #include "synchronizer.h"
@@ -10,7 +12,7 @@ using namespace Eigen;
 
 const float Synchronizer::Scale = 1.0;
 
-  Synchronizer::Synchronizer( Video &v0, Video &v1 )
+Synchronizer::Synchronizer( Video &v0, Video &v1 )
 : _video0( v0 ), _video1( v1 ), _offset( 0 )
 {;}
 
@@ -33,7 +35,7 @@ bool Synchronizer::seek( int which, int dest0 )
     int dest1 = dest0 + _offset;
 
     if( dest0 >= 0 && dest0 < _video0.frameCount() && 
-        dest1 >= 0 && dest1 < _video1.frameCount() ) {
+       dest1 >= 0 && dest1 < _video1.frameCount() ) {
       _video0.seek(dest0);
       _video1.seek(dest1);
       cout << "Seeking to: " << _video0.frame() << ' ' << _video1.frame() << endl;
@@ -203,7 +205,7 @@ bool Synchronizer::shiftSpan( const TransitionVec &transitions, IndexPair &pair,
 }
 
 float Synchronizer::compareSpans( const TransitionVec &thisTransitions,  IndexPair &thisSpan, 
-    const TransitionVec &otherTransitions, IndexPair &otherSpan )
+                                 const TransitionVec &otherTransitions, IndexPair &otherSpan )
 {
   cout << "======================" << endl;
   cout << "this span:  " << thisSpan.first << ' ' << thisSpan.second << endl;
@@ -321,10 +323,10 @@ int Synchronizer::bootstrap( float window, float maxDelta, int seekTo )
 
 //===========================================================================
 
-  KFSynchronizer::KFSynchronizer( VideoLookahead &video0, VideoLookahead &video1 )
+KFSynchronizer::KFSynchronizer( VideoLookahead &video0, VideoLookahead &video1 )
 : Synchronizer( video0, video1 ), _lvideo0( video0 ), _lvideo1( video1 ),
-  _kf( std::min( _lvideo0.lookaheadFrames(), _lvideo1.lookaheadFrames() ) ),
-    _count( 0 )
+    _kf( std::min( _lvideo0.lookaheadFrames(), _lvideo1.lookaheadFrames() ) ),
+    _count( 0 ), _sinceLastUpdate( 0 )
 {
   _lastObs[0] = _lastObs[1] = 0;
 }
@@ -334,7 +336,7 @@ bool KFSynchronizer::nextSynchronizedFrames( cv::Mat &video0, cv::Mat &video1 )
   int predOffset = _kf.predict();
 
   if( predOffset  != _offset ) {
-    cout << "Predicted offset of " << predOffset << " does not agree with curent estimate " << _offset << endl;
+    //cout << "Predicted offset of " << predOffset << " does not agree with curent estimate " << _offset << endl;
 
     if( predOffset > _offset ) {
       // Video 1 is moving ahead, take a frame and drop if
@@ -348,6 +350,8 @@ bool KFSynchronizer::nextSynchronizedFrames( cv::Mat &video0, cv::Mat &video1 )
   }
 
   bool result = Synchronizer::nextSynchronizedFrames( video0, video1 );
+
+  ++_sinceLastUpdate;
 
   const int rep = 10;
   if( _count++ > rep ) {
@@ -366,31 +370,67 @@ bool KFSynchronizer::nextSynchronizedFrames( cv::Mat &video0, cv::Mat &video1 )
 
 
     if( (trans0.size() > 0) && (trans1.size() > 0) ) {
-      for( size_t i = 0; i < std::min( trans0.size(), trans1.size() ); ++i ) {
-        int dt = trans1[i] - trans0[i];
 
-        int future0 = trans0[i] - _video0.frame(),
-            future1 = trans1[i] - _video1.frame();
-        int future = std::min( future0, future1 );
+      // Consider all possibilities
+      vector< pair< int, int > > hypotheses;
 
-          cout << "Estimated offset of dt = " << dt << " at " << future << " frames in the future, predicted to be = " << _kf[future] << endl;
+      for( size_t i = 0; i < trans0.size(); ++i ) {
+        for( size_t j = 0; j < trans1.size(); ++j ) {
+          int dt = trans1[j] - trans0[i];
 
-        if( fabs( _kf[future] - dt ) <= 2.5 ) {
+          int future0 = trans0[i] - _video0.frame(),
+              future1 = trans1[j] - _video1.frame();
+          int future = std::min( future0, future1 );
 
-          cout << "Accepting updated estimate!" << endl;
+          cout << "Considering offset of dt = " << dt << " at " << future << " frames in the future" << endl;
 
-          _kf.update( dt, future );
+          hypotheses.push_back(  make_pair(future, dt ) );
 
-        } else {
-          cerr << "Estimated offset disagrees with prediction at frames " << trans0[i] << ", " << trans1[i] << " : dt = " << dt << " when offset = " << _offset << ", predicted to be = " << _kf[future]<< endl;
+        }
+      }
+
+      int best_dt = -1, best_future = -1;
+      float best_p = 1e6;
+
+      for( size_t i = 0; i < hypotheses.size(); ++i ) {
+        int future = hypotheses[i].first,
+            dt     = hypotheses[i].second;
+
+        float p = fabs( _kf[future] - dt );
+
+        if( p < best_p ) {
+          best_p = p;
+          best_future = future;
+          best_dt = dt;
         }
 
-
-          _lastObs[0] = trans0[i];
-          _lastObs[1] = trans1[i];
-
-
       }
+
+
+      float max_p = std::min( 0.2 * _sinceLastUpdate, 10.0 );
+
+      cout << "Best estimate dt = " << best_dt << " at " << best_future << " frames.  Predicted is " << _kf[best_future] << endl;
+      cout << "           Delta = " << best_p << " max delta = " << max_p << endl; 
+
+
+      if( best_p <= max_p ) {
+
+        cout << " !!! Accepting update" << endl;
+
+
+        _kf.update( best_dt, best_future );
+
+        _sinceLastUpdate = 0;
+
+      } else {
+        cout << "  --- Too large a disparity with prediction" << endl;
+      }
+
+
+      _lastObs[0] = trans0.back();
+      _lastObs[1] = trans1.back();
+
+
     }
   }
 
@@ -409,13 +449,13 @@ int KFSynchronizer::estimateOffset( const TransitionVec &trans0,  const Transiti
 //===========================================================================
 
 
-  SynchroKalmanFilter::SynchroKalmanFilter( int depth )
+SynchroKalmanFilter::SynchroKalmanFilter( int depth )
 : _state(depth+1), _cov( states(), states() ),
-  _f( states(), states() ), _q( states(), states() ), _r()
+    _f( states(), states() ), _q( states(), states() ), _r()
 {
-  float cov0 = 0.25, cov1 = 0.25;
+  float cov0 = 0.25, cov1 = 0.05;
 
-  
+
   _cov.setZero();
   _cov.topLeftCorner( depth, depth ).setIdentity();
   _cov.topLeftCorner( depth, depth ) *= cov0;
@@ -430,13 +470,13 @@ int KFSynchronizer::estimateOffset( const TransitionVec &trans0,  const Transiti
 
   // Set the additive noise term
   _q.topLeftCorner( depth, depth ).setIdentity();
-  _q.topLeftCorner( depth, depth ) *= cov0;
+  _q.topLeftCorner( depth, depth ) *= 0.05;
 
-  _q( depth, depth ) = cov1;
+  _q( depth, depth ) = 0.01;
 
   _state.setZero();
   _r.setIdentity();
-  _r *= 0.25;
+  _r *= 4.0;
 }
 
 void SynchroKalmanFilter::setOffset( int offset )
@@ -448,6 +488,7 @@ int SynchroKalmanFilter::predict( void )
 {
   _state = _f * _state;
   _cov = _f * _cov * _f.transpose() + _q;
+
 
   //cout << _state.transpose() << endl;
 
@@ -468,8 +509,8 @@ int SynchroKalmanFilter::update( int obs, int future )
   MatrixXd inno( states(), states() );
   inno = y - h * _state;
 
-//  cout << "h: " << endl << h << endl;
-//  cout << "Inno: " << endl << inno << endl;
+  //  cout << "h: " << endl << h << endl;
+  //  cout << "Inno: " << endl << inno << endl;
 
   // Zero innovation, no update
   if( inno.isZero() ) return 0;
@@ -477,18 +518,21 @@ int SynchroKalmanFilter::update( int obs, int future )
   MatrixXd innoCov( states(), states() );
   innoCov = h * _cov * h.transpose() + _r;
 
-  //cout << "Cov: " << endl << _cov << endl;
-//  cout << "Innocov: " << endl << innoCov << endl;
+  //  cout << "Cov: " << endl << _cov << endl;
+  //cout << "Innocov: " << endl << innoCov << endl;
 
-  MatrixXd kg( states(), states() );
+  MatrixXd kg;
   kg = _cov * h.transpose() * innoCov.inverse();
 
-//  cout << "KG: " << endl << kg << endl;
+  //  cout << "KG: " << endl << kg << endl;
 
   _state = _state + kg * inno;
   _cov = ( MatrixXd::Identity( states(), states() ) - kg * h ) * _cov;
 
-    cout << "States after prediction: " << endl << _state << endl;
+  const double v_limit = 0.03;
+  _state[ states()-1 ] = std::max( -v_limit, std::min( v_limit, _state[ states()-1 ] ) );
+
+  cout << "States after update: " << endl << _state << endl;
 
   return 0;
 }

@@ -102,7 +102,7 @@ class KFSynchronizer : public Synchronizer
 
     SynchroKalmanFilter _kf;
 
-    int _count;
+    int _count, _sinceLastUpdate;
 };
 
 

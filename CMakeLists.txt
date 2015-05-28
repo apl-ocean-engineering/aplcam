@@ -48,7 +48,7 @@ include_directories( ${OpenCV_INCLUDE_DIRS}
 	"${aplcam_SOURCE_DIR}/include" 
         "${aplcam_SOURCE_DIR}/third_party/tclap/include" )
 
-add_definitions( -std=c++11 )
+add_definitions( -std=c++11 -DEIGEN_DONT_VECTORIZE -DEIGEN_DONT_ALIGN )
 
 option( USE_TBB "Use TBB" ON )
 if( USE_TBB )
