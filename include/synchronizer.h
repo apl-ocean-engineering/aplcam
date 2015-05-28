@@ -62,14 +62,16 @@ class Synchronizer
 class SynchroKalmanFilter
 {
   public:
-    SynchroKalmanFilter( int depth );
+   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+     SynchroKalmanFilter( int depth );
 
     int predict( void );
     int update( int obs, int future );
 
     void setOffset( int offset );
 
-    int operator[]( const int i ) { return _state[i]; }
+    float operator[]( const int i ) { return _state[i]; }
 
   private:
 

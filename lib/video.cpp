@@ -66,8 +66,8 @@ void Video::initializeTransitionStatistics( int start, int length, TransitionVec
   _distTimecodeNorm.stddev = stddev;
   cout << "Norm stats:: mean " << meanNorm << " stddev " << stddev << endl;
 
-  _distDt.mean = 30; //fps();
-  _distDt.stddev = 5.0;
+  _distDt.mean = fps();
+  _distDt.stddev = 1.0;
 
   _transitionStatisticsInitialized = true;
 
@@ -97,7 +97,7 @@ void Video::initializeTransitionStatistics( int start, int length, TransitionVec
 
 bool Video::detectTransition( float norm, int dt )
 {
-  float pThreshold = (dt > 0) ? 0.5 : 0.9;
+  float pThreshold = (dt > 0) ? 0.5 : 0.95;
 
   float p_norm = _distTimecodeNorm.p( norm );
   float p_dt = 1.0;
@@ -272,15 +272,15 @@ void ExtractTimeCode( const Mat &img, Mat &dest, const string windowName )
   Mat mask;
   threshold( diff, mask, 24, 255, THRESH_BINARY );
 
-  //dilate( mask, mask, Mat() );
-  //erode( mask, mask, Mat() );
+  dilate( mask, mask, Mat() );
+  erode( mask, mask, Mat() );
 
   Mat masked;
   roiG.copyTo( masked, mask );
 
   // Try just taking a subset
 
-  int w = floor( timeCodeROI.width * 0.8 ), 
+  int w = floor( timeCodeROI.width * 0.9 ), 
       width = timeCodeROI.width - w;
 
   Mat subset( masked, Rect( w, 0, width, timeCodeROI.height ) );

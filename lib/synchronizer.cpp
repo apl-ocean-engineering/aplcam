@@ -372,21 +372,22 @@ bool KFSynchronizer::nextSynchronizedFrames( cv::Mat &video0, cv::Mat &video1 )
         int future0 = trans0[i] - _video0.frame(),
             future1 = trans1[i] - _video1.frame();
         int future = std::min( future0, future1 );
-        int predOffset = _kf[ future ];
 
-          cout << "Estimated offset of dt = " << dt << " at " << future << " frames in the future." << endl;
+          cout << "Estimated offset of dt = " << dt << " at " << future << " frames in the future, predicted to be = " << _kf[future] << endl;
 
-        if( (dt >= (predOffset-5)) && (dt <= (predOffset+5))) {
+        if( fabs( _kf[future] - dt ) <= 2.5 ) {
 
           cout << "Accepting updated estimate!" << endl;
 
           _kf.update( dt, future );
 
+        } else {
+          cerr << "Estimated offset disagrees with prediction at frames " << trans0[i] << ", " << trans1[i] << " : dt = " << dt << " when offset = " << _offset << ", predicted to be = " << _kf[future]<< endl;
+        }
+
+
           _lastObs[0] = trans0[i];
           _lastObs[1] = trans1[i];
-        } else {
-          cerr << "Estimated offset disagrees with prediction at frames " << trans0[i] << ", " << trans1[i] << " : dt = " << dt << " when offset = " << _offset << ", predicted to be = " << predOffset << endl;
-        }
 
 
       }
@@ -412,7 +413,7 @@ int KFSynchronizer::estimateOffset( const TransitionVec &trans0,  const Transiti
 : _state(depth+1), _cov( states(), states() ),
   _f( states(), states() ), _q( states(), states() ), _r()
 {
-  float cov0 = 0.05, cov1 = 0.05;
+  float cov0 = 0.25, cov1 = 0.25;
 
   
   _cov.setZero();
@@ -434,7 +435,8 @@ int KFSynchronizer::estimateOffset( const TransitionVec &trans0,  const Transiti
   _q( depth, depth ) = cov1;
 
   _state.setZero();
-  _r.setZero();
+  _r.setIdentity();
+  _r *= 0.25;
 }
 
 void SynchroKalmanFilter::setOffset( int offset )
@@ -466,22 +468,22 @@ int SynchroKalmanFilter::update( int obs, int future )
   MatrixXd inno( states(), states() );
   inno = y - h * _state;
 
-  cout << "h: " << endl << h << endl;
-  cout << "Inno: " << endl << inno << endl;
+//  cout << "h: " << endl << h << endl;
+//  cout << "Inno: " << endl << inno << endl;
 
   // Zero innovation, no update
   if( inno.isZero() ) return 0;
 
   MatrixXd innoCov( states(), states() );
-  innoCov = h * _cov * h.transpose(); // + _r;
+  innoCov = h * _cov * h.transpose() + _r;
 
   //cout << "Cov: " << endl << _cov << endl;
-  cout << "Innocov: " << endl << innoCov << endl;
+//  cout << "Innocov: " << endl << innoCov << endl;
 
   MatrixXd kg( states(), states() );
   kg = _cov * h.transpose() * innoCov.inverse();
 
-  cout << "KG: " << endl << kg << endl;
+//  cout << "KG: " << endl << kg << endl;
 
   _state = _state + kg * inno;
   _cov = ( MatrixXd::Identity( states(), states() ) - kg * h ) * _cov;
