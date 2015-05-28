@@ -79,6 +79,7 @@ void Video::initializeTransitionStatistics( int start, int length, TransitionVec
   for( int i = 1; i < length; ++i ) {
 
     int dt = (prevIdx >= 0 ) ? (i-prevIdx) : -1;
+
     if( detectTransition( norms[i], dt ) ) {
       // The frames are numbered from 1 hence the "+1"
       transitions.push_back( TimecodeTransition( start+i+1, timecodes[i-1], timecodes[i] ) );
@@ -97,7 +98,7 @@ void Video::initializeTransitionStatistics( int start, int length, TransitionVec
 
 bool Video::detectTransition( float norm, int dt )
 {
-  float pThreshold = (dt > 0) ? 0.5 : 0.95;
+  float pThreshold = (dt > 0) ? 0.5 : 0.90;
 
   float p_norm = _distTimecodeNorm.p( norm );
   float p_dt = 1.0;

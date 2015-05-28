@@ -413,6 +413,12 @@ bool KFSynchronizer::nextSynchronizedFrames( cv::Mat &video0, cv::Mat &video1 )
       cout << "           Delta = " << best_p << " max delta = " << max_p << endl; 
 
 
+      if( best_dt == 44 ) {
+        cout << "Skipping 44!" << endl;
+        return result;
+      }
+        
+
       if( best_p <= max_p ) {
 
         cout << " !!! Accepting update" << endl;
@@ -529,7 +535,7 @@ int SynchroKalmanFilter::update( int obs, int future )
   _state = _state + kg * inno;
   _cov = ( MatrixXd::Identity( states(), states() ) - kg * h ) * _cov;
 
-  const double v_limit = 0.03;
+  const double v_limit = 0.05;
   _state[ states()-1 ] = std::max( -v_limit, std::min( v_limit, _state[ states()-1 ] ) );
 
   cout << "States after update: " << endl << _state << endl;
