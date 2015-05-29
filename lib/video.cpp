@@ -67,7 +67,7 @@ void Video::initializeTransitionStatistics( int start, int length, TransitionVec
   cout << "Norm stats:: mean " << meanNorm << " stddev " << stddev << endl;
 
   _distDt.mean = fps();
-  _distDt.stddev = 1.0;
+  _distDt.stddev = 3.0;
 
   _transitionStatisticsInitialized = true;
 
@@ -98,7 +98,7 @@ void Video::initializeTransitionStatistics( int start, int length, TransitionVec
 
 bool Video::detectTransition( float norm, int dt )
 {
-  float pThreshold = (dt > 0) ? 0.5 : 0.90;
+  float pThreshold = (dt > 0) ? 0.5 : 0.99;
 
   float p_norm = _distTimecodeNorm.p( norm );
   float p_dt = 1.0;
@@ -110,7 +110,7 @@ bool Video::detectTransition( float norm, int dt )
   }
 
   bool result =  (p_norm * p_dt) > pThreshold;
-  // cout << dt << ' ' << std::setw(12) << norm << ' ' << std::setw(12) << p_norm << ' ' << std::setw(12) << p_dt << ' ' << std::setw(12) << (p_norm * p_dt) <<  (result ? " Y" : "") << endl; 
+//   cout << dt << ' ' << std::setw(12) << norm << ' ' << std::setw(12) << p_norm << ' ' << std::setw(12) << p_dt << ' ' << std::setw(12) << (p_norm * p_dt) <<  (result ? " Y" : "") << endl; 
   return result;
 }
 
@@ -281,27 +281,37 @@ void ExtractTimeCode( const Mat &img, Mat &dest, const string windowName )
 
   // Try just taking a subset
 
-  int w = floor( timeCodeROI.width * 0.9 ), 
+  const int timeCodeChars = 19;
+  const float timeCodeCharWidth = timeCodeROI.width * 1.0/timeCodeChars;
+  int w = (timeCodeChars - 1 ) * timeCodeCharWidth,
       width = timeCodeROI.width - w;
 
   Mat subset( masked, Rect( w, 0, width, timeCodeROI.height ) );
+  //threshold( subset, subset, 200, 255, THRESH_OTSU );
   subset.copyTo( dest );
 
 
 
   if( !windowName.empty() ) {
     Size roiSize = roi.size();
-    Mat output( Size(roiSize.width, roiSize.height * 5), roi.type() ),
+    Mat output( Size(roiSize.width, roiSize.height * 6), roi.type() ),
         top( output, Rect(0,0, roiSize.width, roiSize.height ) ),
         midtop( output, Rect( 0, roiSize.height, roiSize.width, roiSize.height ) ),
         middle( output, Rect( 0, 2*roiSize.height, roiSize.width, roiSize.height ) ),
         midbot( output, Rect( 0, 3*roiSize.height, roiSize.width, roiSize.height ) ),
-        bottom( output, Rect( 0, 4*roiSize.height, roiSize.width, roiSize.height ) );
+        bottom( output, Rect( 0, 4*roiSize.height, roiSize.width, roiSize.height ) ),
+        bottomer( output, Rect( 0, 5*roiSize.height, roiSize.width, roiSize.height ) );
     roi.copyTo( top );
     bg.copyTo( midtop );
     cvtColor( diff, middle, CV_GRAY2BGR );
     cvtColor( mask, midbot, CV_GRAY2BGR );
     cvtColor( masked, bottom, CV_GRAY2BGR );
+
+    bottomer = Mat::zeros( bottomer.rows, bottomer.cols, bottomer.type() );
+    Mat bottomROI( bottomer, Rect(  w, 0, width, timeCodeROI.height ) );
+    cvtColor( subset, bottomROI, CV_GRAY2BGR );
+
+
     //diff.copyTo( bottom );
     imshow( windowName, output);
     waitKey( 1 );

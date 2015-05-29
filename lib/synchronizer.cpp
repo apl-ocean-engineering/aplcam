@@ -353,7 +353,7 @@ bool KFSynchronizer::nextSynchronizedFrames( cv::Mat &video0, cv::Mat &video1 )
 
   ++_sinceLastUpdate;
 
-  const int rep = 10;
+  const int rep = 5;
   if( _count++ > rep ) {
     _count = 0;
 
@@ -365,6 +365,10 @@ bool KFSynchronizer::nextSynchronizedFrames( cv::Mat &video0, cv::Mat &video1 )
 
     if( trans0.size() > 2 || trans1.size() > 2 ) {
       cout << "I think one of the transitions is flapping, no check for transitions." << endl;
+
+      if( trans0.size() > 0 ) _lastObs[0] = trans0.back();
+      if( trans1.size() > 0 )_lastObs[1] = trans1.back();
+
       return result;
     }
 
@@ -396,6 +400,8 @@ bool KFSynchronizer::nextSynchronizedFrames( cv::Mat &video0, cv::Mat &video1 )
         int future = hypotheses[i].first,
             dt     = hypotheses[i].second;
 
+        if( future < 10 ) continue;
+
         float p = fabs( _kf[future] - dt );
 
         if( p < best_p ) {
@@ -406,8 +412,9 @@ bool KFSynchronizer::nextSynchronizedFrames( cv::Mat &video0, cv::Mat &video1 )
 
       }
 
+      if( best_p > 1e5 ) return result;
 
-      float max_p = std::min( 0.2 * _sinceLastUpdate, 10.0 );
+      float max_p = std::min( 0.02 * _sinceLastUpdate, .5 ) * best_future;
 
       cout << "Best estimate dt = " << best_dt << " at " << best_future << " frames.  Predicted is " << _kf[best_future] << endl;
       cout << "           Delta = " << best_p << " max delta = " << max_p << endl; 
@@ -417,9 +424,9 @@ bool KFSynchronizer::nextSynchronizedFrames( cv::Mat &video0, cv::Mat &video1 )
         cout << "Skipping 44!" << endl;
         return result;
       }
-        
 
-      if( best_p <= max_p ) {
+
+      if (best_p <= max_p ) {
 
         cout << " !!! Accepting update" << endl;
 
@@ -478,7 +485,7 @@ SynchroKalmanFilter::SynchroKalmanFilter( int depth )
   _q.topLeftCorner( depth, depth ).setIdentity();
   _q.topLeftCorner( depth, depth ) *= 0.05;
 
-  _q( depth, depth ) = 0.01;
+  _q( depth, depth ) = 0.0;
 
   _state.setZero();
   _r.setIdentity();
@@ -535,8 +542,8 @@ int SynchroKalmanFilter::update( int obs, int future )
   _state = _state + kg * inno;
   _cov = ( MatrixXd::Identity( states(), states() ) - kg * h ) * _cov;
 
-  const double v_limit = 0.05;
-  _state[ states()-1 ] = std::max( -v_limit, std::min( v_limit, _state[ states()-1 ] ) );
+//  const double v_limit = 0.05;
+//  _state[ states()-1 ] = std::max( -v_limit, std::min( v_limit, _state[ states()-1 ] ) );
 
   cout << "States after update: " << endl << _state << endl;
 
