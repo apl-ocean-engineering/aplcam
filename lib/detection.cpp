@@ -36,7 +36,7 @@ void Detection::calculateCorners( const Board &board )
 
 void Detection::drawCorners( const Board &board, Mat &view ) const
 {
-  cout << "Drawing " << corners.size() << " corners" << endl;
+ // cout << "Drawing " << corners.size() << " corners" << endl;
   drawChessboardCorners( view, board.size(), Mat(points), found );
 }
 
