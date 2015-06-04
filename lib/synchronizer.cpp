@@ -414,7 +414,7 @@ bool KFSynchronizer::nextSynchronizedFrames( cv::Mat &video0, cv::Mat &video1 )
 
       if( best_p > 1e5 ) return result;
 
-      float max_p = std::min( 0.02 * _sinceLastUpdate, .5 ) * best_future;
+      float max_p = std::min( 0.005 * _sinceLastUpdate, .5 ) * best_future;
 
       cout << "Best estimate dt = " << best_dt << " at " << best_future << " frames.  Predicted is " << _kf[best_future] << endl;
       cout << "           Delta = " << best_p << " max delta = " << max_p << endl; 

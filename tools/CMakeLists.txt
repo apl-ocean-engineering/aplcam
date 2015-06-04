@@ -14,6 +14,7 @@ link_libraries( ${OpenCV_LIBS} ${aplcam_LIBS} ${Boost_LIBRARIES}
 
 add_executable( video_splitter video_splitter.cpp )
 
+add_executable( extract_one_frame extract_one_frame.cpp )
 
 if( USE_APRILTAGS )
   add_executable( apriltags_player apriltags_player.cpp )
