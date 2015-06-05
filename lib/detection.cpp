@@ -3,6 +3,9 @@
 #include "detection.h"
 #include "file_utils.h"
 
+#include "detection/apriltags.h"
+#include "detection/circle.h"
+
 using namespace std;
 using namespace cv;
 
@@ -163,49 +166,4 @@ SharedPoints Detection::sharedWith( const Detection &a, const Detection &b )
 
   return shared;
 }
-
-//============================================================================
-// HoughCircleDetection
-//============================================================================
-
-void HoughCircleDetection::drawCorners( const Board &board, Mat &view ) const
-{
-  for( size_t i = 0; i < _circles.size() ; ++i ) {
-    circle( view, Point( _circles[i][0], _circles[i][1] ), _circles[i][2], Scalar( 0, 0, 255 ), 2 );
-  }
-}
-
-
-
-#ifdef USE_APRILTAGS
-
-//============================================================================
-//  AprilTagDetection
-//============================================================================
-
-void AprilTagsDetection::calculateCorners( const AprilTagsBoard &board )
-{
-  // Go for a simple model here, assume all tags are unique on the board
-
-  points.clear();
-  corners.clear();
-  ids.clear();
-
-  for( size_t i = 0; i < _det.size(); ++i ) {
-
-    Point2i loc;
-    if( board.find( _det[i].id, loc ) ) {
-      //cout << "Found  tag id " << _det[i].id << endl;
-
-      points.push_back( Point2f( _det[i].cxy.first, _det[i].cxy.second ) );
-      corners.push_back( board.worldLocation( loc ) );
-      ids.push_back( _det[i].id );
-
-    } else {
-      cerr << "Couldn't find tag \'" << _det[i].id << "\'" << endl;
-    }
-  }
-}
-
-#endif
 

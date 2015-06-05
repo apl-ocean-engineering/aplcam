@@ -11,6 +11,8 @@
 
 #include <kchashdb.h>
 
+namespace AplCam {
+
 using std::string;
 
 struct SharedPoints
@@ -22,7 +24,7 @@ struct SharedPoints
 struct Detection 
 {
   Detection(  )
-    : found(false), points(), corners(), ids(), trans(0,0,0), rot(0,0,0), hasTrans(false), hasRot(false) {;}
+      : found(false), points(), corners(), ids(), trans(0,0,0), rot(0,0,0), hasTrans(false), hasRot(false) {;}
 
   virtual ~Detection() {;}
 
@@ -58,34 +60,6 @@ struct Detection
   static SharedPoints sharedWith( const Detection &a,  const Detection &b );
 
 };
-
-struct HoughCircleDetection : public Detection 
-{
-  HoughCircleDetection( vector< cv::Vec3f > circles )
-    : _circles( circles ) 
-  {
-    corners.clear();
-    corners.push_back( AplCam::ObjectPoint(0,0) );
-  }
-
-
-  virtual void drawCorners(  const Board &board, cv::Mat &view ) const;
-
-  vector< cv::Vec3f > _circles;
-};
-
-#ifdef USE_APRILTAGS
-struct AprilTagsDetection : public Detection
-{
-  AprilTagsDetection( vector< AprilTags::TagDetection > det )
-    : Detection(), _det(det) {;}
-
-  vector< AprilTags::TagDetection > _det;
-
-  virtual void calculateCorners( const AprilTagsBoard &board );
-
-
-};
-#endif
+}
 
 #endif

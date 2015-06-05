@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <sstream>
 
 #include "calib_frame_selectors/calib_frame_selector_opts.h"
 

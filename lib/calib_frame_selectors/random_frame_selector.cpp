@@ -26,7 +26,7 @@ namespace AplCam {
         set.addDetection( db, stoi(*itr) );
       }
 
-      stringstream strm;
+      std::stringstream strm;
       strm << "random(" << _count << ")_" << intsToHex( set.frames() );
       set.setName( strm.str() );
     }
