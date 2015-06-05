@@ -3,6 +3,7 @@
 
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 #include "board/circle.h"
 #include "detection/circle.h"
@@ -24,7 +25,7 @@ Detection *CircleBoard::detectPattern( const cv::Mat &img )
 
   vector<Vec3f> circles;
   const float accumRes = 1, minDist = 4;
-  Circles( img, circles, HOUGH_GRADIENT, accumRes, minDist, 100, 25 );
+  HoughCircles( img, circles, HOUGH_GRADIENT, accumRes, minDist, 100, 25 );
 
   return new CircleDetection( circles );
 }
@@ -137,7 +138,7 @@ Detection *ColorSegmentationCircleBoard::detectPattern( const cv::Mat &img )
 
   vector<Vec3f> circles;
   const float accumRes = 1, minDist = 4;
-  Circles( blurred, circles, HOUGH_GRADIENT, accumRes, minDist, 100, 25 );
+  HoughCircles( blurred, circles, HOUGH_GRADIENT, accumRes, minDist, 100, 25 );
 
   return new CircleDetection( circles );
 }
@@ -160,5 +161,6 @@ Detection *CircleGridBoard::detectPattern( const cv::Mat &gray, vector< cv::Poin
   return detect;
 }
 
+}
 
-}xt 
+

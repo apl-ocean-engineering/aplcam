@@ -2,6 +2,8 @@ add_library( aplcam
         bits_to_hex.cpp
         types.cpp
 	board.cpp 
+        board/circle.cpp
+        board/apriltags.cpp
         image.cpp
 	video.cpp 
 	detection.cpp 

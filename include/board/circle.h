@@ -41,7 +41,7 @@ class ColorSegmentationCircleBoard : public CircleBoard {
       : CircleBoard( COLOR_SEG_CIRCLE, name )
   {;}
 
-  virtual Detection *detectionPattern( const cv::Mat &gray );
+  virtual Detection *detectPattern( const cv::Mat &gray );
 
  protected:
 

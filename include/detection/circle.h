@@ -14,9 +14,9 @@ namespace AplCam {
 
 using std::string;
 
-struct HoughCircleDetection : public Detection 
+struct CircleDetection : public Detection 
 {
-  HoughCircleDetection( vector< cv::Vec3f > circles )
+  CircleDetection( vector< cv::Vec3f > circles )
     : _circles( circles ) 
   {
     corners.clear();
