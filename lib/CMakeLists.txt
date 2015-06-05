@@ -7,6 +7,8 @@ add_library( aplcam
         image.cpp
 	video.cpp 
 	detection.cpp 
+        detection/circle.cpp
+        detection/apriltags.cpp
         detection_db.cpp
         my_undistort.cpp
 	april_tag_board_generator.cpp 

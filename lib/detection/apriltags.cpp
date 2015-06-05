@@ -3,6 +3,9 @@
 #include "detection.h"
 #include "file_utils.h"
 
+#include "detection/apriltags.h"
+#include "board/apriltags.h"
+
 using namespace std;
 using namespace cv;
 
