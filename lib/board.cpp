@@ -22,7 +22,7 @@ Detection *Board::detectPattern( const Mat &gray )
   {
     case CHESSBOARD:
       detect->found = findChessboardCorners( gray, size(), detect->points,
-          CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FAST_CHECK | CV_CALIB_CB_NORMALIZE_IMAGE);
+                                            CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FAST_CHECK | CV_CALIB_CB_NORMALIZE_IMAGE);
 
       // improve the found corners' coordinate accuracy
       if( detect->found) cornerSubPix( gray, detect->points, Size(11,11), Size(-1,-1), TermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 30, 0.1 ));
@@ -42,6 +42,19 @@ Detection *Board::detectPattern( const Mat &gray )
   detect->calculateCorners( *this );
   return detect;
 }
+
+void Board::ensureGrayscale( const Mat &img, Mat &gray )
+{
+
+  // Automatically convert to gray --- somewhat ambivalent about this
+  // but otherwise require use to know if detector takes color or gray images
+  if( img.channels() != 1 ) {
+    cvtColor( img, gray, CV_BGR2GRAY );
+  } else {
+    gray = img;
+  }
+}
+
 
 Board *Board::load( const string &infile, const string &name )
 {

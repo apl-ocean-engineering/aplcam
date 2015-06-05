@@ -22,6 +22,8 @@ void CircleBoard::loadCallback( FileStorage &fs )
 
 Detection *CircleBoard::detectPattern( const cv::Mat &img )
 {
+  Mat gray;
+  ensureGrayscale( img, gray );
 
   vector<Vec3f> circles;
   const float accumRes = 1, minDist = 4;

@@ -21,6 +21,8 @@ struct Detection;
 using AplCam::ObjectPointsVec;
 using AplCam::ImagePointsVec;
 
+using cv::Mat;
+
 class Board {
  public:
   Board( Pattern pat, int w, int h, float squares, const std::string &nam )
@@ -36,7 +38,7 @@ class Board {
 
   cv::Size size( void ) const { return cv::Size( width,height ); }
 
-  virtual Detection *detectPattern( const cv::Mat &gray );
+  virtual Detection *detectPattern( const Mat &gray );
 
   //typedef enum { BOARD_UL, BOARD_CENTER } CornersReference;
 
@@ -50,6 +52,7 @@ class Board {
 
   static Board *load( const std::string &infile, const std::string &name );
 
+  void ensureGrayscale( const Mat &img, Mat &gray );
 
   std::string patternString( void ) const {
     switch(pattern)

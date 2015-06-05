@@ -33,14 +33,8 @@ Detection *AprilTagsBoard::detectPattern( const cv::Mat &img, vector< cv::Point2
 {
   AprilTags::TagDetector tagDetector( _tagCode );
 
-  // Automatically convert to gray --- somewhat ambivalent about this
-  // but otherwise require use to know if detector takes color or gray images
   Mat gray;
-  if( img.channels() != 1 ) {
-    cvtColor( img, gray, CV_BGR2GRAY );
-  } else {
-    gray = img;
-  }
+  ensureGrayscale( img, gray );
 
   vector<AprilTags::TagDetection> detections = tagDetector.extractTags(gray);
   //cout << "found " << detections.size() << " tags:" << endl;
