@@ -29,7 +29,7 @@ class AprilTagsBoard : public Board {
       : Board(  APRILTAGS, w, h, squares, name ), _tagCode( AprilTags::tagCodes36h11 )
   {;} 
 
-  virtual Detection *detectPattern( const cv::Mat &gray, vector< cv::Point2f > &pointbuf );
+  virtual Detection *detectPattern( const cv::Mat &gray );
 
   virtual std::vector< int > ids( void );
 

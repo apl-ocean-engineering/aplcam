@@ -45,7 +45,7 @@ namespace AplCam {
         }
       }
 
-
+      int validate( void );
 
 
       //==

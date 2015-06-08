@@ -4,6 +4,8 @@
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
+#include <glog/logging.h>
+
 #include "board.h"
 #include "board/apriltags.h"
 #include "board/circle.h"
@@ -76,19 +78,23 @@ Board *Board::load( const string &infile, const string &name )
 
   Board *board = NULL;
   if( type_s.compare("chessboard" ) == 0 ) {
+    LOG(INFO) << "Creating chessboard";
     board = new Board( CHESSBOARD, width, height, squares, name );
-  } else if( type_s == "circle" ) {
+  } else if( type_s.compare("circle") == 0 ) {
+    LOG(INFO) << "Creating circle board";
     board = new CircleBoard( name );
-  } else if( type_s == "color_seg_circle" ) {
+  } else if( type_s.compare("color_seg_circle") == 0 ) {
+    LOG(INFO) << "Creating color segmentation circle board.";
     board = new ColorSegmentationCircleBoard( name );
   } else if( type_s.compare("apriltags_36h11" ) == 0) {
 #ifdef USE_APRILTAGS
+    LOG(INFO) << "Creating Apriltags 36H11 board.";
     board = new AprilTagsBoard( width, height, squares, name );
 #else
-    cout << "Not compiled for Apriltags." << endl;
+    LOG(ERROR) << "Not compiled for Apriltags." << endl;
 #endif
   } else {
-    cout << "Don't know how to handle board type \"" << type_s << "\"" << endl;
+    LOG(ERROR) << "Don't know how to handle board type \"" << type_s << "\"" << endl;
   }
 
   board->loadCallback( fs );

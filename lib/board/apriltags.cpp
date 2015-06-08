@@ -1,3 +1,6 @@
+#ifndef USE_APRILTAGS
+#warn "Compiling __FILE__ even though Apriltag support hasn't been configured."
+#else
 
 #include <iostream>
 
@@ -7,7 +10,8 @@
 #include "board/apriltags.h"
 #include "detection/apriltags.h"
 
-#ifdef USE_APRILTAGS
+#include <glog/logging.h>
+
 
 namespace AplCam {
 
@@ -29,7 +33,7 @@ void AprilTagsBoard::loadCallback( FileStorage &fs )
   fs["ids"] >> _ids;
 }
 
-Detection *AprilTagsBoard::detectPattern( const cv::Mat &img, vector< cv::Point2f > &pointbuf )
+Detection *AprilTagsBoard::detectPattern( const cv::Mat &img )
 {
   AprilTags::TagDetector tagDetector( _tagCode );
 

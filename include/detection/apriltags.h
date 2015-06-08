@@ -26,6 +26,7 @@ struct AprilTagsDetection : public Detection
 
     virtual void calculateCorners( const AprilTagsBoard &board );
 
+  virtual Detection::Validate_Return_Code validate( void );
 
   };
 }
