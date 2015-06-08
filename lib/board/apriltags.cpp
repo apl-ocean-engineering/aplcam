@@ -41,7 +41,7 @@ Detection *AprilTagsBoard::detectPattern( const cv::Mat &img )
   ensureGrayscale( img, gray );
 
   vector<AprilTags::TagDetection> detections = tagDetector.extractTags(gray);
-  //cout << "found " << detections.size() << " tags:" << endl;
+  LOG(INFO) << "Detected " << detections.size() << " AprilTags";
 
   AprilTagsDetection *detect = new AprilTagsDetection( detections );
   detect->calculateCorners( *this );

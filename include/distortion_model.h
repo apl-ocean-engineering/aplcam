@@ -2,8 +2,9 @@
 #ifndef __DISTORTION_MODEL_H__
 #define __DISTORTION_MODEL_H__
 
-#include <opencv2/core/core.hpp>
-#include <opencv2/core/affine.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/calib3d.hpp>
+
 #include <vector>
 #include <algorithm>
 
@@ -30,9 +31,15 @@ namespace Distortion {
 
   // For later ... it's all done double precision for now.  Not necessary.
 
+      enum {
+        CALIB_HUBER_LOSS = cv::CALIB_ZERO_DISPARITY << 1
+      };
+
+
 
   class Camera {
     public:
+
 
       virtual ~Camera() {;}
 
@@ -90,7 +97,6 @@ namespace Distortion {
 //       CALIB_FIX_K4                = 128,
 //       CALIB_FIX_INTRINSIC         = 256
 //     };
-
 
       PinholeCamera( void );
       PinholeCamera( const Matx33d &k );

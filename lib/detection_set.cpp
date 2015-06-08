@@ -11,8 +11,6 @@ namespace AplCam {
 
   int DetectionSet::validate( void )
   {
-    size_t sizeBefore( size() );
-
     DetectionMap::iterator newEnd = std::remove_if( _detections.begin(), _detections.end(), RemoveIfNoValidate );
 
     int newSize = 0;
@@ -20,7 +18,7 @@ namespace AplCam {
 
     _detections.resize( newSize );
 
-    return size() - sizeBefore;
+    return size();
 
   }
 

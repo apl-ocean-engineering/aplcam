@@ -196,6 +196,17 @@ const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350,
 
     double *pose = new double[ goodImages * 6];
 
+    ceres::LossFunction *lossFunc =  NULL;
+    
+    if( flags & CALIB_HUBER_LOSS ) {
+      LOG(INFO) << "Using Huber loss function";
+
+      // Need to set parameter, which is in the units
+      // of the residual (pixels, in this case)
+      // It is squared internally
+      lossFunc = new ceres::HuberLoss( 4.0 );
+    }
+
     ceres::Problem problem;
     for( size_t i = 0, idx = 0; i < objectPoints.size(); ++i ) {
       if( result.status[i] ) {
@@ -214,7 +225,7 @@ const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350,
         for( size_t j = 0; j < imagePoints[i].size(); ++j ) {
           ceres::CostFunction *costFunction = CalibReprojectionError::Create( imagePoints[i][j][0], imagePoints[i][j][1],
               objectPoints[i][j][0], objectPoints[i][j][1] );
-          problem.AddResidualBlock( costFunction, NULL, camera, &alpha, p );
+          problem.AddResidualBlock( costFunction, lossFunc, camera, &alpha, p );
         }
       }
     }

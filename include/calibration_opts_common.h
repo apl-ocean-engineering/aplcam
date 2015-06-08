@@ -1,6 +1,7 @@
 #ifndef __CALIBRATION_OPTS_COMMON_H__
 #define __CALIBRATION_OPTS_COMMON_H__
 
+#include <opencv2/calib3d.hpp>
 #include <string>
 
 #include "image.h"
@@ -22,16 +23,18 @@ namespace AplCam {
     CalibrationOptsCommon()
       : dataDir("../data"),
       boardName(), cameraName(), calibrationFile(),
-      calibFlags(0),
-      calibType( DistortionModel::CALIBRATION_NONE )
+      calibType( DistortionModel::CALIBRATION_NONE ),
+      huberLoss( false ),
+      fixSkew( true )
     {;}
 
     string dataDir;
     string boardName;
     string cameraName;
     string calibrationFile;
-    int calibFlags;
     DistortionModel::CalibrationType_t calibType;
+
+    bool huberLoss, fixSkew;
 
     const string boardPath( void ) const
     { return dataDir + "/boards/" + boardName + ".yml"; }
@@ -50,6 +53,17 @@ namespace AplCam {
       string camDir(  dataDir + "/cameras/" + cameraName + "/" );
       if( !directory_exists( camDir ) ) mkdir_p( camDir );
       return camDir + filename;
+    }
+
+    virtual int calibFlags( void ) const {
+      int flags = 0;
+
+      if( huberLoss ) { flags |= Distortion::CALIB_HUBER_LOSS; }
+
+      // FIX_SKEW disappeared from OpenCV...
+      //if( fixSkew )   { flags |= cv::CALIB_FIX_SKEW; }
+
+      return flags;
     }
 
     virtual bool validate( string &msg)
