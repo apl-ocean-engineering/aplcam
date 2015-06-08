@@ -33,6 +33,8 @@ struct Detection
   Distortion::ObjectPointsVec corners;
   std::vector< int > ids;
 
+  float pointSpacing;
+
   cv::Vec3f trans, rot;
   bool hasTrans, hasRot;
 
@@ -48,7 +50,7 @@ struct Detection
   virtual void calculateCorners( const Board &board );
   virtual void drawCorners(  const Board &board, cv::Mat &view ) const;
 
-  typedef enum { NOT_ENOUGH_POINTS = -1, ALL_VALID = 0 } Validate_Return_Code;
+  typedef enum { NO_GOOD_CONFIGURATIONS, NOT_ENOUGH_POINTS = -1, ALL_VALID = 0 } Validate_Return_Code;
 
   virtual Validate_Return_Code validate( void ) { return ALL_VALID; };
 

@@ -30,6 +30,10 @@ namespace AplCam {
     corners.clear();
     ids.clear();
 
+
+    Point3f ptSpace = board.worldLocation( Point2i(0,0) ) - board.worldLocation(Point2i(1,1));
+    pointSpacing =  ptSpace.x * ptSpace.x + ptSpace.y * ptSpace.y;
+
     for( size_t i = 0; i < _det.size(); ++i ) {
 
       Point2i loc;
@@ -47,11 +51,12 @@ namespace AplCam {
   }
 
 
-  typedef vector< std::array< size_t, 3 > > IdArray;
+  typedef vector< std::array< size_t, 4 > > IdArray;
 
   static void buildComboArray( IdArray &arr, size_t maxVal )
   {
-    arr.resize( maxVal * (maxVal-1) * (maxVal-2) );
+    assert( maxVal >= 4 );
+    arr.resize( maxVal * (maxVal-1) * (maxVal-2) * (maxVal - 3) );
 
     size_t idx = 0;
 
@@ -62,29 +67,116 @@ namespace AplCam {
         for( size_t k = 0; k < maxVal; ++k ) {
           if( k == i || k == j ) continue;
 
-          //std::array<size_t,3> a(i,j,k);
-          arr[ idx++ ] = std::array<size_t,3>{ {i,j,k} };
+          for( size_t m = 0; m < maxVal; ++m ) {
+            if( m == i || m == j || m ==k ) continue;
+
+            //std::array<size_t,3> a(i,j,k);
+            arr[ idx++ ] = std::array<size_t,4>{ {i,j,k,m} };
+          }
 
         }
       }
     }
   }
 
+  static bool isInlierPoint( const ImagePoint &img, const ObjectPoint &world, const Mat &H, float thresholdSq ) 
+  {
+    Vec3f wHom;
+    cv::multiply( H, Vec3f( img[0], img[1], 1 ), wHom );
+    Vec3f wPt( wHom[0]/wHom[2], wHom[1]/wHom[2], 0 );
+
+    Vec3f diff = world - wPt;
+
+    float normSq = diff[0]*diff[0] + diff[1]*diff[1];
+
+    return ( normSq < thresholdSq ) ;
+  }
+
   Detection::Validate_Return_Code AprilTagsDetection::validate( void )
   {
     size_t sz( size() );
 
-    if( sz < 4 ) { return NOT_ENOUGH_POINTS; }
+    // Technically you only need 4 but assert you need 5 so you get 1-point robustness
+    if( sz < 5 ) {
+      return NOT_ENOUGH_POINTS;
+    }
 
     IdArray combos;
     buildComboArray( combos, sz );
 
-    for( IdArray::iterator itr = combos.begin(); itr != combos.end(); ++itr ) {
-      LOG(INFO) << "Trying: " << (*itr)[0] << " " << (*itr)[1] << " " << (*itr)[2] << endl;
+    int bestSupport = -1;
+    Mat bestH;
 
+    float threshold = pointSpacing;
+    LOG(INFO) << "Using inlier threshold " << threshold << endl;
+
+    for( IdArray::iterator itr = combos.begin(); itr != combos.end(); ++itr ) {
+      LOG(INFO) << "Trying: " << (*itr)[0] << " " << (*itr)[1] << " " << (*itr)[2] <<  " " << (*itr)[3];
+
+      vector< Point2f > srcPts, dstPts;
+
+      for( int i = 0; i < 4; ++i ) {
+        ImagePoint &img( points[ (*itr)[i] ] );
+        ObjectPoint &wld( corners[ (*itr)[i] ] );
+
+        // Obviously this only works if the distortion is not too terrible
+        srcPts.push_back( Point2f( img[0], img[1] ) );
+        dstPts.push_back( Point2f( wld[0], wld[1] ) );
+      }
+
+      Mat h = findHomography( srcPts, dstPts, 0 );
+
+      // Couldn't find H
+      if( h.empty() ) { continue; }
+
+      // Calculate support
+      int support = 0;
+      for( size_t i = 0; i < sz; ++ i ) {
+        if( i == (*itr)[0] || i == (*itr)[1] || i == (*itr)[2] || i == (*itr)[3] ) continue;
+
+        if( isInlierPoint( points[i], corners[i], h, threshold ) )
+          support++;
+      }
+
+      if( support == (signed int)(sz-4) ) {
+        LOG(INFO) << "Got perfect support.";
+        return ALL_VALID;
+      }
+
+      if( support > bestSupport ) {
+        bestSupport = support;
+        bestH = h;
+      }
 
     }
 
+    if( bestSupport < 0 ) {
+      LOG(INFO) << "Found no good configurations.";
+      // No good configurations
+      return NO_GOOD_CONFIGURATIONS;
+    }
+
+
+    LOG(INFO) << "Best support for " << bestSupport+4 << " / " << sz << " points";
+
+    // Now actually drop outliers.  Awkward right now
+    ObjectPointsVec oldWld( corners );
+    ImagePointsVec oldImg( points );
+    vector< int > oldIds;
+
+    corners.clear();
+    points.clear();
+    ids.clear();
+
+    for( size_t i = 0; i < oldWld.size(); ++i ) {
+      if( isInlierPoint( oldImg[i], oldWld[i], bestH, threshold ) ) {
+        corners.push_back( oldWld[i] );
+        points.push_back( oldImg[i] );
+        ids.push_back( oldIds[i] );
+      }
+
+
+    }
   }
 
 }
