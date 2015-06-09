@@ -248,6 +248,8 @@ namespace Distortion {
             ReprojErrorsVecVec &reprojErrors,
             const vector<bool> mask = vector<bool>() );
 
+        virtual Mat distortionCoeffs( void ) const { return Mat(); }
+
     protected:
 
         double _fx, _fy, _alpha, _cx, _cy;
@@ -280,7 +282,8 @@ namespace Distortion {
 
       // 
     
-    typedef enum { CALIBRATION_NONE, ANGULAR_POLYNOMIAL, RADIAL_POLYNOMIAL, RADIAL8_POLYNOMIAL, CERES_RADIAL } CalibrationType_t;
+    typedef enum { CALIBRATION_NONE, ANGULAR_POLYNOMIAL, 
+      RADIAL8_POLYNOMIAL, CERES_RADIAL, OPENCV_RADIAL } CalibrationType_t;
 
     static CalibrationType_t ParseCalibrationType( const std::string &arg );
     static DistortionModel *MakeDistortionModel( CalibrationType_t type );

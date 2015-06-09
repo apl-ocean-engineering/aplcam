@@ -2,6 +2,8 @@
 #ifndef __DISTORTION_ANGULAR_POLYNOMIAL_H__
 #define __DISTORTION_ANGULAR_POLYNOMIAL_H__
 
+#include <opencv2/core.hpp>
+
 #include "distortion_model.h"
 
 namespace Distortion {
@@ -37,6 +39,12 @@ namespace Distortion {
       }
 
       Vec4d distCoeffs( void ) const    { return _distCoeffs; }
+
+        virtual cv::Mat distortionCoeffs( void ) const 
+        { 
+          Mat m = (cv::Mat_<double>(4,1) << _distCoeffs[0], _distCoeffs[1], _distCoeffs[2], _distCoeffs[3] );
+          return m;
+        }
 
       //static AngularPolynomial Calibrate( const ObjectPointsVecVec &objectPoints, 
       //    const ImagePointsVecVec &imagePoints, const Size& image_size,

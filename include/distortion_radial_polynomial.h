@@ -2,6 +2,8 @@
 #ifndef __DISTORTION_RADIAL_POLYNOMIAL_H__
 #define __DISTORTION_RADIAL_POLYNOMIAL_H__
 
+#include <opencv2/core.hpp>
+
 #include "distortion_model.h"
 
 namespace cv {
@@ -33,10 +35,18 @@ namespace Distortion {
       //  _distCoeffs = k;
       //}
 
-      static const std::string Name( void ) { return "RadialPolynomial"; }
-      virtual const std::string name( void ) const { return RadialPolynomial::Name(); }
+      static const std::string Name( void ) { return "OpencvRadialPolynomial"; }
+      virtual const std::string name( void ) const { return OpencvRadialPolynomial::Name(); }
 
       Vec8d distCoeffs( void ) const    { return _distCoeffs; }
+
+      virtual cv::Mat distortionCoeffs( void ) const 
+      { 
+        cv::Mat m = (cv::Mat_<double>(8,1) << _distCoeffs[0], _distCoeffs[1], _distCoeffs[2], _distCoeffs[3],
+            _distCoeffs[4], _distCoeffs[5], _distCoeffs[6], _distCoeffs[7]);
+        return m;
+      }
+
 
       //static RadialPolynomial Calibrate( const ObjectPointsVecVec &objectPoints, 
       //    const ImagePointsVecVec &imagePoints, const Size& image_size,
@@ -45,11 +55,11 @@ namespace Distortion {
       //    int flags = 0, 
       //    cv::TermCriteria criteria = cv::TermCriteria(cv::TermCriteria::COUNT+cv::TermCriteria::EPS, 100, DBL_EPSILON)  );
 
-       virtual void projectPoints( const ObjectPointsVec &objectPoints, 
+      virtual void projectPoints( const ObjectPointsVec &objectPoints, 
           const Vec3d &_rvec, const Vec3d &_tvec, ImagePointsVec &imagePoints ) const;
 
       virtual cv::FileStorage &write( cv::FileStorage &out ) const;
-      static RadialPolynomial *Load( cv::FileStorage &in );
+      static OpencvRadialPolynomial *Load( cv::FileStorage &in );
 
     protected: 
 
@@ -59,11 +69,11 @@ namespace Distortion {
           int flags = 0, 
           cv::TermCriteria criteria = cv::TermCriteria(cv::TermCriteria::COUNT+cv::TermCriteria::EPS, 100, DBL_EPSILON)  );
 
-       virtual ImagePoint undistort( const ImagePoint &pw ) const;
-       virtual ImagePoint distort( const Vec3f &w ) const ;
+      virtual ImagePoint undistort( const ImagePoint &pw ) const;
+      virtual ImagePoint distort( const Vec3f &w ) const ;
 
-       static const Vec8d InitialDistortionEstimate( void ) 
-       { return Vec8d(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0); }
+      static const Vec8d InitialDistortionEstimate( void ) 
+      { return Vec8d(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0); }
 
       cv::Vec8d _distCoeffs;
 

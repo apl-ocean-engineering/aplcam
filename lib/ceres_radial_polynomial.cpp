@@ -20,31 +20,31 @@ namespace Distortion {
   using namespace std;
 
   CeresRadialPolynomial::CeresRadialPolynomial( void )
-    : RadialPolynomial()
+    : OpencvRadialPolynomial()
   {;}
 
   CeresRadialPolynomial::CeresRadialPolynomial( const Vec4d &d )
-    : RadialPolynomial( d )
+    : OpencvRadialPolynomial( d )
   {;}
 
   CeresRadialPolynomial::CeresRadialPolynomial( const Vec5d &d )
-    : RadialPolynomial( d )
+    : OpencvRadialPolynomial( d )
   {;}
 
   CeresRadialPolynomial::CeresRadialPolynomial( const Vec8d &d )
-    : RadialPolynomial( d )
+    : OpencvRadialPolynomial( d )
   {;}
 
   CeresRadialPolynomial::CeresRadialPolynomial( const Vec4d &d, const Matx33d &cam )
-    : RadialPolynomial( d, cam )
+    : OpencvRadialPolynomial( d, cam )
   {;}
 
   CeresRadialPolynomial::CeresRadialPolynomial( const Vec5d &d, const Matx33d &cam )
-    : RadialPolynomial( d, cam )
+    : OpencvRadialPolynomial( d, cam )
   {;}
 
   CeresRadialPolynomial::CeresRadialPolynomial( const Vec8d &d, const Matx33d &cam )
-    : RadialPolynomial( d, cam )
+    : OpencvRadialPolynomial( d, cam )
   {;}
 
 

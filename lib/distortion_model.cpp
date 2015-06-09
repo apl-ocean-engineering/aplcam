@@ -100,7 +100,7 @@ namespace Distortion {
       } else if ( arg == "radial" ) {
         return CERES_RADIAL;
       } else if ( arg.compare("cv_radial") == 0 ) {
-        return RADIAL_POLYNOMIAL;
+        return OPENCV_RADIAL;
       } 
 
       return CALIBRATION_NONE;
@@ -127,9 +127,9 @@ namespace Distortion {
 return NULL;
           break; 
 
-        case RADIAL_POLYNOMIAL: 
+        case OPENCV_RADIAL:
 //          cout << "Using radial polynomial (normal OpenCV) calibration" << endl; 
-          return new Distortion::RadialPolynomial; 
+          return new Distortion::OpencvRadialPolynomial; 
           break; 
 
         case CALIBRATION_NONE: 
