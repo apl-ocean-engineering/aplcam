@@ -1,5 +1,5 @@
 //
-// Refactoring the OpenCV distortion model, starting with the RadialPolynomial model.
+// Refactoring the OpenCV distortion model, starting with the OpencvRadialPolynomial model.
 // Based on a heavily hacked version of fisheye.cpp from OpenCV.
 //
 /*M///////////////////////////////////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@
 using namespace std;
 
 
-static std::ostream& operator <<(std::ostream& stream, const Distortion::RadialPolynomial &p )
+static std::ostream& operator <<(std::ostream& stream, const Distortion::OpencvRadialPolynomial &p )
 {
   stream << p.f()[0] << " " << p.f()[1] << ", " << p.c()[0] << " " << p.c()[1] << ", " << p.alpha() << ", " << p.distCoeffs()[0] << " " << p.distCoeffs()[1] << " " << p.distCoeffs()[2] << " " << p.distCoeffs()[3];
   return stream;
@@ -69,37 +69,37 @@ namespace Distortion {
   using namespace cv;
   using namespace std;
 
-  RadialPolynomial::RadialPolynomial( void )
+  OpencvRadialPolynomial::OpencvRadialPolynomial( void )
     : DistortionModel(), _distCoeffs( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 )
   {;}
 
-  RadialPolynomial::RadialPolynomial( const Vec4d &d )
+  OpencvRadialPolynomial::OpencvRadialPolynomial( const Vec4d &d )
     : DistortionModel(), _distCoeffs( d[0], d[1], d[2], d[3], 0., 0., 0., 0. )
   {;}
 
-  RadialPolynomial::RadialPolynomial( const Vec5d &d )
+  OpencvRadialPolynomial::OpencvRadialPolynomial( const Vec5d &d )
     : DistortionModel(), _distCoeffs( d[0], d[1], d[2], d[3], d[4], 0., 0., 0. )
   {;}
 
-  RadialPolynomial::RadialPolynomial( const Vec8d &distCoeffs )
+  OpencvRadialPolynomial::OpencvRadialPolynomial( const Vec8d &distCoeffs )
     : DistortionModel(), _distCoeffs( distCoeffs )
   {;}
 
-  RadialPolynomial::RadialPolynomial( const Vec4d &d, const Matx33d &cam )
+  OpencvRadialPolynomial::OpencvRadialPolynomial( const Vec4d &d, const Matx33d &cam )
     : DistortionModel( cam ), _distCoeffs( d[0], d[1], d[2], d[3], 0., 0., 0., 0. )
   {;}
 
-  RadialPolynomial::RadialPolynomial( const Vec5d &d, const Matx33d &cam )
+  OpencvRadialPolynomial::OpencvRadialPolynomial( const Vec5d &d, const Matx33d &cam )
     : DistortionModel( cam ), _distCoeffs( d[0], d[1], d[2], d[3], d[4], 0., 0., 0. )
   {;}
 
-  RadialPolynomial::RadialPolynomial( const Vec8d &distCoeffs, const Matx33d &cam )
+  OpencvRadialPolynomial::OpencvRadialPolynomial( const Vec8d &distCoeffs, const Matx33d &cam )
     : DistortionModel( cam ), _distCoeffs( distCoeffs )
   {;}
 
 
   //  // Static version uses a reasonable estimate based on image size
-  //  RadialPolynomial RadialPolynomial::Calibrate( 
+  //  OpencvRadialPolynomial OpencvRadialPolynomial::Calibrate( 
   //      const ObjectPointsVecVec &objectPoints, 
   //      const ImagePointsVecVec &imagePoints, 
   //      const Size& image_size,
@@ -108,13 +108,13 @@ namespace Distortion {
   //      int flags, 
   //      cv::TermCriteria criteria)
   //  {
-  //    RadialPolynomial fe( InitialDistortionEstimate(), InitialCameraEstimate( image_size ) );
+  //    OpencvRadialPolynomial fe( InitialDistortionEstimate(), InitialCameraEstimate( image_size ) );
   //    fe.calibrate( objectPoints, imagePoints, image_size, rvecs, tvecs, flags, criteria );
   //    return fe;
   //  }
 
 
-  bool RadialPolynomial::doCalibrate(
+  bool OpencvRadialPolynomial::doCalibrate(
       const ObjectPointsVecVec &objectPoints, 
       const ImagePointsVecVec &imagePoints, 
       const Size& imageSize,
@@ -171,7 +171,7 @@ namespace Distortion {
     return result.good;
   }
 
-  void RadialPolynomial::projectPoints( const ObjectPointsVec &objectPoints, 
+  void OpencvRadialPolynomial::projectPoints( const ObjectPointsVec &objectPoints, 
       const Vec3d &rvec, const Vec3d &tvec, ImagePointsVec &imagePoints ) const
   {
 
@@ -179,7 +179,7 @@ namespace Distortion {
   }
 
 
-  ImagePoint RadialPolynomial::distort( const ObjectPoint &w ) const
+  ImagePoint OpencvRadialPolynomial::distort( const ObjectPoint &w ) const
   {
     double theta = atan2( sqrt( w[0]*w[0] + w[1]*w[1] ), w[2] );
     double psi = atan2( w[1], w[0] );
@@ -190,7 +190,7 @@ namespace Distortion {
     return Vec2d( theta_d*cos( psi ), theta_d*sin(psi) );
   }
 
-  ImagePoint RadialPolynomial::undistort( const ImagePoint &pw ) const
+  ImagePoint OpencvRadialPolynomial::undistort( const ImagePoint &pw ) const
   {
     double scale = 1.0;
 
@@ -213,7 +213,7 @@ namespace Distortion {
     return pu;
   }
 
-  FileStorage &RadialPolynomial::write( FileStorage &out ) const
+  FileStorage &OpencvRadialPolynomial::write( FileStorage &out ) const
   {
     DistortionModel::write( out );
     out << "distortion_coefficients" << _distCoeffs;
@@ -221,7 +221,7 @@ namespace Distortion {
     return out;
   }
 
-  RadialPolynomial *RadialPolynomial::Load( cv::FileStorage &in )
+  OpencvRadialPolynomial *OpencvRadialPolynomial::Load( cv::FileStorage &in )
   {
     Mat kmat, distmat;
 
@@ -234,7 +234,7 @@ namespace Distortion {
     kmat.copyTo( k, CV_64F );
     distmat.copyTo( dist, CV_64F );
 
-    return new RadialPolynomial( dist, k );
+    return new OpencvRadialPolynomial( dist, k );
 
   }
 }

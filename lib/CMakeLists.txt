@@ -30,7 +30,7 @@ add_library( aplcam
   pinhole_camera.cpp
   distortion_model.cpp
   angular_polynomial.cpp
-  radial_polynomial.cpp
+  opencv_radial_polynomial.cpp
   ceres_radial_polynomial.cpp
   camera_factory.cpp
   distortion_stereo.cpp

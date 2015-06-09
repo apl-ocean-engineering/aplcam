@@ -147,7 +147,7 @@ namespace Distortion {
   };
 
   struct RadialDistortionFactory {
-    RadialDistortionFactory( double *camera, double *alpha, double *dist )
+    RadialDistortionFactory( double *camera, double *alpha, double *dist, ceres::LossFunction *lossF = NULL )
       : camera_(camera), alpha_(alpha), dist_(dist)
     {;}
 
@@ -161,9 +161,10 @@ namespace Distortion {
       double *k3   = &(dist_[4]);
       double *k456 = &(dist_[5]);
 
-      problem.AddResidualBlock( costFunction, NULL, camera_, alpha_, k12, p12, k3, k456, pose );
+      problem.AddResidualBlock( costFunction, lossFunc_, camera_, alpha_, k12, p12, k3, k456, pose );
     }
 
+    ceres::LossFunction *lossFunc_;
     double *camera_, *alpha_, *dist_, *pose_;
   };
 
@@ -231,8 +232,19 @@ namespace Distortion {
       cout << "Fixing tangential distortion to zero" << endl;
     }
 
+    ceres::LossFunction *lossFunc =  NULL;
+    if( flags & CALIB_HUBER_LOSS ) {
+      LOG(INFO) << "Using Huber loss function";
+
+      // Need to set parameter, which is in the units
+      // of the residual (pixels, in this case)
+      // It is squared internally
+      lossFunc = new ceres::HuberLoss( 4.0 );
+    }
+
+
     double *pose = new double[ goodImages * 6];
-    RadialDistortionFactory factory( camera, &alpha, (_distCoeffs.val) );
+    RadialDistortionFactory factory(  camera, &alpha, (_distCoeffs.val), lossFunc );
 
     ceres::Problem problem;
     for( size_t i = 0, idx = 0; i < objectPoints.size(); ++i ) {

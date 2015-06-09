@@ -15,17 +15,17 @@ namespace Distortion {
   using cv::Vec5d;
   using cv::Vec8d;
 
-  class RadialPolynomial : public DistortionModel {
+  class OpencvRadialPolynomial : public DistortionModel {
     public:
 
 
-      RadialPolynomial( void );
-      RadialPolynomial( const Vec8d &distCoeffs );
-      RadialPolynomial( const Vec5d &distCoeffs );
-      RadialPolynomial( const Vec4d &distCoeffs );
-      RadialPolynomial( const Vec8d &distCoeffs, const Matx33d &cam );
-      RadialPolynomial( const Vec5d &distCoeffs, const Matx33d &cam );
-      RadialPolynomial( const Vec4d &distCoeffs, const Matx33d &cam );
+      OpencvRadialPolynomial( void );
+      OpencvRadialPolynomial( const Vec8d &distCoeffs );
+      OpencvRadialPolynomial( const Vec5d &distCoeffs );
+      OpencvRadialPolynomial( const Vec4d &distCoeffs );
+      OpencvRadialPolynomial( const Vec8d &distCoeffs, const Matx33d &cam );
+      OpencvRadialPolynomial( const Vec5d &distCoeffs, const Matx33d &cam );
+      OpencvRadialPolynomial( const Vec4d &distCoeffs, const Matx33d &cam );
 
       //void set(const cv::Vec2d& f, const cv::Vec2d& c, const double &alpha = 0, const cv::Vec4d& k = Vec4d(0,0,0,0) )
       //{
@@ -69,7 +69,7 @@ namespace Distortion {
 
   };
 
-  class CeresRadialPolynomial : public RadialPolynomial {
+  class CeresRadialPolynomial : public OpencvRadialPolynomial {
     public:
 
       CeresRadialPolynomial( void );
