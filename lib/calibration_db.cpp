@@ -10,6 +10,29 @@ namespace AplCam {
   // CalibrationDb
   //===========================================================================
 
+  CalibrationDb::CalibrationDb( void )
+    : _db()
+  {;}
+
+  CalibrationDb::CalibrationDb( const string &filename, bool writable )
+    : _db()
+  {
+    _db.open( filename, modeFlags( writable ) );
+  }
+
+  bool CalibrationDb::open( const string &filename, bool writable )
+  {
+    return  _db.open( filename, modeFlags( writable ) );
+  }
+
+  uint32_t CalibrationDb::modeFlags( bool writable )
+  {
+    return writable ?
+      ( HashDB::OWRITER | HashDB::OCREATE ) :
+      ( HashDB::OREADER | HashDB::ONOLOCK );
+  }
+
+
   bool CalibrationDb::has( const string &key )
   {
     return (_db.check( key ) != -1 ); 

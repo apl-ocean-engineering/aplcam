@@ -9,22 +9,27 @@
 namespace AplCam {
 
   using std::string;
+  using kyotocabinet::BasicDB;
   using kyotocabinet::HashDB;
 
   class CalibrationDb {
     public:
-      CalibrationDb( const string &filename )
-        : _db()
-      {
-        _isOpen = _db.open( filename );
-      }
+
+      CalibrationDb( void );
+
+      CalibrationDb( const string &filename, bool writable = false );
+
+      bool open( const string &filename, bool writable = false );
+
 
       kyotocabinet::BasicDB::Error error( void ) { return _db.error(); }
       kyotocabinet::DB::Cursor *cursor( void ) { return _db.cursor(); }
 
-      bool isOpened( void ) const { return _isOpen; }
+      bool isOpened( void ) { return (_db.flags() & HashDB::FOPEN); }
+      uint8_t flags( void ) { return _db.flags(); }
 
       bool save( const string &key, const CalibrationSerializer &ser );
+
       bool get( const string &key, string * value )
       { return _db.get( key, value ); }
 
@@ -34,8 +39,9 @@ namespace AplCam {
       
 
     protected:
+      uint32_t modeFlags( bool writable );
+
       HashDB _db;
-      bool _isOpen;
   };
 
 
