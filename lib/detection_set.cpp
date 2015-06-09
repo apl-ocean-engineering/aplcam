@@ -6,7 +6,7 @@ namespace AplCam {
 
   static bool RemoveIfNoValidate( Detection *det )
   {
-    return det->validate() >= 0;
+    return det->validate() < 0;
   }
 
   int DetectionSet::validate( void )
