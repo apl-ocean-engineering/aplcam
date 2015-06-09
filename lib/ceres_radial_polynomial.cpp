@@ -148,7 +148,7 @@ namespace Distortion {
 
   struct RadialDistortionFactory {
     RadialDistortionFactory( double *camera, double *alpha, double *dist, ceres::LossFunction *lossF = NULL )
-      : camera_(camera), alpha_(alpha), dist_(dist)
+      : camera_(camera), alpha_(alpha), dist_(dist), lossFunc_( lossF )
     {;}
 
     void add( ceres::Problem &problem, const ObjectPoint &obj, const ImagePoint &img, double *pose )
@@ -164,8 +164,8 @@ namespace Distortion {
       problem.AddResidualBlock( costFunction, lossFunc_, camera_, alpha_, k12, p12, k3, k456, pose );
     }
 
-    ceres::LossFunction *lossFunc_;
     double *camera_, *alpha_, *dist_, *pose_;
+    ceres::LossFunction *lossFunc_;
   };
 
   bool CeresRadialPolynomial::doCalibrate(
