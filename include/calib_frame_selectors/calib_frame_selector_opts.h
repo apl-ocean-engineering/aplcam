@@ -8,6 +8,11 @@
 
 #include <string>
 
+#include <tclap/CmdLine.h>
+#include <glog/logging.h>
+
+#include "calib_frame_selectors.h"
+
 namespace AplCam {
 
   namespace CalibFrameSelectors {
@@ -16,35 +21,80 @@ namespace AplCam {
 
     using std::string;
 
-    struct RandomSelectorOpts {
-      RandomSelectorOpts()
-        : count(-1) {;}
 
-      long int count;
+    class CalibFrameSelectorOpts {
+      public:
 
-      static struct option long_options[]; 
-      bool parseOpts( int argc, char **argv, string &msg );
+        CalibFrameSelectorOpts( TCLAP::CmdLine &cmd ) :
+          selectorArg("", "selector", "Selector", true, "", "{random}", cmd ),
+          randomCountArg( "", "count", "Count", false, -1, "Count", cmd ),
+          startArg( "", "start-frame", "Start", false, 0, "Start", cmd ),
+          endArg("", "end-frame", "End", false, INT_MAX, "End", cmd ),
+          intervalArg("", "interval", "Interval", false, 0, "Interval (in frames)", cmd )
+          {;}
+
+        FrameSelector *construct( void )
+        {
+          string selector( selectorArg.getValue() );
+          if( selector.compare("random") == 0 ) {
+            if( ! randomCountArg.isSet() ) {
+              LOG(ERROR) << "--count not set for random selector";
+              return NULL;
+            }
+
+            return new RandomFrameSelector( randomCountArg.getValue() );
+          } else if( selector.compare("interval") == 0 ) {
+            if( ! intervalArg.isSet() ) {
+              LOG(ERROR) << "--interval not set for interval selector";
+              return NULL;
+            }
+
+            return new IntervalFrameSelector( startArg.getValue(), intervalArg.getValue(), endArg.getValue() );
+          }
+
+          LOG(ERROR) << "Don't know how to create a selector \"" << selector << "\"";
+          return NULL;
+        }
+
+      protected:
+
+        TCLAP::ValueArg< std::string > selectorArg;
+        TCLAP::ValueArg< int > randomCountArg, startArg, endArg, intervalArg;
+
     };
 
-    struct IntervalSelectorOpts {
-      IntervalSelectorOpts()
-        : start(0), end(INT_MAX), interval(1) {;}
 
-      int start, end, interval;
 
-      static struct option long_options[];
-      bool parseOpts( int argc, char **argv, string &msg );
-    };
+    //
+    //  struct RandomSelectorOpts {
+    //    RandomSelectorOpts()
+    //      : count(-1) {;}
+    //
+    //    long int count;
+    //
+    //    static struct option long_options[]; 
+    //    bool parseOpts( int argc, char **argv, string &msg );
+    //  };
 
-    struct KeyframeSelectorOpts {
-      KeyframeSelectorOpts()
-        : minOverlap( 0.2 ) {;}
-
-      float minOverlap;
-
-      static struct option long_options[];
-      bool parseOpts( int argc, char **argv, string &msg );
-    };
+    //  struct IntervalSelectorOpts {
+    //    IntervalSelectorOpts()
+    //      : start(0), end(INT_MAX), interval(1) {;}
+    //
+    //    int start, end, interval;
+    //
+    //    static struct option long_options[];
+    //    bool parseOpts( int argc, char **argv, string &msg );
+    //  };
+    //
+    //  struct KeyframeSelectorOpts {
+    //    KeyframeSelectorOpts()
+    //      : minOverlap( 0.2 ) {;}
+    //
+    //    float minOverlap;
+    //
+    //    static struct option long_options[];
+    //    bool parseOpts( int argc, char **argv, string &msg );
+    //  };
 
 
 

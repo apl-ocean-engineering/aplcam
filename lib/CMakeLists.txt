@@ -10,8 +10,6 @@ else()
   message( INFO " USE_APRILTAGS not set" )
 endif()
 
-message( WARNING "APRILTAG_SRCS=${APRILTAG_SRCS}" )
-
 add_library( aplcam
   bits_to_hex.cpp
   types.cpp
@@ -42,7 +40,6 @@ add_library( aplcam
   calibration_db.cpp
   splitter_common.cpp
   frame_selector/keyframe_selector.cpp
-  calib_frame_selectors/calib_frame_selector_opts.cpp 
   calib_frame_selectors/random_frame_selector.cpp 
   calib_frame_selectors/keyframe_frame_selector.cpp )
 
