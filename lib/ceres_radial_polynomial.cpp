@@ -325,15 +325,15 @@ namespace Distortion {
   CeresRadialPolynomial *CeresRadialPolynomial::Load( cv::FileStorage &in )
   {
     Mat kmat, distmat;
-
-    in["camera_matrix"] >> kmat;
-    in["distortion_coefficients"] >> distmat;
-
-    Matx33d k;
     Vec8d dist;
 
-    kmat.copyTo( k, CV_64F );
-    distmat.copyTo( dist, CV_64F );
+    in["camera_matrix"] >> kmat;
+    in["distortion_coefficients"] >> dist;
+
+    Matx33d k;
+
+    kmat.convertTo( k, CV_64F );
+    //distmat.copyTo( dist, CV_64F );
 
     return new CeresRadialPolynomial( dist, k );
 

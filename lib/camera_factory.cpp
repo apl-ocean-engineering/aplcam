@@ -4,6 +4,7 @@
 #include "camera_factory.h"
 
 #include "distortion_angular_polynomial.h"
+#include "distortion_radial_polynomial.h"
 
 namespace Distortion {
 
@@ -31,6 +32,8 @@ namespace Distortion {
 
     if( type.compare( AngularPolynomial::Name()  ) == 0 ) {
       out = AngularPolynomial::Load( fs );
+    } else if( type.compare( CeresRadialPolynomial::Name() ) == 0 ) {
+      out = CeresRadialPolynomial::Load( fs );
     } else {
       cerr << "Don't know how to create a camera of type \"" << type << "\"" << endl;
     }

@@ -462,6 +462,7 @@ const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350,
     Vec4d dist;
 
     in["camera_matrix"] >> kmat;
+
     Matx33d k;
     kmat.convertTo( k, CV_64F );
 

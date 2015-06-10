@@ -224,15 +224,15 @@ namespace Distortion {
   OpencvRadialPolynomial *OpencvRadialPolynomial::Load( cv::FileStorage &in )
   {
     Mat kmat, distmat;
-
-    in["camera_matrix"] >> kmat;
-    in["distortion_coefficients"] >> distmat;
-
-    Matx33d k;
     Vec8d dist;
 
+    in["camera_matrix"] >> kmat;
+    in["distortion_coefficients"] >> dist;
+
+    Matx33d k;
+
     kmat.copyTo( k, CV_64F );
-    distmat.copyTo( dist, CV_64F );
+    //distmat.copyTo( dist, CV_64F );
 
     return new OpencvRadialPolynomial( dist, k );
 
