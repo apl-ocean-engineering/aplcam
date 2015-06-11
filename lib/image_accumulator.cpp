@@ -23,7 +23,7 @@ Mat ImageAccumulator::var( void )
   return _var;
 }
 
-bool ImageAccumulator::addImage( const Mat &mat )
+bool ImageAccumulator::add( const Mat &mat )
 {
   _upToDate = false;
 
@@ -53,18 +53,22 @@ void ImageAccumulator::update( void )
     return;
   } 
 
-  _mean = Mat::zeros( _imgs.begin()->size(), 
+  _mean = Mat::zeros( _imgs.begin()->size(),
                      CV_MAKE_TYPE( CV_64F, _imgs.begin()->channels() ) );
-  _var = Mat::zeros( _imgs.begin()->size(), 
-                    CV_MAKE_TYPE( CV_64F, _imgs.begin()->channels() ) );
+  _var = Mat::zeros( _mean.size(), _mean.type() );
 
   for( vector< Mat >::iterator itr = _imgs.begin(); itr != _imgs.end(); ++itr ) {
-    _mean += (*itr);
+    Mat m( _mean.size(), _mean.type() ); 
+    (*itr).convertTo( m, m.type() );
+    _mean += m;
   }
   _mean /= _imgs.size();
 
   for( vector< Mat >::iterator itr = _imgs.begin(); itr != _imgs.end(); ++itr ) {
-    Mat diff = (*itr) - _mean;
+    Mat m( _mean.size(), _mean.type() ); 
+    (*itr).convertTo( m, m.type() );
+
+    Mat diff = m - _mean;
     _var += diff.mul( diff );
   }
   _var /= _imgs.size();

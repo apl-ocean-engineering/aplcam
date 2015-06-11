@@ -15,10 +15,12 @@ class ImageAccumulator {
 
   ImageAccumulator();
 
-  bool addImage( const Mat &mat );
+  bool add( const Mat &mat );
 
   Mat mean( void );
   Mat var( void );
+
+  size_t size( void ) const { return _imgs.size(); }
 
  protected:
 
