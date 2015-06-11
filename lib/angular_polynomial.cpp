@@ -52,6 +52,12 @@ const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350,
     : DistortionModel(), _distCoeffs( distCoeffs )
   {;}
 
+  AngularPolynomial::AngularPolynomial( const Vec8d &coeffs )
+    : DistortionModel( Vec4d( coeffs[0], coeffs[1], coeffs[2], coeffs[3] )),
+    _distCoeffs( Vec4d( coeffs[4], coeffs[5], coeffs[6], coeffs[7] ) )
+  {;}
+
+
   AngularPolynomial::AngularPolynomial( const Vec4d &distCoeffs, const Matx33d &cam )
     : DistortionModel( cam ), _distCoeffs( distCoeffs )
   {;}
@@ -470,6 +476,23 @@ const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350,
 
     return new AngularPolynomial( dist, k );
 
+  }
+
+  DistortionModel *AngularPolynomial::estimateMeanCamera( vector< DistortionModel *> cameras )
+  {
+    Mat mean( Mat::zeros(8,1,CV_64F) );
+    for( size_t i = 0; i < cameras.size(); ++i ) {
+      assert( cameras[i]->name() == name() );
+
+      mean += cameras[i]->coeffMat();
+    }
+
+    mean /= cameras.size();
+
+    Vec8d vecCoeff;
+    mean.copyTo( vecCoeff );
+
+    return new AngularPolynomial( vecCoeff );
   }
 }
 

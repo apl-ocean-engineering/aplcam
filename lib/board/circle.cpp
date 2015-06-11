@@ -25,9 +25,13 @@ Detection *CircleBoard::detectPattern( const cv::Mat &img )
   Mat gray;
   ensureGrayscale( img, gray );
 
+  // Gaussian blur
+  Mat blurred;
+  GaussianBlur( gray, blurred, Size(5,5), 0,0 );
+
   vector<Vec3f> circles;
-  const float accumRes = 1, minDist = 4;
-  HoughCircles( img, circles, HOUGH_GRADIENT, accumRes, minDist, 100, 25 );
+  const float accumRes = 2, minDist = 4;
+  HoughCircles( blurred, circles, HOUGH_GRADIENT, accumRes, minDist, 100, 100 );
 
   return new CircleDetection( circles );
 }
@@ -35,7 +39,7 @@ Detection *CircleBoard::detectPattern( const cv::Mat &img )
 
 
 //===========================================================================
-//  CircleBoard
+//  ColorSegmentationCircleBoard
 //===========================================================================
 
 void ColorSegmentationCircleBoard::loadCallback( FileStorage &fs )
@@ -154,7 +158,7 @@ void CircleGridBoard::loadCallback( FileStorage &fs )
 {
 }
 
-Detection *CircleGridBoard::detectPattern( const cv::Mat &gray, vector< cv::Point2f > &pointbuf )
+Detection *CircleGridBoard::detectPattern( const cv::Mat &gray )
 {
   Detection *detect = new Detection();
   detect->found = findCirclesGrid( gray, size(), detect->points );

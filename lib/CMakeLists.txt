@@ -39,6 +39,8 @@ add_library( aplcam
   feature_tracker.cpp
   calibration_db.cpp
   splitter_common.cpp
+  hough_circles.cpp
+  image_accumulator.cpp
   frame_selector/keyframe_selector.cpp
   calib_frame_selectors/random_frame_selector.cpp 
   calib_frame_selectors/keyframe_frame_selector.cpp )

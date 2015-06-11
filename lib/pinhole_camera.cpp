@@ -19,6 +19,13 @@ namespace Distortion {
     _cx( k(0,2) ), _cy( k(1,2) )
   {;}
 
+  PinholeCamera::PinholeCamera( const Vec4d &coeffs )
+    : _fx( coeffs[0] ), _fy( coeffs[1] ), _alpha( 0.0 ),
+    _cx( coeffs[2] ), _cy( coeffs[3] )
+  {;}
+
+
+
   PinholeCamera::PinholeCamera( const Mat &k )
   { Matx33d kMatx;
     k.convertTo( kMatx, CV_64F );

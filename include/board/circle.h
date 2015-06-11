@@ -62,7 +62,7 @@ class CircleGridBoard : public Board {
 
   virtual ~CircleGridBoard() {;}
 
-  virtual Detection *detectPattern( const cv::Mat &gray, std::vector< cv::Point2f > &pointbuf );
+  virtual Detection *detectPattern( const cv::Mat &gray );
 
  protected:
 

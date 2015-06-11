@@ -35,6 +35,11 @@ namespace Distortion {
     : OpencvRadialPolynomial( d )
   {;}
 
+  CeresRadialPolynomial::CeresRadialPolynomial( const Vec12d &d )
+    : OpencvRadialPolynomial( d )
+  {;}
+
+
   CeresRadialPolynomial::CeresRadialPolynomial( const Vec4d &d, const Matx33d &cam )
     : OpencvRadialPolynomial( d, cam )
   {;}
@@ -338,6 +343,24 @@ namespace Distortion {
     return new CeresRadialPolynomial( dist, k );
 
   }
+
+  DistortionModel *CeresRadialPolynomial::estimateMeanCamera( vector< DistortionModel *> cameras )
+  {
+    Mat mean( Mat::zeros(12,1,CV_64F) );
+    for( size_t i = 0; i < cameras.size(); ++i ) {
+      assert( cameras[i]->name() == name() );
+
+      mean += cameras[i]->coeffMat();
+    }
+
+    mean /= cameras.size();
+
+    Vec12d vecCoeff;
+    mean.copyTo( vecCoeff );
+
+    return new CeresRadialPolynomial( vecCoeff );
+  }
+
 }
 
 

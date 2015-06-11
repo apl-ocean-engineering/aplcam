@@ -4,11 +4,14 @@
 
 #include <opencv2/core.hpp>
 
+#include "cv_types.h"
 #include "distortion_model.h"
 
 namespace Distortion {
 
   using cv::Vec4d;
+  using cv::Vec8d;
+
 
   class AngularPolynomial : public DistortionModel {
     public:
@@ -17,6 +20,8 @@ namespace Distortion {
 
       AngularPolynomial( void );
       AngularPolynomial( const Vec4d &distCoeffs );
+      AngularPolynomial( const Vec8d &coeffs );
+
       AngularPolynomial( const Vec4d &distCoeffs, const Matx33d &cam );
 
       void set(const cv::Vec2d& f, const cv::Vec2d& c, const double &alpha = 0, const cv::Vec4d& k = ZeroDistortion )
@@ -61,6 +66,15 @@ namespace Distortion {
       virtual ImagePointsVec unwarp( const ImagePointsVec &pw ) const;
 
       virtual ImagePoint warp( const ObjectPoint &w ) const;
+
+  virtual DistortionModel *estimateMeanCamera( vector< DistortionModel *> cameras );
+
+        virtual Mat coeffMat( void ) const 
+        {
+          Mat m = (cv::Mat_<double>(8,1) << _fx, _fy, _cx, _cy, _distCoeffs[0], _distCoeffs[1], _distCoeffs[2], _distCoeffs[3]);
+          return m;
+        }
+
 
 
     protected: 

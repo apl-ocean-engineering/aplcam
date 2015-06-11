@@ -19,7 +19,7 @@ using cv::Point;
 void CircleDetection::drawCorners( const Board &board, Mat &view ) const
 {
   for( size_t i = 0; i < _circles.size() ; ++i ) {
-    cv::circle( view, Point( _circles[i][0], _circles[i][1] ), _circles[i][2], Scalar( 0, 0, 255 ), 2 );
+    cv::circle( view, Point( _circles[i][0], _circles[i][1] ), _circles[i][2], Scalar( 0, 0, 255 ), 1 );
   }
 }
 

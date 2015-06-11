@@ -13,146 +13,156 @@
 
 namespace Distortion {
 
-  using namespace AplCam;
+using namespace AplCam;
 
-  using std::vector;
-  using cv::Size;
-  using cv::Mat;
+using std::vector;
+using cv::Size;
+using cv::Mat;
 
-  using cv::Vec2f;
-  using cv::Vec3f;
-  using cv::Point3f;
-  using cv::Point2f;
+using cv::Vec2f;
+using cv::Vec3f;
+using cv::Point3f;
+using cv::Point2f;
 
-  using cv::Vec2d;
-  using cv::Vec3d;
+using cv::Vec2d;
+using cv::Vec3d;
+using cv::Vec4d;
 
-  using cv::Matx33d;
+using cv::Matx33d;
 
-  // For later ... it's all done double precision for now.  Not necessary.
+// For later ... it's all done double precision for now.  Not necessary.
 
-      enum {
-        CALIB_HUBER_LOSS = cv::CALIB_ZERO_DISPARITY << 1
-      };
-
-
-
-  class Camera {
-    public:
+enum {
+  CALIB_HUBER_LOSS = cv::CALIB_ZERO_DISPARITY << 1
+};
 
 
-      virtual ~Camera() {;}
 
-      virtual const std::string name( void ) const = 0;
-      virtual cv::FileStorage &write( cv::FileStorage &out ) const = 0;
-
-      double calibrate( const ObjectPointsVecVec &objectPoints, 
-          const ImagePointsVecVec &imagePoints, const Size& image_size,
-          vector< Vec3d > &rvecs, 
-          vector< Vec3d > &tvecs,
-          int flags = 0, 
-          cv::TermCriteria criteria = cv::TermCriteria(cv::TermCriteria::COUNT+cv::TermCriteria::EPS, 100, DBL_EPSILON)  );  
-
-      bool calibrate( const ObjectPointsVecVec &objectPoints, 
-          const ImagePointsVecVec &imagePoints, const Size& image_size,
-          CalibrationResult &result,
-          int flags = 0, 
-          cv::TermCriteria criteria = cv::TermCriteria(cv::TermCriteria::COUNT+cv::TermCriteria::EPS, 100, DBL_EPSILON)  );
-
-      virtual void projectPoints( const ObjectPointsVec &objectPoints, 
-          const Vec3d &_rvec, const Vec3d &_tvec, ImagePointsVec &imagePoints ) const = 0;
-
-      static Matx33d InitialCameraEstimate( const Size &image_size )
-      {
-        float fEstimate = std::max( image_size.width, image_size.height )/ CV_PI;
-        return Matx33d( fEstimate, 0, image_size.width/2.0 - 0.5,
-            0, fEstimate, image_size.height/2.0 - 0.5,
-            0, 0, 1. );
-      }
-
-    protected:
-
-      virtual bool doCalibrate( const ObjectPointsVecVec &objectPoints, 
-          const ImagePointsVecVec &imagePoints, const Size& image_size,
-          CalibrationResult &result,
-          int flags = 0, 
-          cv::TermCriteria criteria = cv::TermCriteria(cv::TermCriteria::COUNT+cv::TermCriteria::EPS, 100, DBL_EPSILON)  ) {return false; };
+class Camera {
+ public:
 
 
-      Camera() {;}
-  };
+  virtual ~Camera() {;}
 
-  class PinholeCamera : public Camera {
-    public:
+  virtual const std::string name( void ) const = 0;
+  virtual cv::FileStorage &write( cv::FileStorage &out ) const = 0;
 
-     // Must be equal to OpenCV's to avoid nasty conversions
-//     enum{
-//       CALIB_FIX_SKEW              = 
-//       CALIB_RECOMPUTE_EXTRINSIC   = 2,
-//       CALIB_CHECK_COND            = 4,
-//       CALIB_FIX_SKEW              = 8,
-//       CALIB_FIX_K1                = 16,
-//       CALIB_FIX_K2                = 32,
-//       CALIB_FIX_K3                = 64,
-//       CALIB_FIX_K4                = 128,
-//       CALIB_FIX_INTRINSIC         = 256
-//     };
-
-      PinholeCamera( void );
-      PinholeCamera( const Matx33d &k );
-      PinholeCamera( const Mat &k );
-
-      virtual ~PinholeCamera() {;}
-
-      virtual const std::string name( void ) const { return "pinhole"; }
-
-      void setCamera( const Matx33d &k );
-      void setCamera( double fx, double fy, double cx, double cy, double alpha = 1 );
-
-      virtual Matx33d matx( void ) const;
-      virtual Mat mat( void ) const;
-
-      Vec2d  f( void ) const      { return Vec2d( _fx, _fy ); }
-      double fx( void ) const     { return _fx; }
-      double fy( void ) const     { return _fy; }
-      Vec2d c( void ) const       { return Vec2d(_cx,_cy); }
-      double cx( void ) const     { return _cx; }
-      double cy( void ) const     { return _cy; }
-      double alpha( void) const   { return _alpha; }
+  // OpenCV-like API.  The other version returns a CalibrationResult
+  // with more information.
+  double calibrate( const ObjectPointsVecVec &objectPoints, 
+                   const ImagePointsVecVec &imagePoints, const Size& image_size,
+                   vector< Vec3d > &rvecs, 
+                   vector< Vec3d > &tvecs,
+                   int flags = 0, 
+                   cv::TermCriteria criteria = cv::TermCriteria(cv::TermCriteria::COUNT+cv::TermCriteria::EPS, 100, DBL_EPSILON)  );  
 
 
-      virtual cv::FileStorage &write( cv::FileStorage &out ) const;
+  // This does the "prep work", then doCalibrate is the virtual "dirty work" for each distortion model
+  bool calibrate( const ObjectPointsVecVec &objectPoints, 
+                 const ImagePointsVecVec &imagePoints, const Size& image_size,
+                 CalibrationResult &result,
+                 int flags = 0, 
+                 cv::TermCriteria criteria = cv::TermCriteria(cv::TermCriteria::COUNT+cv::TermCriteria::EPS, 100, DBL_EPSILON)  );
 
-      Mat getOptimalNewCameraMatrix( const Size &imgSize, double alpha, 
-          const Size &newImgSize, cv::Rect &validPixROI, bool centerPrincipalPoint = false );
+  virtual void projectPoints( const ObjectPointsVec &objectPoints, 
+                             const Vec3d &_rvec, const Vec3d &_tvec, ImagePointsVec &imagePoints ) const = 0;
 
-      Mat getOptimalNewCameraMatrix( const Size &imgSize, double alpha, 
-          const Size &newImgSize, bool centerPrincipalPoint = false )
-      { cv::Rect validROI;
-        return getOptimalNewCameraMatrix( imgSize, alpha, newImgSize, validROI, centerPrincipalPoint ); }
+  static Matx33d InitialCameraEstimate( const Size &image_size )
+  {
+    float fEstimate = std::max( image_size.width, image_size.height )/ CV_PI;
+    return Matx33d( fEstimate, 0, image_size.width/2.0 - 0.5,
+                   0, fEstimate, image_size.height/2.0 - 0.5,
+                   0, 0, 1. );
+  }
+
+  virtual Mat coeffMat( void ) const = 0;
+
+ protected:
+
+  virtual bool doCalibrate( const ObjectPointsVecVec &objectPoints, 
+                           const ImagePointsVecVec &imagePoints, const Size& image_size,
+                           CalibrationResult &result,
+                           int flags = 0, 
+                           cv::TermCriteria criteria = cv::TermCriteria(cv::TermCriteria::COUNT+cv::TermCriteria::EPS, 100, DBL_EPSILON)  ) {return false; };
 
 
-        // This is the public API which includes normalization with the camera matrix,
-        // as well as re-normalization and rectification with R,P
-        virtual void undistortPoints( const ImagePointsVec &distorted, 
-            ImagePointsVec &undistorted, 
-            const Mat &R = cv::Mat::eye(3,3,CV_64F), 
-            const Mat &P = cv::Mat()) const;
+  Camera() {;}
+};
+
+class PinholeCamera : public Camera {
+ public:
+
+  // Must be equal to OpenCV's to avoid nasty conversions
+  //     enum{
+  //       CALIB_FIX_SKEW              = 
+  //       CALIB_RECOMPUTE_EXTRINSIC   = 2,
+  //       CALIB_CHECK_COND            = 4,
+  //       CALIB_FIX_SKEW              = 8,
+  //       CALIB_FIX_K1                = 16,
+  //       CALIB_FIX_K2                = 32,
+  //       CALIB_FIX_K3                = 64,
+  //       CALIB_FIX_K4                = 128,
+  //       CALIB_FIX_INTRINSIC         = 256
+  //     };
+
+  PinholeCamera( void );
+  PinholeCamera( const Matx33d &k );
+  PinholeCamera( const Mat &k );
+  PinholeCamera( const Vec4d &coeffs );
+
+  virtual ~PinholeCamera() {;}
+
+  virtual const std::string name( void ) const { return "pinhole"; }
+
+  void setCamera( const Matx33d &k );
+  void setCamera( double fx, double fy, double cx, double cy, double alpha = 1 );
+
+  virtual Matx33d matx( void ) const;
+  virtual Mat mat( void ) const;
+
+  Vec2d  f( void ) const      { return Vec2d( _fx, _fy ); }
+  double fx( void ) const     { return _fx; }
+  double fy( void ) const     { return _fy; }
+  Vec2d c( void ) const       { return Vec2d(_cx,_cy); }
+  double cx( void ) const     { return _cx; }
+  double cy( void ) const     { return _cy; }
+  double alpha( void) const   { return _alpha; }
 
 
-  virtual void projectPoint( const ObjectPoint &objPt, const Vec3d &rvec, const Vec3d &tvec, ImagePoint &imgPt ) const;
+  virtual cv::FileStorage &write( cv::FileStorage &out ) const;
 
-      virtual void projectPoints( const ObjectPointsVec &objectPoints, 
-          const Vec3d &_rvec, const Vec3d &_tvec, ImagePointsVec &imagePoints  ) const;
+  Mat getOptimalNewCameraMatrix( const Size &imgSize, double alpha, 
+                                const Size &newImgSize, cv::Rect &validPixROI, bool centerPrincipalPoint = false );
+
+  Mat getOptimalNewCameraMatrix( const Size &imgSize, double alpha, 
+                                const Size &newImgSize, bool centerPrincipalPoint = false )
+  { cv::Rect validROI;
+    return getOptimalNewCameraMatrix( imgSize, alpha, newImgSize, validROI, centerPrincipalPoint ); }
 
 
-        virtual ImagePoint undistort( const ImagePoint &pt, bool reimage = true ) const
-        { ImagePoint p( unwarp( normalize( pt ) ) );
-          return ( reimage ? image( p ) : p ); }
+    // This is the public API which includes normalization with the camera matrix,
+    // as well as re-normalization and rectification with R,P
+    virtual void undistortPoints( const ImagePointsVec &distorted, 
+                                 ImagePointsVec &undistorted, 
+                                 const Mat &R = cv::Mat::eye(3,3,CV_64F), 
+                                 const Mat &P = cv::Mat()) const;
 
-        virtual ImagePointsVec undistort( const ImagePointsVec &vec, bool reimage = true ) const
-        { ImagePointsVec  v( unwarp( normalize( vec ) ) );
-          return ( reimage ? image( v ) : v ); }
+
+    virtual void projectPoint( const ObjectPoint &objPt, const Vec3d &rvec, const Vec3d &tvec, ImagePoint &imgPt ) const;
+
+    virtual void projectPoints( const ObjectPointsVec &objectPoints, 
+                               const Vec3d &_rvec, const Vec3d &_tvec, ImagePointsVec &imagePoints  ) const;
+
+
+    virtual ImagePoint undistort( const ImagePoint &pt, bool reimage = true ) const
+    {
+      ImagePoint p( unwarp( normalize( pt ) ) );
+      return ( reimage ? image( p ) : p ); 
+    }
+
+      virtual ImagePointsVec undistort( const ImagePointsVec &vec, bool reimage = true ) const
+      { ImagePointsVec  v( unwarp( normalize( vec ) ) );
+        return ( reimage ? image( v ) : v ); }
 
         // For clarification, "undistort" is normalize->remove distortion->(optionally) re-image
         // "warp"/"unwawrp" is add/remove distortion
@@ -160,7 +170,7 @@ namespace Distortion {
         // A couple of operator functions suitable for std::transform
         struct TxUndistorter {
           TxUndistorter( const PinholeCamera &cam, bool reimage = true ) 
-            : _cam(cam), _reimage(reimage) {;}
+              : _cam(cam), _reimage(reimage) {;}
           const PinholeCamera &_cam;
           bool _reimage;
 
@@ -171,7 +181,7 @@ namespace Distortion {
 
         struct TxVecUndistorter {
           TxVecUndistorter( const PinholeCamera &cam, bool reimage = true ) 
-            : _cam(cam), _reimage(reimage)  {;}
+              : _cam(cam), _reimage(reimage)  {;}
           const PinholeCamera &_cam;
           bool _reimage;
 
@@ -194,15 +204,15 @@ namespace Distortion {
 
         virtual ImagePoint warp( const ObjectPoint &w ) const { return ImagePoint( w[0]/w[2], w[1]/w[2] ); }
 
-//        struct TxVecNormalizerUndistorter {
-//          TxVecNormalizerUndistorter( const PinholeCamera &cam ) : _cam(cam) {;}
-//          const PinholeCamera &_cam;
-//
-//          ImagePointsVec operator()( const ImagePointsVec &vec )
-//          { ImagePointsVec out = _cam.normalize( vec );
-//            return _cam.undistort(  out ); }
-//        };
-//        TxVecNormalizerUndistorter makeVecNormalizerUndistorter( void ) const { return TxVecNormalizerUndistorter( *this ); }
+        //        struct TxVecNormalizerUndistorter {
+        //          TxVecNormalizerUndistorter( const PinholeCamera &cam ) : _cam(cam) {;}
+        //          const PinholeCamera &_cam;
+        //
+        //          ImagePointsVec operator()( const ImagePointsVec &vec )
+        //          { ImagePointsVec out = _cam.normalize( vec );
+        //            return _cam.undistort(  out ); }
+        //        };
+        //        TxVecNormalizerUndistorter makeVecNormalizerUndistorter( void ) const { return TxVecNormalizerUndistorter( *this ); }
 
         struct TxNormalizer {
           TxNormalizer( const PinholeCamera &cam ) : _cam(cam) {;}
@@ -224,73 +234,87 @@ namespace Distortion {
 
 
         void getRectangles( const Mat &R, const Mat &newCameraMatrix, const Size &imgSize,
-            cv::Rect_<float>& inner, cv::Rect_<float>& outer ) const;
+                           cv::Rect_<float>& inner, cv::Rect_<float>& outer ) const;
 
 
 
         double reprojectionError( const ObjectPointsVec &objPts, 
-            const Vec3d &rvec, const Vec3d &tvec, 
-            const ImagePointsVec &imgPts );
+                                 const Vec3d &rvec, const Vec3d &tvec, 
+                                 const ImagePointsVec &imgPts );
 
         double reprojectionError( const ObjectPointsVec &objPts, 
-            const Vec3d &rvec, const Vec3d &tvec, 
-            const ImagePointsVec &imgPts,
-            ReprojErrorsVec &reprojErrors );
+                                 const Vec3d &rvec, const Vec3d &tvec, 
+                                 const ImagePointsVec &imgPts,
+                                 ReprojErrorsVec &reprojErrors );
 
         double reprojectionError( const ObjectPointsVecVec &obPtsj, 
-            const RotVec &rvecs, const TransVec &tvecs, 
-            const ImagePointsVecVec &imgPts,
-            const vector<bool> mask = vector<bool>() );
+                                 const RotVec &rvecs, const TransVec &tvecs, 
+                                 const ImagePointsVecVec &imgPts,
+                                 const vector<bool> mask = vector<bool>() );
 
         double reprojectionError( const ObjectPointsVecVec &obPtsj, 
-            const RotVec &rvecs, const TransVec &tvecs, 
-            const ImagePointsVecVec &imgPts,
-            ReprojErrorsVecVec &reprojErrors,
-            const vector<bool> mask = vector<bool>() );
+                                 const RotVec &rvecs, const TransVec &tvecs, 
+                                 const ImagePointsVecVec &imgPts,
+                                 ReprojErrorsVecVec &reprojErrors,
+                                 const vector<bool> mask = vector<bool>() );
 
         virtual Mat distortionCoeffs( void ) const { return Mat(); }
 
-    protected:
+        virtual Mat coeffMat( void ) const 
+
+        {
+          Mat m = (cv::Mat_<double>(4,1) << _fx, _fy, _cx, _cy);
+          return m;
+        }
+
+
+ protected:
 
         double _fx, _fy, _alpha, _cx, _cy;
+};
 
-  };
+class DistortionModel : public PinholeCamera {
 
-  class DistortionModel : public PinholeCamera {
+ public:
 
-    public:
+  DistortionModel( void )
+      : PinholeCamera() {;}
 
-      DistortionModel( void )
-        : PinholeCamera() {;}
+  DistortionModel( const Matx33d &cam )
+      : PinholeCamera( cam ) {;}
 
-      DistortionModel( const Matx33d &cam )
-        : PinholeCamera( cam ) {;}
+  DistortionModel( const Vec4d &coeffs )
+      : PinholeCamera( coeffs )
+  {;}
 
-      virtual ~DistortionModel() {;}
+  virtual ~DistortionModel() {;}
 
-      //-- Undistortion functions --
+  //-- Undistortion functions --
 
-      virtual void initUndistortRectifyMap( const Mat &R, const Mat &P,
-          const cv::Size& size, int m1type, Mat &map1, Mat &map2 );
+  virtual void initUndistortRectifyMap( const Mat &R, const Mat &P,
+                                       const cv::Size& size, int m1type, Mat &map1, Mat &map2 );
 
-      void undistortImage( const Mat &distorted, Mat &undistorted,
-          const Mat &Knew, const Size& new_size);
+  void undistortImage( const Mat &distorted, Mat &undistorted,
+                      const Mat &Knew, const Size& new_size);
 
-      void undistortImage( const Mat &distorted, Mat &undistorted )
-      { undistortImage( distorted, undistorted, mat(), distorted.size() ); }
-
-
-      // 
-    
-    typedef enum { CALIBRATION_NONE, ANGULAR_POLYNOMIAL, 
-      RADIAL8_POLYNOMIAL, CERES_RADIAL, OPENCV_RADIAL } CalibrationType_t;
-
-    static CalibrationType_t ParseCalibrationType( const std::string &arg );
-    static DistortionModel *MakeDistortionModel( CalibrationType_t type );
+  void undistortImage( const Mat &distorted, Mat &undistorted )
+  { undistortImage( distorted, undistorted, mat(), distorted.size() ); }
 
 
+  // 
 
-  };
+  typedef enum { CALIBRATION_NONE, ANGULAR_POLYNOMIAL, 
+    RADIAL8_POLYNOMIAL, CERES_RADIAL, OPENCV_RADIAL } CalibrationType_t;
+
+  static CalibrationType_t ParseCalibrationType( const std::string &arg );
+  static DistortionModel *MakeDistortionModel( CalibrationType_t type );
+
+
+  virtual DistortionModel *estimateMeanCamera( vector< DistortionModel *> cameras ) = 0;
+
+
+
+};
 
 }
 

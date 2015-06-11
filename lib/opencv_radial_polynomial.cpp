@@ -85,6 +85,14 @@ namespace Distortion {
     : DistortionModel(), _distCoeffs( distCoeffs )
   {;}
 
+  OpencvRadialPolynomial::OpencvRadialPolynomial( const Vec12d &coeffs)
+      : DistortionModel( Vec4d( coeffs[0], coeffs[1], coeffs[2], coeffs[3] ) ),
+      _distCoeffs( Vec8d( coeffs[4], coeffs[5], coeffs[6], coeffs[7], coeffs[8],
+                         coeffs[9], coeffs[10], coeffs[11] ) )
+  {;}
+
+
+
   OpencvRadialPolynomial::OpencvRadialPolynomial( const Vec4d &d, const Matx33d &cam )
     : DistortionModel( cam ), _distCoeffs( d[0], d[1], d[2], d[3], 0., 0., 0., 0. )
   {;}
@@ -237,6 +245,24 @@ namespace Distortion {
     return new OpencvRadialPolynomial( dist, k );
 
   }
+
+
+  DistortionModel *OpencvRadialPolynomial::estimateMeanCamera( vector< DistortionModel *> cameras )
+  {
+    Mat mean( Mat::zeros(12,1,CV_64F) );
+    for( size_t i = 0; i < cameras.size(); ++i ) {
+      assert( cameras[i]->name() == name() );
+      mean += cameras[i]->coeffMat();
+    }
+
+    mean /= cameras.size();
+
+    Vec12d vecCoeff;
+    mean.copyTo( vecCoeff );
+
+    return new OpencvRadialPolynomial( vecCoeff );
+  }
+
 }
 
 
