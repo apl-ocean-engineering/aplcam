@@ -30,7 +30,8 @@ namespace AplCam {
           randomCountArg( "", "count", "Count", false, -1, "Count", cmd ),
           startArg( "", "start-frame", "Start", false, 0, "Start", cmd ),
           endArg("", "end-frame", "End", false, INT_MAX, "End", cmd ),
-          intervalArg("", "interval", "Interval", false, 0, "Interval (in frames)", cmd )
+          intervalArg("", "interval", "Interval", false, 0, "Interval (in frames)", cmd ),
+          minTagsArg("", "min-tags", "Minimum number of tags", false, -1, "Number of tags", cmd )
           {;}
 
         FrameSelector *construct( void )
@@ -42,14 +43,14 @@ namespace AplCam {
               return NULL;
             }
 
-            return new RandomFrameSelector( randomCountArg.getValue() );
+            return new RandomFrameSelector( randomCountArg.getValue(), minTagsArg.getValue() );
           } else if( selector.compare("interval") == 0 ) {
             if( ! intervalArg.isSet() ) {
               LOG(ERROR) << "--interval not set for interval selector";
               return NULL;
             }
 
-            return new IntervalFrameSelector( startArg.getValue(), intervalArg.getValue(), endArg.getValue() );
+            return new IntervalFrameSelector( startArg.getValue(), intervalArg.getValue(), endArg.getValue(), minTagsArg.getValue() );
           } else if( selector.compare("all-good") == 0 ) {
             return new AllGoodFrameSelector();
           } else if( selector.compare("all") == 0 ) {
@@ -63,7 +64,7 @@ namespace AplCam {
       protected:
 
         TCLAP::ValueArg< std::string > selectorArg;
-        TCLAP::ValueArg< int > randomCountArg, startArg, endArg, intervalArg;
+        TCLAP::ValueArg< int > randomCountArg, startArg, endArg, intervalArg, minTagsArg;
 
     };
 

@@ -21,7 +21,8 @@ namespace AplCam {
 
     class FrameSelector {
       public:
-        FrameSelector()
+        FrameSelector( int minTags = -1 )
+          : _minTags( minTags )
         {;}
 
         virtual ~FrameSelector()
@@ -29,16 +30,27 @@ namespace AplCam {
 
         virtual void generate( DetectionDb &db, DetectionSet &set ) = 0;
 
-        bool isValidFrame( const string &key )
+        bool isNotMeta( const string &key )
         {
           return key != DetectionDb::MetaKey;
         }
+
+        bool minTagCriteriaGiven( void ) { return _minTags > 0; }
+
+        bool hasMinTags( Detection *det )
+        {
+          return (det->size() >= _minTags);
+        }
+
+      protected:
+        int _minTags;
     };
 
 
     class AllFrameSelector : public FrameSelector {
       public:
-        AllFrameSelector( void ) {;}
+        AllFrameSelector( int minTags = -1 )
+        : FrameSelector( minTags ) {;}
 
         virtual void generate( DetectionDb &db, DetectionSet &set )
         {
@@ -46,7 +58,16 @@ namespace AplCam {
           cur->jump();
           string key;
           while( cur->get_key( &key, true ) ) 
-            if( isValidFrame( key ) ) set.addDetection( db, stoi(key) );
+            if( isNotMeta( key ) ) {
+              if( minTagCriteriaGiven() ) {
+                int frame = stoi( key );
+                Detection *detection = db.load( frame );
+                if( hasMinTags( detection ) ) set.addDetection( detection, frame );
+              } else {
+                set.addDetection( db, stoi(key) );
+              }
+            }
+
           set.setName( "all" );
 
           //delete cur;
@@ -56,7 +77,9 @@ namespace AplCam {
 
     class AllGoodFrameSelector : public FrameSelector {
       public:
-        AllGoodFrameSelector( void ) {;}
+        AllGoodFrameSelector( int minTags = -1 )
+        : FrameSelector( minTags ) 
+        {;}
 
         virtual void generate( DetectionDb &db, DetectionSet &set )
         {
@@ -64,10 +87,13 @@ namespace AplCam {
           cur->jump();
           string key, value;
           while( cur->get_key( &key, true ) ){
-            if( !isValidFrame( key ) ) continue;
+            if( !isNotMeta( key ) ) continue;
 
             int frame = stoi( key );
             Detection *detection = db.load( frame );
+
+            if( minTagCriteriaGiven() and !hasMinTags( detection ) ) continue;
+
             if( detection ) {
               if( detection->rot[0] == 0.0 && detection->rot[1] == 0.0 && detection->rot[2] == 0.0 ) continue;
 
@@ -87,8 +113,8 @@ namespace AplCam {
 
     class RandomFrameSelector : public FrameSelector {
       public:
-        RandomFrameSelector( int c )
-          : _count( c )
+        RandomFrameSelector( int c, int minTags = -1 )
+          : FrameSelector( minTags ), _count( c )
         {;}
 
 
@@ -106,8 +132,8 @@ namespace AplCam {
 
     class IntervalFrameSelector : public FrameSelector {
       public:
-        IntervalFrameSelector( int s, int i, int e = INT_MAX )
-          : _start( s ), _end( e ), _interval( i )
+        IntervalFrameSelector( int s, int i, int e = INT_MAX, int minTags = -1 )
+          : FrameSelector( minTags ), _start( s ), _end( e ), _interval( i )
         {;}
 
         //  IntervalFrameSelector( const IntervalSelectorOpts &opts )
@@ -134,8 +160,8 @@ namespace AplCam {
 
     class KeyframeFrameSelector : public FrameSelector {
       public:
-        KeyframeFrameSelector( const Board &board )
-          : _board(board), _minOverlap( 0.3 )
+        KeyframeFrameSelector( const Board &board, int minTags = -1 )
+          : FrameSelector( minTags ), _board(board), _minOverlap( 0.3 )
         {;}
 
         //  KeyframeFrameSelector( const Board &board, const KeyframeSelectorOpts &opts )

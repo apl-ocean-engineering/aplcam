@@ -74,7 +74,8 @@ void KeyframeFrameSelector::generate( DetectionDb &db, DetectionSet &set )
 
     if( det == NULL ) continue;
 
-    if( det->points.size() < 4 ) continue;
+    int minTags = std::max( _minTags, 4 );
+    if( det->points.size() < minTags ) continue;
 
     Matx33d h = det->boardToImageH();
 
