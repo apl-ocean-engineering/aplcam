@@ -90,6 +90,7 @@ namespace AplCam {
     const Mat &operator[]( int i ) const { return roi[i]; }
 
     Size size( void ) const { return canvas.size(); }
+    int type( void ) const { return canvas.type(); }
 
     void copyConvert( int i, const Mat &mat, float alpha = 1 )
     {
@@ -156,6 +157,7 @@ namespace AplCam {
 
     bool seek( double frame ) { return _video.set( CV_CAP_PROP_POS_FRAMES, frame ); }
     bool rewind( void )       { _video.release(); _video.open( _filepath ); }
+    double frame( void )      { return get( CV_CAP_PROP_POS_FRAMES ); }
 
     double fps( void )        { return _video.get( CV_CAP_PROP_FPS ); }
     Size   fullSize( void )   { return cv::Size( _video.get( CV_CAP_PROP_FRAME_WIDTH ),
