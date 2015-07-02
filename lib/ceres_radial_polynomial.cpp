@@ -281,7 +281,7 @@ namespace Distortion {
     if( ! (flags & CV_CALIB_RATIONAL_MODEL ) ) problem.SetParameterBlockConstant( &(_distCoeffs[5]) );
 
     ceres::Solver::Options options;
-    options.linear_solver_type = ceres::DENSE_SCHUR;
+    options.linear_solver_type = ceres::SPARSE_NORMAL_CHOLESKY; //ceres::SPARSE_SCHUR
     options.max_num_iterations = criteria.maxCount;
     options.minimizer_progress_to_stdout = true;
 

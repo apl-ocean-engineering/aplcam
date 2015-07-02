@@ -241,7 +241,7 @@ const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350,
       problem.SetParameterBlockConstant( &alpha );
 
     ceres::Solver::Options options;
-    options.linear_solver_type = ceres::DENSE_SCHUR;
+    options.linear_solver_type = ceres::SPARSE_NORMAL_CHOLESKY; //ceres::DENSE_SCHUR;
     options.max_num_iterations = criteria.maxCount;
     options.minimizer_progress_to_stdout = true;
 
