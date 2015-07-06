@@ -1,19 +1,22 @@
 
-#include "distortion_model.h"
+#include "distortion/distortion_model.h"
 
 namespace Distortion {
 
   using namespace std;
   using namespace cv;
 
-  double Camera::calibrate( const ObjectPointsVecVec &objectPoints, 
+// Provides a more OpenCV-like API.  Calls the other version, when unpacks
+// the CalibrationResult to create the appropriate return values.
+  double Camera::calibrate( const ObjectPointsVecVec &objectPoints,
       const ImagePointsVecVec &imagePoints, const Size& image_size,
-      vector< Vec3d > &rvecs, 
+      vector< Vec3d > &rvecs,
       vector< Vec3d > &tvecs,
       int flags,
       cv::TermCriteria criteria )
   {
     CalibrationResult result;
+
     calibrate( objectPoints, imagePoints, image_size, result, flags, criteria );
 
     rvecs.clear();
@@ -26,7 +29,7 @@ namespace Distortion {
   }
 
   // This does the "prep work", then doCalibrate is the virtual "dirty work" for each distortion model
-  bool Camera::calibrate( const ObjectPointsVecVec &objectPoints, 
+  bool Camera::calibrate( const ObjectPointsVecVec &objectPoints,
       const ImagePointsVecVec &imagePoints, const Size& image_size,
       CalibrationResult &result,
       int flags,
@@ -52,4 +55,3 @@ namespace Distortion {
 
 
 };
-

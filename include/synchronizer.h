@@ -34,7 +34,7 @@ class Synchronizer
     // Tools for estimating initial offset
     IndexPair getSpan( const TransitionVec &transition,  int start, int length );
     bool shiftSpan( const  TransitionVec &transition, IndexPair &pair, int length, int direction );
-    float compareSpans( const TransitionVec &thisTransitions,  IndexPair &thisSpan,  
+    float compareSpans( const TransitionVec &thisTransitions,  IndexPair &thisSpan,
         const TransitionVec &otherTransitions, IndexPair &otherSpan );
 
     struct OffsetResult {
@@ -86,7 +86,7 @@ class SynchroKalmanFilter
 };
 
 
-class KFSynchronizer : public Synchronizer 
+class KFSynchronizer : public Synchronizer
 {
   public:
     KFSynchronizer( VideoLookahead &v0, VideoLookahead &v1 );
@@ -110,4 +110,3 @@ class KFSynchronizer : public Synchronizer
 
 
 #endif
-

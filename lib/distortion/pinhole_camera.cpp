@@ -1,7 +1,7 @@
 
 #include <iostream>
 
-#include "distortion_model.h"
+#include "distortion/pinhole_camera.h"
 
 namespace Distortion {
 
@@ -15,7 +15,7 @@ namespace Distortion {
   {;}
 
   PinholeCamera::PinholeCamera( const Matx33d &k )
-    : _fx( k(0,0) ), _fy( k(1,1) ), _alpha( k(0,1)/_fx ), 
+    : _fx( k(0,0) ), _fy( k(1,1) ), _alpha( k(0,1)/_fx ),
     _cx( k(0,2) ), _cy( k(1,2) )
   {;}
 
@@ -29,8 +29,11 @@ namespace Distortion {
   PinholeCamera::PinholeCamera( const Mat &k )
   { Matx33d kMatx;
     k.convertTo( kMatx, CV_64F );
-    setCamera( kMatx ); 
+    setCamera( kMatx );
   }
+
+
+  // ---- Accessor functions ---
 
   void PinholeCamera::setCamera( const Matx33d &k )
   {
@@ -46,18 +49,27 @@ namespace Distortion {
     _alpha = alpha;
   }
 
-  Matx33d PinholeCamera::matx( void ) const 
+  void PinholeCamera::setCamera( const double *c, double alpha )
+  {
+    setCamera( c[0], c[1], c[2], c[3], alpha );
+  }
+
+  Matx33d PinholeCamera::matx( void ) const
   {
     return Matx33d( _fx, _alpha*_fx, _cx, 0., _fy, _cy, 0., 0., 1. );
   }
 
   Mat PinholeCamera::mat( void ) const
-  { return Mat(matx()); }
+  {
+    return Mat(matx());
+  }
+
+  // --- Image/normalize functions ----
 
   ImagePoint PinholeCamera::image( const ImagePoint &xd ) const
   {
     return  ImagePoint( _fx * ( xd[0] + _alpha*xd[1] ) + _cx,
-        _fy *   xd[1]                    + _cy );
+                        _fy *   xd[1]                    + _cy );
   }
 
   ImagePoint PinholeCamera::normalize( const ImagePoint &pt ) const
@@ -66,14 +78,9 @@ namespace Distortion {
         1.0 / _fy * (pt[1] - _cy ) );
   }
 
-  FileStorage &PinholeCamera::write( FileStorage &out ) const
-  {
-    out << "camera_model" << name();
-    out << "camera_matrix" << mat();
-    return out;
-  }
+  //---- getOptimalNewCameraMatrix ----
 
-  Mat PinholeCamera::getOptimalNewCameraMatrix( const Size &imgSize, 
+  Mat PinholeCamera::getOptimalNewCameraMatrix( const Size &imgSize,
       double alpha, const Size &newImgSize,
       Rect &validPixROI, bool centerPrincipalPoint )
   {
@@ -153,6 +160,14 @@ namespace Distortion {
     return output;
   }
 
+  // As above, but discards ROI
+  Mat PinholeCamera::getOptimalNewCameraMatrix( const Size &imgSize, double alpha,
+                                const Size &newImgSize, bool centerPrincipalPoint )
+  {
+    cv::Rect validROI;
+    return getOptimalNewCameraMatrix( imgSize, alpha, newImgSize, validROI, centerPrincipalPoint );
+  }
+
 
   void PinholeCamera::getRectangles(
       const Mat &R, const Mat &newCameraMatrix, const Size &imgSize,
@@ -195,8 +210,9 @@ namespace Distortion {
     outer = Rect_<float>(oX0, oY0, oX1-oX0, oY1-oY0);
   }
 
-  struct TxReprojector {
-    TxReprojector( const Matx33d &mat ) : _mat( mat ) {;}
+
+  struct ReprojectorFunctor {
+    ReprojectorFunctor( const Matx33d &mat ) : _mat( mat ) {;}
     Matx33d _mat;
 
     ImagePoint operator()( const ImagePoint &pt )
@@ -207,10 +223,8 @@ namespace Distortion {
     }
   };
 
-
-
-  void PinholeCamera::undistortPoints( const ImagePointsVec &distorted, 
-      ImagePointsVec &undistorted, 
+  void PinholeCamera::undistortPoints( const ImagePointsVec &distorted,
+      ImagePointsVec &undistorted,
       const Mat &R, const Mat &P) const
   {
     // will support only 2-channel data now for points
@@ -237,10 +251,10 @@ namespace Distortion {
       RR = PP * RR;
     }
 
-    undistorted = unwarp( normalize(distorted ) );
+    undistorted = normalizeUndistort( distorted );
 
     std::transform( undistorted.begin(), undistorted.end(), undistorted.begin(),
-        TxReprojector( RR ) );
+        ReprojectorFunctor( RR ) );
 
 
     //    for(size_t i = 0; i < distorted.size(); i++ )
@@ -260,16 +274,14 @@ namespace Distortion {
   void PinholeCamera::projectPoint( const ObjectPoint &objPt, const Vec3d &rvec, const Vec3d &tvec, ImagePoint &imgPt ) const
   {
    Affine3d aff(rvec, tvec);
-
-      Vec3d Xworld( objPt );
+  Vec3d Xworld( objPt );
       Vec3d Xcam( aff*Xworld );
 
-      Vec2d warped = warp( Xcam );
-      imgPt = image( warped );
+      imgPt = image( distort( Xcam ) );
   }
 
 
-  void PinholeCamera::projectPoints( const ObjectPointsVec &objectPoints, 
+  void PinholeCamera::projectPoints( const ObjectPointsVec &objectPoints,
       const Vec3d &rvec, const Vec3d &tvec, ImagePointsVec &imagePoints ) const
   {
     // will support only 3-channel data now for points
@@ -281,8 +293,7 @@ namespace Distortion {
       Vec3d Xworld( objectPoints[i] );
       Vec3d Xcam( aff*Xworld );
 
-      Vec2d warped = warp( Xcam );
-      Vec2d imaged = image( warped );
+      Vec2d imaged = image( distort( Xcam ) );
       imagePoints[i] = imaged;
     }
   }
@@ -292,32 +303,24 @@ namespace Distortion {
   {
     ImagePointsVec out( vec.size() );
     std::transform( vec.begin(), vec.end(), out.begin(), makeImager() );
-    return out; 
+    return out;
   }
 
   ImagePointsVec PinholeCamera::normalize( const ImagePointsVec &vec ) const
   {
     ImagePointsVec out;
     std::transform( vec.begin(), vec.end(), back_inserter( out ), makeNormalizer() );
-    return out; 
+    return out;
   }
-
-  ImagePointsVec PinholeCamera::unwarp( const ImagePointsVec &pw ) const
-  {
-    ImagePointsVec out( pw.size() );
-    std::transform( pw.begin(), pw.end(), out.begin(), TxUndistorter( *this ) );
-    return out; 
-  }
-
 
   // Many, slightly different permutations on the same thing depending on the desired outcome.
   // Could be cleaned up to reduce DRY?
   //
-  // Based on the assumption that the ReprojErrors* version use more storage 
+  // Based on the assumption that the ReprojErrors* version use more storage
   // space that doesn't need to be used if the norm is being calculated just once
 
-  double PinholeCamera::reprojectionError( const ObjectPointsVec &objPts, 
-      const Vec3d &rvec, const Vec3d &tvec, 
+  double PinholeCamera::reprojectionError( const ObjectPointsVec &objPts,
+      const Vec3d &rvec, const Vec3d &tvec,
       const ImagePointsVec &imgPts )
   {
     ImagePointsVec projPts;
@@ -326,8 +329,8 @@ namespace Distortion {
     return sqrt( (err*err) / objPts.size() );
   }
 
-  double PinholeCamera::reprojectionError( const ObjectPointsVec &objPts, 
-      const Vec3d &rvec, const Vec3d &tvec, 
+  double PinholeCamera::reprojectionError( const ObjectPointsVec &objPts,
+      const Vec3d &rvec, const Vec3d &tvec,
       const ImagePointsVec &imgPts,
       ReprojErrorsVec &reproj )
   {
@@ -339,9 +342,9 @@ namespace Distortion {
 
 
 
-  double PinholeCamera::reprojectionError( const ObjectPointsVecVec &objPts, 
-                                             const RotVec &rvecs, 
-                                             const TransVec &tvecs, 
+  double PinholeCamera::reprojectionError( const ObjectPointsVecVec &objPts,
+                                             const RotVec &rvecs,
+                                             const TransVec &tvecs,
                                              const ImagePointsVecVec &imgPts,
                                              const vector<bool> mask )
   {
@@ -363,13 +366,13 @@ namespace Distortion {
     return sqrt(rms/numPoints);
   }
 
-  double PinholeCamera::reprojectionError( const ObjectPointsVecVec &objPts, 
-                                             const RotVec &rvecs, 
-                                             const TransVec &tvecs, 
+  double PinholeCamera::reprojectionError( const ObjectPointsVecVec &objPts,
+                                             const RotVec &rvecs,
+                                             const TransVec &tvecs,
                                              const ImagePointsVecVec &imgPts,
                                              ReprojErrorsVecVec &reproj,
                                              const vector<bool> mask )
-  { 
+  {
     int numPoints = 0;
     double rms = 0.0;
 
@@ -392,5 +395,14 @@ namespace Distortion {
   }
 
 
-};
 
+ // --- Serialization/unserialization functions ----
+ FileStorage &PinholeCamera::write( FileStorage &out ) const
+ {
+   out << "camera_model" << name();
+   out << "camera_matrix" << mat();
+   return out;
+ }
+
+
+};

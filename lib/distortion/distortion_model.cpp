@@ -4,9 +4,9 @@ using namespace std;
 
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include "distortion_model.h"
-#include "distortion_angular_polynomial.h"
-#include "distortion_radial_polynomial.h"
+#include "distortion/distortion_model.h"
+#include "distortion/angular_polynomial.h"
+#include "distortion/radial_polynomial.h"
 
 namespace Distortion {
 
@@ -64,7 +64,7 @@ namespace Distortion {
 
       for( int j = 0; j < size.width; ++j)
       {
-        ImagePoint pt( image( warp( world ) ) );
+        ImagePoint pt( distortImage( world ) );
         double u = pt[0], v = pt[1];
 
         if( m1type == CV_16SC2 )
@@ -87,10 +87,20 @@ namespace Distortion {
   }
 
 
-  //
-  // 
-  //
-  //
+  // This is actually meaningful in DistortionModel, the version in
+  // PinholeCamera does nothing
+  ImagePointsVec DistortionModel::undistort( const ImagePointsVec &pw ) const
+  {
+    ImagePointsVec out( pw.size() );
+    std::transform( pw.begin(), pw.end(), out.begin(), makeUndistorter() );
+    return out;
+  }
+
+
+
+
+
+  //--- Statics related to unserailizing cameras... ----
 
   DistortionModel::CalibrationType_t DistortionModel::ParseCalibrationType( const string &arg )
     {
@@ -101,7 +111,7 @@ namespace Distortion {
         return CERES_RADIAL;
       } else if ( arg.compare("cv_radial") == 0 ) {
         return OPENCV_RADIAL;
-      } 
+      }
 
       return CALIBRATION_NONE;
     }
@@ -110,32 +120,32 @@ namespace Distortion {
 
   DistortionModel *DistortionModel::MakeDistortionModel( CalibrationType_t type )
     {
-      // Could/should farm this out to distortion.. 
-      switch( type ) { 
-        case ANGULAR_POLYNOMIAL: 
-//          cout << "Using angular polynomial (Olson) calibration" << endl; 
-          return new Distortion::AngularPolynomial; 
-          break; 
+      // Could/should farm this out to distortion..
+      switch( type ) {
+        case ANGULAR_POLYNOMIAL:
+//          cout << "Using angular polynomial (Olson) calibration" << endl;
+          return new Distortion::AngularPolynomial;
+          break;
 
         case CERES_RADIAL:
           return new Distortion::CeresRadialPolynomial;
           break;
 
-        case RADIAL8_POLYNOMIAL: 
-//          cout << "Using radial polynomial (normal OpenCV) 8-coefficient calibration" << endl; 
-//          return new Distortion::RadialPolynomial( CV_CALIB_RATIONAL_MODEL ); 
+        case RADIAL8_POLYNOMIAL:
+//          cout << "Using radial polynomial (normal OpenCV) 8-coefficient calibration" << endl;
+//          return new Distortion::RadialPolynomial( CV_CALIB_RATIONAL_MODEL );
 return NULL;
-          break; 
+          break;
 
         case OPENCV_RADIAL:
-//          cout << "Using radial polynomial (normal OpenCV) calibration" << endl; 
-          return new Distortion::OpencvRadialPolynomial; 
-          break; 
+//          cout << "Using radial polynomial (normal OpenCV) calibration" << endl;
+          return new Distortion::OpencvRadialPolynomial;
+          break;
 
-        case CALIBRATION_NONE: 
-        default: 
-//          cout << "Not calibration model specified!" << endl; 
-          return NULL; 
+        case CALIBRATION_NONE:
+        default:
+//          cout << "Not calibration model specified!" << endl;
+          return NULL;
       }
 
       return NULL;
@@ -145,4 +155,3 @@ return NULL;
 
 
 }
-

@@ -15,7 +15,7 @@
 
 namespace AplCam {
 
-using cv::Mat;
+using namespace cv;
 
 
 //===========================================================================
@@ -50,9 +50,9 @@ Detection *AprilTagsBoard::detectPattern( const cv::Mat &img )
 
 bool AprilTagsBoard::find( const int id, cv::Point2i &xy  ) const
 {
-  for( int x = 0; x < width; ++x ) 
-    for( int y = 0; y < height; ++y ) 
-      if( _ids.at<int>(y,x) == id ) 
+  for( int x = 0; x < width; ++x )
+    for( int y = 0; y < height; ++y )
+      if( _ids.at<int>(y,x) == id )
       {
         xy.x = x; xy.y = y;
         return true;
@@ -64,8 +64,8 @@ bool AprilTagsBoard::find( const int id, cv::Point2i &xy  ) const
 std::vector< int > AprilTagsBoard::ids( void )
 {
   vector< int > out;
-  for( int x = 0; x < width; ++x ) 
-    for( int y = 0; y < height; ++y ) 
+  for( int x = 0; x < width; ++x )
+    for( int y = 0; y < height; ++y )
       out.push_back( _ids.at< int >( y, x ) );
 
   return out;

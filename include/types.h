@@ -11,7 +11,7 @@ namespace AplCam {
   using cv::Vec3d;
 
   using std::vector;
-    
+
 
   typedef Vec3f ObjectPoint;
   typedef vector< ObjectPoint > ObjectPointsVec;
