@@ -215,8 +215,13 @@ namespace Distortion {
                     virtual ImagePoint     undistort( const ImagePoint &pw ) const
                     { return pw; }
 
-                    virtual ImagePointsVec undistort( const ImagePointsVec &pw ) const
-                    { return pw; }
+                    virtual ImagePointsVec undistortVec( const ImagePointsVec &pw ) const
+                    {
+                      ImagePointsVec out;
+                      for(size_t i = 0; i < pw.size(); ++i)
+                      out.push_back( undistort( pw[i] ));
+                      return out;
+                    }
 
                     virtual ImagePoint distort( const ImagePoint &w ) const
                     { return w; }
@@ -240,7 +245,7 @@ namespace Distortion {
                       const PinholeCamera &_cam;
 
                       ImagePointsVec operator()( const ImagePointsVec &vec )
-                      { return _cam.undistort( vec ); }
+                      { return _cam.undistortVec( vec ); }
                     };
                     VecUndistortFunctor makeVecUndistorter( void ) const { return VecUndistortFunctor( *this ); }
 
@@ -251,13 +256,13 @@ namespace Distortion {
                     { return undistort( normalize(pw) ); }
 
                     virtual ImagePointsVec normalizeUndistort( const ImagePointsVec &pw ) const
-                    { return undistort( normalize(pw) ); }
+                    { return undistortVec( normalize(pw) ); }
 
                     virtual ImagePoint     normalizeUndistortImage( const ImagePoint &pw ) const
                     { return image( undistort( normalize(pw) ) ); }
 
                     virtual ImagePointsVec normalizeUndistortImage( const ImagePointsVec &pw ) const
-                    { return image( undistort( normalize(pw) ) ); }
+                    { return image( undistortVec( normalize(pw) ) ); }
 
                     virtual ImagePointsVecVec normalizeUndistortImage( const ImagePointsVecVec &pw ) const;
 

@@ -103,7 +103,7 @@ namespace Distortion {
         }
 
 
-        ImagePoint RadialPolynomial::warp( const ObjectPoint &w ) const
+        ImagePoint RadialPolynomial::distort( const ObjectPoint &w ) const
         {
           double theta = atan2( sqrt( w[0]*w[0] + w[1]*w[1] ), w[2] );
           double psi = atan2( w[1], w[0] );
@@ -114,7 +114,7 @@ namespace Distortion {
           return Vec2d( theta_d*cos( psi ), theta_d*sin(psi) );
         }
 
-        ImagePoint RadialPolynomial::unwarp( const ImagePoint &pw ) const
+        ImagePoint RadialPolynomial::undistort( const ImagePoint &pw ) const
         {
           double scale = 1.0;
 

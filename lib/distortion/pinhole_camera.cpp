@@ -320,7 +320,7 @@ namespace Distortion {
   {
     ImagePointsVecVec out;
     for( unsigned int i = 0; i < pw.size(); ++i )
-    out.push_back( image( undistort( normalize(pw[i]) ) ) );
+      out.push_back( image( undistortVec( normalize(pw[i]) ) ) );
     return out;
   }
 
