@@ -42,8 +42,6 @@ virtual Mat coefficientsMat( void ) const;
   virtual void projectPoints( const ObjectPointsVec &objectPoints,
                              const Vec3d &_rvec, const Vec3d &_tvec, ImagePointsVec &imagePoints ) const;
 
-
-
   virtual ImagePoint undistort( const ImagePoint &pw ) const;
   virtual ImagePoint distort( const ObjectPoint &w ) const ;
 
