@@ -21,7 +21,7 @@ struct PerspectiveMapTx {
 
   Point2f operator()( const Point2f &in )
   {
-    Vec3f o = _h * Vec3f( in.x, in.y, 1 );
+    Vec3f o = _h * Vec3d( in.x, in.y, 1 );
     return Point2f( o[0]/o[2], o[1]/o[2] );
   }
 
@@ -39,10 +39,10 @@ void KeyframeFrameSelector::generate( DetectionDb &db, DetectionSet &set )
   // Don't trust ordering, do it yourself
   float xmin = DBL_MAX, xmax = -DBL_MAX, ymin = DBL_MAX, ymax = -DBL_MAX;
   for( size_t i = 0; i < boardExtent.size(); ++i ) {
-    xmin = std::min( xmin, boardExtent[i][0] ); 
-    xmax = std::max( xmax, boardExtent[i][0] ); 
-    ymin = std::min( ymin, boardExtent[i][1] ); 
-    ymax = std::max( ymax, boardExtent[i][1] ); 
+    xmin = std::min( xmin, boardExtent[i][0] );
+    xmax = std::max( xmax, boardExtent[i][0] );
+    ymin = std::min( ymin, boardExtent[i][1] );
+    ymax = std::max( ymax, boardExtent[i][1] );
   }
 
   vector< Point2f > bd, sq;
@@ -128,12 +128,12 @@ void KeyframeFrameSelector::generate( DetectionDb &db, DetectionSet &set )
     // Draw points from unit square, transform to board space, to image space, then back again.
     const int numRand = 1000;
     int inOverlap = 0;
-    Matx33f tx = toUnitSq * prevHinv * h * toUnitSqInv; 
+    Matx33f tx = toUnitSq * prevHinv * h * toUnitSqInv;
     for( int p = 0; p < numRand; ++p ) {
       Vec3f o = tx * Vec3f( drand48(), drand48(), 1.0 );
       Point2f op( o[0]/o[2], o[1]/o[2] );
 
-      if( op.x >= 0.0 && op.x < 1.0 && 
+      if( op.x >= 0.0 && op.x < 1.0 &&
          op.y >= 0.0 && op.y < 1.0 ) ++inOverlap;
     }
 
@@ -167,5 +167,3 @@ void KeyframeFrameSelector::generate( DetectionDb &db, DetectionSet &set )
 
 }
 }
-
-

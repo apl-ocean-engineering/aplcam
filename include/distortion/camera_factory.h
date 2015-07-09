@@ -24,4 +24,3 @@ namespace Distortion {
 }
 
 #endif
-

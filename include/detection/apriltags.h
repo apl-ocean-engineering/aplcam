@@ -7,7 +7,6 @@
 #include <opencv2/core/core.hpp>
 
 #include "board/apriltags.h"
-#include "distortion_model.h"
 
 #include <kchashdb.h>
 #include <AprilTags/TagDetection.h>

@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "distortion_model.h"
+#include "distortion/distortion_model.h"
 #include "calibration_result.h"
 #include "board.h"
 
@@ -16,7 +16,7 @@ namespace AplCam {
   class CalibrationSerializer {
     public:
 
-      CalibrationSerializer( void ) 
+      CalibrationSerializer( void )
         : _camera( NULL ), _results( NULL ), _board( NULL )
       {;}
 
@@ -81,4 +81,3 @@ namespace AplCam {
 }
 
 #endif
-

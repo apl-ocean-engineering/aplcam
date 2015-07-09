@@ -3,6 +3,7 @@
 #else
 
 #include <opencv2/calib3d/calib3d.hpp>
+
 #include "detection.h"
 #include "file_utils.h"
 
@@ -11,12 +12,9 @@
 
 #include <glog/logging.h>
 
-using namespace std;
-using namespace cv;
-
-
-
 namespace AplCam {
+  using namespace std;
+  using namespace cv;
 
   //============================================================================
   //  AprilTagDetection
@@ -79,7 +77,7 @@ namespace AplCam {
     }
   }
 
-  static bool isInlierPoint( const ImagePoint &img, const ObjectPoint &world, const Mat &H, float thresholdSq ) 
+  static bool isInlierPoint( const ImagePoint &img, const ObjectPoint &world, const Mat &H, float thresholdSq )
   {
     Vec3f wHom;
     cv::multiply( H, Vec3f( img[0], img[1], 1 ), wHom );
@@ -182,4 +180,3 @@ namespace AplCam {
 }
 
 #endif
-

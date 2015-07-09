@@ -7,7 +7,7 @@
 #include <opencv2/calib3d/calib3d.hpp>
 #include <vector>
 
-#include "distortion_stereo.h"
+#include "distortion/distortion_stereo.h"
 
 namespace Distortion {
 
@@ -28,14 +28,8 @@ namespace Distortion {
     // Before I get too involved, what if I just un-distort all image points
     // then call the built-in function?
 
-    ImagePointsVecVec _undistorted1( _imagePoints1.size() ), 
-    _undistorted2( _imagePoints2.size() );
-
-    std::transform( _imagePoints1.begin(), _imagePoints1.end(), 
-        _undistorted1.begin(), cam1.makeVecUndistorter( ) );
-
-    std::transform( _imagePoints2.begin(), _imagePoints2.end(), 
-        _undistorted2.begin(), cam2.makeVecUndistorter( ) );
+    ImagePointsVecVec _undistorted1( cam1.normalizeUndistortImage( _imagePoints1 ) ),
+                      _undistorted2( cam2.normalizeUndistortImage( _imagePoints1 ) );
 
     // These might be changed by the calibration.
     Mat camMat1( cam1.mat() );
@@ -645,7 +639,7 @@ namespace Distortion {
     // Determine if we're doing horizontal or vertical rectification
     typedef enum { HORIZ = 0, VERT = 1 } RectificationDir;
     RectificationDir idx = fabs(t.at<double>(0)) > fabs(t.at<double>(1)) ? HORIZ : VERT;
-    double c = t.at<double>(idx), 
+    double c = t.at<double>(idx),
            nt = norm(t, NORM_L2);
 
     Mat uu(3,1,CV_64F);
@@ -708,7 +702,7 @@ namespace Distortion {
       cameras[k]->undistortPoints( pts, pts );
 
       ObjectPointsVec pts_3(4);
-      for( int m = 0; m < 4; ++m ) pts_3[m] = ObjectPoint( pts[m][0], pts[m][1], 1.0 ); 
+      for( int m = 0; m < 4; ++m ) pts_3[m] = ObjectPoint( pts[m][0], pts[m][1], 1.0 );
 
       //Change camera matrix to have cc=[0,0] and fc = fc_new
       Mat Atmp = (Mat_<double>(3,3) << fc_new, 0, 0, 0, fc_new, 0, 0, 0, 1);
@@ -858,8 +852,8 @@ namespace Distortion {
     ImagePointsVec undistorted1( imagePoints1.size() ), undistorted2( imagePoints2.size() );
 
     // These points normalized and undistorted, but not reimaged
-    std::transform( imagePoints1.begin(), imagePoints1.end(), undistorted1.begin(), cam1.makeUndistorter( false ) );
-    std::transform( imagePoints2.begin(), imagePoints2.end(), undistorted2.begin(), cam2.makeUndistorter( false ) ); 
+    std::transform( imagePoints1.begin(), imagePoints1.end(), undistorted1.begin(), cam1.makeUndistorter( ) );
+    std::transform( imagePoints2.begin(), imagePoints2.end(), undistorted2.begin(), cam2.makeUndistorter( ) );
 
     cv::triangulatePoints( proj1, proj2, undistorted1, undistorted2, triPts );
 

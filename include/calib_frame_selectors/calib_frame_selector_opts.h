@@ -52,9 +52,9 @@ namespace AplCam {
 
             return new IntervalFrameSelector( startArg.getValue(), intervalArg.getValue(), endArg.getValue(), minTagsArg.getValue() );
           } else if( selector.compare("all-good") == 0 ) {
-            return new AllGoodFrameSelector();
+            return new AllGoodFrameSelector( minTagsArg.getValue() );
           } else if( selector.compare("all") == 0 ) {
-            return new AllFrameSelector();
+            return new AllFrameSelector( minTagsArg.getValue() );
           }
 
           LOG(ERROR) << "Don't know how to create a selector \"" << selector << "\"";
