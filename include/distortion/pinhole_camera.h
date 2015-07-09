@@ -264,15 +264,9 @@ namespace Distortion {
       virtual ImagePointsVec normalizeUndistortImage( const ImagePointsVec &pw ) const
       { return image( undistortVec( normalize(pw) ) ); }
 
-      virtual ImagePointsVecVec normalizeUndistortImage( const ImagePointsVecVec &pw ) const
-      {
-        ImagePointsVecVec out;
-        for( size_t i = 0; i < pw.size(); ++i )
-          out.push_back( image( undistort( normalize(pw[i]) ) ) );
-        return out;
-      }
+      virtual ImagePointsVecVec normalizeUndistortImage( const ImagePointsVecVec &pw ) const;
 
-      virtual ImagePoint     distortImage( const ObjectPoint &pw ) const
+      virtual ImagePoint distortImage( const ObjectPoint &pw ) const
       { return image( distort( pw ) ); }
 
 

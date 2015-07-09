@@ -317,14 +317,12 @@ namespace Distortion {
   //--- Various combination functions ---
 
    ImagePointsVecVec PinholeCamera::normalizeUndistortImage( const ImagePointsVecVec &pw ) const
-  {
-    ImagePointsVecVec out;
-    for( unsigned int i = 0; i < pw.size(); ++i )
-      out.push_back( image( undistortVec( normalize(pw[i]) ) ) );
-    return out;
-  }
-
-
+   {
+     ImagePointsVecVec out;
+     for( size_t i = 0; i < pw.size(); ++i )
+       out.push_back( normalizeUndistortImage(pw[i]) );
+     return out;
+   }
 
 
   // Many, slightly different permutations on the same thing depending on the desired outcome.
