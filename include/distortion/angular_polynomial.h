@@ -26,8 +26,8 @@ namespace Distortion {
       static const std::string Name( void ) { return "AngularPolynomial"; }
       virtual const std::string name( void ) const { return AngularPolynomial::Name(); }
 
-      void set(const cv::Vec2d& f, const cv::Vec2d& c, const double &alpha = 0, const cv::Vec4d& k = ZeroDistortion );
-      void set( const double *c, const double alpha );
+//      void set(const cv::Vec2d& f, const cv::Vec2d& c, const double &alpha = 0, const cv::Vec4d& k = ZeroDistortion );
+//      void set( const double *c, const double alpha );
 
       //virtual cv::Mat distortionCoeffs( void ) const;
 
@@ -44,6 +44,9 @@ namespace Distortion {
 
 
       virtual ImagePoint undistort( const ImagePoint &pw ) const;
+
+      // As I'm doing a Ceres-based undistortion, it's cheaper
+      // to handle a whole vector as a chunk rather than iterating
       virtual ImagePointsVec undistort( const ImagePointsVec &pw ) const;
 
       virtual ImagePoint distort( const ObjectPoint &w ) const;
@@ -52,9 +55,9 @@ namespace Distortion {
 
 
 
-// --- Serialize/unserialize functions ---
-virtual cv::FileStorage &write( cv::FileStorage &out ) const;
-static AngularPolynomial *Load( cv::FileStorage &in );
+      // --- Serialize/unserialize functions ---
+      virtual cv::FileStorage &write( cv::FileStorage &out ) const;
+      static AngularPolynomial *Load( cv::FileStorage &in );
 
 
     protected:
