@@ -67,6 +67,8 @@ namespace Distortion {
     }
 
 
+
+
     //  // Static version uses a reasonable estimate based on image size
     //  RadialPolynomial RadialPolynomial::Calibrate(
     //      const ObjectPointsVecVec &objectPoints,
@@ -105,36 +107,32 @@ namespace Distortion {
 
         ImagePoint RadialPolynomial::distort( const ObjectPoint &w ) const
         {
-          double theta = atan2( sqrt( w[0]*w[0] + w[1]*w[1] ), w[2] );
-          double psi = atan2( w[1], w[0] );
+          double xp = w[0]/w[2], yp = w[1]/w[2];
+          double r2 = xp*xp + yp*yp;
+          double r4 = r2*r2;
+          double r6 = r2*r4;
 
-          double theta2 = theta*theta, theta4 = theta2*theta2, theta6 = theta4*theta2, theta8 = theta4*theta4;
-          double theta_d = theta * (1 + _distCoeffs[0]*theta2 + _distCoeffs[1]*theta4 + _distCoeffs[2]*theta6 + _distCoeffs[3]*theta8);
+          const double &k1( _distCoeffs[0]), &k2(_distCoeffs[1]), &p1(_distCoeffs[2]),
+          &p2(_distCoeffs[3]), &k3(_distCoeffs[4]), &k4(_distCoeffs[5]),
+          &k5(_distCoeffs[6]), &k6(_distCoeffs[7]);
 
-          return Vec2d( theta_d*cos( psi ), theta_d*sin(psi) );
+          double pp[2];
+          pp[0] = xp * ( 1 + k1*r2 + k2*r4 + k3*r6 ) / ( 1 + k4*r2 + k5*r4 + k6*r6 ) + 2*p1*xp*yp + p2*(r2 + 2*xp*xp);
+          pp[1] = yp * ( 1 + k1*r2 + k2*r4 + k3*r6 ) / ( 1 + k4*r2 + k5*r4 + k6*r6 ) + p1*(r2 + 2*yp*yp) + 2*p2*xp*yp;
+
+          return ImagePoint( pp[0], pp[1] );
+
+
         }
 
         ImagePoint RadialPolynomial::undistort( const ImagePoint &pw ) const
         {
-          double scale = 1.0;
+          vector<ImagePoint> inVec, outVec(1);
+          inVec.push_back(pw);
 
-          double theta_d = sqrt(pw[0]*pw[0] + pw[1]*pw[1]);
-          if (theta_d > 1e-8)
-          {
-            // compensate distortion iteratively
-            double theta = theta_d;
-            for(int j = 0; j < 10; j++ )
-            {
-              double theta2 = theta*theta, theta4 = theta2*theta2, theta6 = theta4*theta2, theta8 = theta6*theta2;
-              theta = theta_d / (1 + _distCoeffs[0] * theta2 + _distCoeffs[1] * theta4 + _distCoeffs[2] * theta6 + _distCoeffs[3] * theta8);
-            }
+          undistortPoints( inVec, outVec, Mat::eye(3,3,CV_64F), Mat(_distCoeffs) );
 
-            scale = std::tan(theta) / theta_d;
-          }
-
-          Vec2d pu = pw * scale; //undistorted point
-
-          return pu;
+          return outVec.front();
         }
 
 
