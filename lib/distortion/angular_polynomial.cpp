@@ -18,23 +18,9 @@
 #include <iomanip>
 using namespace std;
 
-
-//static std::ostream& operator <<(std::ostream& stream, const Distortion::AngularPolynomial &p )
-//{
-//  stream << p.f()[0] << " " << p.f()[1] << ", " << p.c()[0] << " " << p.c()[1] << ", " << p.alpha() << ", " << p.distCoeffs()[0] << " " << p.distCoeffs()[1] << " " << p.distCoeffs()[2] << " " << p.distCoeffs()[3];
-//  return stream;
-//}
+#include "distortion/ceres_reprojection_error.h"
 
 namespace Distortion {
-
-  //// Used by projectPoints
-  //struct  __attribute__((packed)) JacobianRow
-  //{
-  //  Vec2d df, dc;
-  //  double dalpha;
-  //  Vec4d dk;
-  //  Vec3d dom, dT;
-  //};
 
   using namespace cv;
   using namespace std;
@@ -42,7 +28,7 @@ namespace Distortion {
   // Polynomial expansion from (pg 16):
   // http://www.research.scea.com/research/pdfs/RGREENfastermath_GDC02.pdf
   //
-const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350, 0.092151584, 0 );
+  const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350, 0.092151584, 0 );
 
   AngularPolynomial::AngularPolynomial( void )
     : DistortionModel(), _distCoeffs( ZeroDistortion )
@@ -63,50 +49,24 @@ const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350,
   {;}
 
   /// --- Accessor functions ----
-  void AngularPolynomial::set(const cv::Vec2d& f, const cv::Vec2d& c, const double &alpha, const cv::Vec4d& k )
+  cv::Mat AngularPolynomial::coefficientsMat( void ) const
   {
-    setCamera( f[0], f[1], c[0], c[1], alpha );
-    _distCoeffs = k;
+    Mat m = (cv::Mat_<double>(12,1) << _fx, _fy, _cx, _cy,
+        _distCoeffs[0], _distCoeffs[1], _distCoeffs[2], _distCoeffs[3] );
+    return m;
   }
-
-  void AngularPolynomial::set( const double *c, const double alpha )
-  {
-    setCamera( c[0], c[1], c[2], c[3], alpha );
-    _distCoeffs = Vec4d( &c[4] ); // c[4], c[5], c[6], c[8] );
-  }
-
-    cv::Mat AngularPolynomial::coefficientsMat( void ) const
-    {
-      Mat m = (cv::Mat_<double>(4,1) << _distCoeffs[0], _distCoeffs[1], _distCoeffs[2], _distCoeffs[3] );
-      return m;
-    }
-
-  // Static version uses a reasonable estimate based on image size
-  //AngularPolynomial AngularPolynomial::Calibrate(
-  //    const ObjectPointsVecVec &objectPoints,
-  //    const ImagePointsVecVec &imagePoints,
-  //    const Size& image_size,
-  //    vector< Vec3d > &rvecs,
-  //    vector< Vec3d > &tvecs,
-  //    int flags,
-  //    cv::TermCriteria criteria)
-  //{
-  //  AngularPolynomial fe( ZeroDistortion, Camera::InitialCameraEstimate( image_size ) );
-  //  fe.calibrate( objectPoints, imagePoints, image_size, rvecs, tvecs, flags, criteria );
-  //  return fe;
-  //}
-
-
 
   // Ceres functor for solving calibration problem
   //  Based on the Bundler solver used in their examples
-  struct CalibReprojectionError {
-    CalibReprojectionError(double obs_x, double obs_y, double world_x, double world_y )
-      : observedX(obs_x), observedY(obs_y), worldX( world_x ), worldY( world_y ) {}
+  struct AngularDistortionReprojError  : public ReprojectionError {
+    AngularDistortionReprojError(double obs_x, double obs_y, double world_x, double world_y )
+      : ReprojectionError( obs_x, obs_y, world_x, world_y )
+    {;}
 
     template <typename T>
       bool operator()(const T* const camera,
           const T* const alpha,
+          const T* const dist,
           const T* const pose,
           T* residuals) const
       {
@@ -123,24 +83,20 @@ const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350,
         //
         // pose[0,1,2] are an angle-axis rotation.
         //
-        T point[3] = { T( worldX ), T( worldY ), T( 0.0 ) };
         T p[3];
-        ceres::AngleAxisRotatePoint(pose, point, p);
-        p[0] += pose[3];
-        p[1] += pose[4];
-        p[2] += pose[5];
+        txToCameraFrame( pose, p );
 
         T theta = atan2( sqrt( p[0]*p[0] + p[1]*p[1] ), p[2]  );
         T psi   = atan2( p[1], p[0] );
 
-        const T &fx = camera[0];
-        const T &fy = camera[1];
-        const T &cx = camera[2];
-        const T &cy = camera[3];
-        const T &k1 = camera[4];
-        const T &k2 = camera[5];
-        const T &k3 = camera[6];
-        const T &k4 = camera[7];
+        //        const T &fx = camera[0];
+        //        const T &fy = camera[1];
+        //        const T &cx = camera[2];
+        //        const T &cy = camera[3];
+        const T &k1 = dist[0];
+        const T &k2 = dist[1];
+        const T &k3 = dist[2];
+        const T &k4 = dist[3];
 
         T theta2 =  theta*theta;
         T theta4 = theta2*theta2;
@@ -149,29 +105,34 @@ const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350,
 
         T thetaDist = theta * ( T(1) + k1*theta2 + k2 *theta4 + k3*theta6 + k4*theta8);
 
-        T xdn = thetaDist * cos( psi ),
-          ydn = thetaDist * sin( psi );
+        T pp[2];
+        pp[0] = thetaDist * cos( psi );
+        pp[1] = thetaDist * sin( psi );
 
-        T predictedX = fx*(xdn + alpha[0]*ydn) + cx;
-        T predictedY = fy* ydn              + cy;
-
-        // The error is the difference between the predicted and observed position.
-        residuals[0] = predictedX - T(observedX);
-        residuals[1] = predictedY - T(observedY);
-        return true;
+        return projectAndComputeError( camera, alpha, pp, residuals );
       }
 
-    // Factory to hide the construction of the CostFunction object from
-    // the client code.
-    static ceres::CostFunction* Create(const double observed_x, const double observed_y,
-        const double world_x, const double world_y ) {
-      return (new ceres::AutoDiffCostFunction<CalibReprojectionError, 2, 8, 1, 6>(
-            new CalibReprojectionError(observed_x, observed_y, world_x, world_y)));
+  };
+
+  struct AngularDistortionFactory {
+    AngularDistortionFactory( double *camera, double *alpha, double *dist, ceres::LossFunction *lossF = NULL )
+      : camera_(camera), alpha_(alpha), dist_(dist), lossFunc_( lossF )
+    {;}
+
+    void add( ceres::Problem &problem, const ObjectPoint &obj, const ImagePoint &img, double *pose )
+    {
+
+      ceres::CostFunction *costFunction = (new ceres::AutoDiffCostFunction<AngularDistortionReprojError, 2, 4, 1, 4, 6>(
+            new AngularDistortionReprojError( img[0], img[1], obj[0], obj[1] ) ) );
+
+      problem.AddResidualBlock( costFunction, lossFunc_, camera_, alpha_, dist_, pose );
     }
 
-    double observedX, observedY;
-    double worldX, worldY;
+    double *camera_, *alpha_, *dist_, *pose_;
+    ceres::LossFunction *lossFunc_;
   };
+
+
 
   bool AngularPolynomial::doCalibrate(
       const ObjectPointsVecVec &objectPoints,
@@ -186,6 +147,9 @@ const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350,
     if( norm( matx(), Mat::eye(3,3,CV_64F) ) < 1e-9 )
       setCamera( InitialCameraEstimate( image_size ) );
 
+
+    setCamera( 5000, 5000, 960, 520, 0 );
+
     int totalPoints = 0;
     int goodImages = 0;
 
@@ -193,14 +157,8 @@ const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350,
       if( result.status[i] ) {
         ImagePointsVec undistorted =  normalizeUndistortImage( imagePoints[i] );
 
-        // Found the approach provided by initExtrinsics to be more reliable (!)
-        // will need to investigate why that is.
-        bool pnpRes = solvePnP( objectPoints[i], undistorted, mat(), Mat(),
+        bool pnpRes = solvePnP( objectPoints[i], undistorted, mat(), Mat::zeros(1,8,CV_64F),
             result.rvecs[i], result.tvecs[i], false, CV_ITERATIVE );
-
-        //cout << "Pnp: " << (pnpRes ? "" : "FAIL") << endl << result.rvecs[i] << endl << result.tvecs[i] << endl;
-        //initExtrinsics( imagePoints[i], objectPoints[i], rvecs[i], tvecs[i] );
-        //cout << "initExtrinsics: " << endl << rvecs[i] << endl << tvecs[i] << endl;
 
         if( !pnpRes ) {
           result.status[i] = false;
@@ -214,15 +172,11 @@ const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350,
 
     LOG(INFO) << "From " << objectPoints.size() << " images, using " << totalPoints << " from " << goodImages << " images" << endl;
 
-    double camera[9] = { _fx, _fy, _cx, _cy,
-      _distCoeffs[0], _distCoeffs[1],
-      _distCoeffs[2], _distCoeffs[3] };
+
+    double camera[4] = { _fx, _fy, _cx, _cy };
     double alpha = _alpha;
 
-    double *pose = new double[ goodImages * 6];
-
     ceres::LossFunction *lossFunc =  NULL;
-
     if( flags & CALIB_HUBER_LOSS ) {
       LOG(INFO) << "Using Huber loss function";
 
@@ -232,11 +186,15 @@ const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350,
       lossFunc = new ceres::HuberLoss( 4.0 );
     }
 
+    double *pose = new double[ goodImages * 6];
+    AngularDistortionFactory factory(  camera, &alpha, (_distCoeffs.val), lossFunc );
+
     ceres::Problem problem;
     for( size_t i = 0, idx = 0; i < objectPoints.size(); ++i ) {
       if( result.status[i] ) {
 
         double *p = &( pose[idx*6] );
+
         // Mildly awkward
         p[0] = result.rvecs[i][0];
         p[1] = result.rvecs[i][1];
@@ -248,19 +206,24 @@ const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350,
         ++idx;
 
         for( size_t j = 0; j < imagePoints[i].size(); ++j ) {
-          ceres::CostFunction *costFunction = CalibReprojectionError::Create( imagePoints[i][j][0], imagePoints[i][j][1],
-              objectPoints[i][j][0], objectPoints[i][j][1] );
-          problem.AddResidualBlock( costFunction, lossFunc, camera, &alpha, p );
+          factory.add( problem, objectPoints[i][j], imagePoints[i][j], p );
         }
       }
     }
 
     //if( flags & CALIB_FIX_SKEW )
     // Skew is always fixed in OpenCV 3.0.
-      problem.SetParameterBlockConstant( &alpha );
+    problem.SetParameterBlockConstant( &alpha );
+
+    problem.SetParameterUpperBound( camera, 2, 1920 );
+    problem.SetParameterUpperBound( camera, 3, 1080 );
+    problem.SetParameterLowerBound( camera, 0, 0 );
+    problem.SetParameterLowerBound( camera, 1, 0 );
+    problem.SetParameterLowerBound( camera, 2, 0 );
+    problem.SetParameterLowerBound( camera, 3, 0 );
 
     ceres::Solver::Options options;
-    options.linear_solver_type = ceres::DENSE_SCHUR;
+    options.linear_solver_type = ceres::SPARSE_NORMAL_CHOLESKY;
     options.max_num_iterations = criteria.maxCount;
     options.minimizer_progress_to_stdout = true;
 
@@ -296,34 +259,7 @@ const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350,
     result.numImages = goodImages;
     result.good = summary.IsSolutionUsable();
 
-    set(camera, alpha);
-
-//    //
-//    for( size_t i = 0; i < objectPoints.size(); ++i ) {
-//      if( !result.status[i] ) continue;
-//
-//      for( size_t j = 0; j < objectPoints[i].size(); ++j ) {
-//        ObjectPoint  obj = objectPoints[i][j];
-//        ImagePoint   img = imagePoints[i][j];
-//
-//        CalibReprojectionError costFunction( img[0], img[1], obj[0], obj[1] );
-//        double ceresResiduals[2],
-//               p[6] = { result.rvecs[i][0], result.rvecs[i][1], result.rvecs[i][2], result.tvecs[i][0], result.tvecs[i][1], result.tvecs[i][2] };
-//        costFunction.operator()<double>( camera, &alpha, p, ceresResiduals );
-//
-//        ImagePoint projPt;
-//        projectPoint( obj, result.rvecs[i], result.tvecs[i], projPt );
-//        ImagePoint diff = projPt - img;
-//
-//        //cout << ceresResiduals[0] << " " << ceresResiduals[1] << "       " << diff[0] << " " << diff[1] << endl;
-//        double cErr = (ceresResiduals[0]*ceresResiduals[0]) + (ceresResiduals[1]*ceresResiduals[1]);
-//        double pErr = (diff[0]*diff[0]) + (diff[1]*diff[1]);
-//
-//        cerr << setw(20) << cErr << "   " << pErr << "     " << (cErr - pErr) << endl;
-//      }
-//    }
-//
-/////
+    setCamera(camera, alpha);
 
     result.rms = reprojectionError( objectPoints, result.rvecs, result.tvecs, imagePoints, result.reprojErrors, result.status );
 
@@ -366,7 +302,7 @@ const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350,
         // point is a 2-vector
         //T p[2] = { point[0], point[1] };
 
-        // Important to use atan2?
+        // Important to use atan2 if Z is always 1?
         T theta = atan( sqrt( p[0]*p[0] + p[1]*p[1] )  );
         T psi   = atan2( p[1], p[0] );
 
@@ -412,16 +348,13 @@ const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350,
 
     ceres::Solver::Options options;
     options.linear_solver_type = ceres::DENSE_QR;
-    //options.minimizer_progress_to_stdout = true;
 
     ceres::Solver::Summary summary;
     ceres::Solve(options, &problem, &summary);
-    //std::cout << summary.FullReport() << "\n";
 
     ImagePointsVec out( pw.size() );
     for( int i = 0; i < Np; ++i ) {
       out[i] = ImagePoint( p[i*2], p[i*2 + 1] );
-      //cout << i << ": " << pw[i][0] << "," << pw[i][1] << "     " << out[i][0] << "," << out[i][1] << endl;
     }
 
     delete[] p;
@@ -441,15 +374,11 @@ const Vec4d AngularPolynomial::ZeroDistortion = Vec4d( 0.334961658, 0.118066350,
 
     ceres::Solver::Options options;
     options.linear_solver_type = ceres::DENSE_QR;
-    //options.num_threads = 2;
-    //options.minimizer_progress_to_stdout = true;
 
     ceres::Solver::Summary summary;
     ceres::Solve(options, &problem, &summary);
-    //std::cout << summary.FullReport() << "\n";
 
     ImagePoint out( p[0], p[1] );
-    //cout << pw[0] << "," << pw[1] << "     " << out[0] << "," << out[1] << endl;
 
     return out;
   }

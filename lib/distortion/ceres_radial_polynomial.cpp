@@ -127,7 +127,7 @@ namespace Distortion {
         bool pnpRes = solvePnP( objectPoints[i], imagePoints[i], mat(), _distCoeffs,
             result.rvecs[i], result.tvecs[i], false, CV_ITERATIVE );
 
-        LOG(INFO) << "Pnp: " << (pnpRes ? "" : "FAIL") << endl << result.rvecs[i] << endl << result.tvecs[i];
+        //LOG(INFO) << "Pnp: " << (pnpRes ? "" : "FAIL"); // << endl << result.rvecs[i] << endl << result.tvecs[i];
 
         //initExtrinsics( imagePoints[i], objectPoints[i], result.rvecs[i], result.tvecs[i] );
         //cout << "initExtrinsics: " << endl << result.rvecs[i] << endl << result.tvecs[i] << endl;
@@ -248,7 +248,7 @@ namespace Distortion {
         ++idx;
       }
 
-      LOG(INFO) << "Result: " << (result.status[i] ? "GOOD" : "BAD") << endl << result.rvecs[i] << endl << result.tvecs[i];
+      //LOG(INFO) << "Result: " << (result.status[i] ? "GOOD" : "BAD") << endl << result.rvecs[i] << endl << result.tvecs[i];
     }
 
 

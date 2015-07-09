@@ -262,7 +262,7 @@ class PinholeCamera : public Camera {
         virtual ImagePointsVecVec normalizeUndistortImage( const ImagePointsVecVec &pw ) const
         {
           ImagePointsVecVec out;
-          for( int i = 0; i < pw.size(); ++i )
+          for( size_t i = 0; i < pw.size(); ++i )
           out.push_back( image( undistort( normalize(pw[i]) ) ) );
           return out;
         }
