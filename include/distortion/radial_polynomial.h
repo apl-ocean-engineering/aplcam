@@ -44,10 +44,8 @@ virtual Mat coefficientsMat( void ) const;
 
 
 
-  virtual ImagePoint unwarp( const ImagePoint &pw ) const;
-
-  virtual ImagePoint warp( const ObjectPoint &w ) const ;
-
+  virtual ImagePoint undistort( const ImagePoint &pw ) const;
+  virtual ImagePoint distort( const ObjectPoint &w ) const ;
 
   virtual DistortionModel *estimateMeanCamera( vector< DistortionModel *> cameras );
 

@@ -68,7 +68,7 @@ class DistortionModel : public PinholeCamera {
 
       // This is actually meaningful in DistortionModel, the version in
       // PinholeCamera does nothing
-     virtual ImagePointsVec undistort( const ImagePointsVec &pw ) const;
+     virtual ImagePointsVec undistortVec( const ImagePointsVec &pw ) const;
 
   //
 

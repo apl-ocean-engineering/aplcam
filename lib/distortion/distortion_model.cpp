@@ -89,7 +89,7 @@ namespace Distortion {
 
   // This is actually meaningful in DistortionModel, the version in
   // PinholeCamera does nothing
-  ImagePointsVec DistortionModel::undistort( const ImagePointsVec &pw ) const
+  ImagePointsVec DistortionModel::undistortVec( const ImagePointsVec &pw ) const
   {
     ImagePointsVec out( pw.size() );
     std::transform( pw.begin(), pw.end(), out.begin(), makeUndistorter() );
