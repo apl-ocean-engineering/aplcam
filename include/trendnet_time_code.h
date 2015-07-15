@@ -17,7 +17,7 @@ const cv::Rect timeCodeROI( timeCodeLeft, timeCodeTop, timeCodeWidth, timeCodeHe
 const cv::Rect timeCodeAboveROI( timeCodeLeft, timeCodeTop - timeCodeHeight/2,
                                 timeCodeWidth, timeCodeHeight/2 );
 
-const cv::Rect timeCodeTopHalfROI( timeCodeLeft, timeCodeTop, 
+const cv::Rect timeCodeTopHalfROI( timeCodeLeft, timeCodeTop,
                                 timeCodeWidth, timeCodeHeight/2 );
 
 const cv::Rect timeCodeBottomHalfROI( timeCodeLeft, timeCodeTop + timeCodeHeight/2,
@@ -25,6 +25,9 @@ const cv::Rect timeCodeBottomHalfROI( timeCodeLeft, timeCodeTop + timeCodeHeight
 
 const cv::Rect timeCodeBelowROI( timeCodeLeft, timeCodeTop + timeCodeHeight,
                                 timeCodeWidth, timeCodeHeight/2 );
+
+const cv::Rect timeCodeOvermask( 0, 0, timeCodeWidth  + 2*timeCodeLeft,
+                                       timeCodeHeight + 2*timeCodeTop );
 
 cv::Mat timeCodeMask();
 cv::Mat timeCodeUnmask();
