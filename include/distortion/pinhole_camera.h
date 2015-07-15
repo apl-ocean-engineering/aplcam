@@ -149,8 +149,10 @@ namespace Distortion {
       virtual void projectPoints( const ObjectPointsVec &objectPoints,
           const Vec3d &_rvec, const Vec3d &_tvec, ImagePointsVec &imagePoints  ) const;
 
-      // Includes normalization by the camera matrix,
-      // as well as re-normalization and rectification with R ,P
+      // Basically a clone of cv::undistortPoints but doesn't
+      // require the camera matrix or distortions.
+      // Performs normalization, undistortion.
+      // THen optionally re-normalization and rectification with R  & P
       virtual void undistortPoints( const ImagePointsVec &distorted,
           ImagePointsVec &undistorted,
           const Mat &R = cv::Mat::eye(3,3,CV_64F),

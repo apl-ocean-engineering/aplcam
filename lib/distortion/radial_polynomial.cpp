@@ -130,7 +130,7 @@ namespace Distortion {
           vector<ImagePoint> inVec, outVec(1);
           inVec.push_back(pw);
 
-          undistortPoints( inVec, outVec, Mat::eye(3,3,CV_64F), Mat(_distCoeffs) );
+          cv::undistortPoints( inVec, outVec, Mat::eye(3,3,CV_64F), Mat(_distCoeffs) );
 
           return outVec.front();
         }

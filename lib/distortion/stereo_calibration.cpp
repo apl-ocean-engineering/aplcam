@@ -36,7 +36,7 @@ namespace AplCam {
         StereoCalibration::rotationTag = "rotation",
         StereoCalibration::translationTag = "translation";
 
-  void StereoCalibration::save( const std::string &filename ) const 
+  void StereoCalibration::save( const std::string &filename ) const
   {
     FileStorage fs( filename, FileStorage::WRITE );
     save( fs );
@@ -141,7 +141,7 @@ namespace AplCam {
 
   //===========================================================================
   // StereoRectification
-  // 
+  //
   const string StereoRectification::rect0Tag = "rectification_0",
         StereoRectification::rect1Tag = "rectification_1",
         StereoRectification::proj0Tag = "projection_0",

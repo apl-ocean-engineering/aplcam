@@ -24,7 +24,7 @@ namespace Distortion {
       ImagePointsVecVec _imagePoints2,
       PinholeCamera &cam1, PinholeCamera &cam2,
       Size imageSize, OutputArray _Rmat, OutputArray _Tmat,
-      OutputArray _Emat, OutputArray _Fmat, 
+      OutputArray _Emat, OutputArray _Fmat,
       cv::TermCriteria criteria,
       int flags );
 
@@ -36,12 +36,12 @@ namespace Distortion {
                           double alpha, const Size &newImageSize,
                           Rect &validPixROI1, Rect &validPixROI2 );
 
-  void triangulate( const PinholeCamera &cam1, const PinholeCamera &cam2,
+  bool triangulate( const PinholeCamera &cam1, const PinholeCamera &cam2,
                    const StereoCalibration &calib,
                    ImagePointsVec &_imagePoints1,
                    ImagePointsVec &_imagePoints2,
                    ObjectPointsVec &_worldPoints );
-  
+
    //void stereoRectify( const PinholeCamera &cam1, const PinholeCamera &cam2,
    //                       const Size &imageSize, const Mat &_Rmat, const Mat &_Tmat,
    //                       Mat &_Rmat1, Mat &_Rmat2,

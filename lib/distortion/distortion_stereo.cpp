@@ -830,7 +830,7 @@ namespace Distortion {
   //
   //
 
-  void triangulate( const PinholeCamera &cam1, const PinholeCamera &cam2,
+  bool triangulate( const PinholeCamera &cam1, const PinholeCamera &cam2,
       const StereoCalibration &calib,
       ImagePointsVec &imagePoints1,
       ImagePointsVec &imagePoints2,
@@ -842,6 +842,7 @@ namespace Distortion {
     // As we're using normalized points, should be [ I | 0 ] and [ R | t ]
 
     Mat proj1( Mat::eye(3,4, CV_32F) ), proj2( 3,4, CV_32F );
+
     Mat rRoi( proj2, Rect(0,0,3,3) );
     calib.R.convertTo( rRoi, CV_32F );
     Mat tRoi( proj2, Rect(3,0,1,3) );
@@ -849,23 +850,21 @@ namespace Distortion {
 
     Mat triPts;
 
-    ImagePointsVec undistorted1( imagePoints1.size() ), undistorted2( imagePoints2.size() );
-
-    // These points normalized and undistorted, but not reimaged
-    std::transform( imagePoints1.begin(), imagePoints1.end(), undistorted1.begin(), cam1.makeUndistorter( ) );
-    std::transform( imagePoints2.begin(), imagePoints2.end(), undistorted2.begin(), cam2.makeUndistorter( ) );
+    ImagePointsVec undistorted1 = cam1.normalizeUndistort( imagePoints1 ),
+                   undistorted2 = cam2.normalizeUndistort( imagePoints2 );
 
     cv::triangulatePoints( proj1, proj2, undistorted1, undistorted2, triPts );
 
-    // Translate triPts into worldPts
+    // Translate un-homogenize triPts into worldPts
     worldPoints.clear();
     for( int i = 0; i < triPts.cols; i++ ) {
-      ObjectPoint obj(  triPts.at<float>( 0, i ) / triPts.at<float>( 3, i ),
-          triPts.at<float>( 1, i ) / triPts.at<float>( 3, i ),
-          triPts.at<float>( 2, i ) / triPts.at<float>( 3, i ) );
-
-      worldPoints.push_back( obj );
+      worldPoints.push_back (ObjectPoint(  triPts.at<float>( 0, i ) / triPts.at<float>( 3, i ),
+                    triPts.at<float>( 1, i ) / triPts.at<float>( 3, i ),
+                    triPts.at<float>( 2, i ) / triPts.at<float>( 3, i ) ));
     }
+
+    // TODO:  How to detect failure?
+    return true;
   }
 
 

@@ -1,6 +1,8 @@
 
 #include <iostream>
 
+#include <glog/logging.h>
+
 #include "distortion/pinhole_camera.h"
 
 namespace Distortion {
@@ -75,7 +77,7 @@ namespace Distortion {
   ImagePoint PinholeCamera::normalize( const ImagePoint &pt ) const
   {
     return ImagePoint( 1.0 / _fx * (pt[0] - _cx ),
-        1.0 / _fy * (pt[1] - _cy ) );
+                       1.0 / _fy * (pt[1] - _cy ) );
   }
 
   //---- getOptimalNewCameraMatrix ----
@@ -227,7 +229,6 @@ namespace Distortion {
       ImagePointsVec &undistorted,
       const Mat &R, const Mat &P) const
   {
-    // will support only 2-channel data now for points
     undistorted.resize(distorted.size());
 
     CV_Assert(P.empty() || P.size() == Size(3, 3) || P.size() == Size(4, 3));
