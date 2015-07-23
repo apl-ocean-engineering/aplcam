@@ -118,6 +118,7 @@ namespace Distortion {
       virtual Mat mat( void ) const;
 
       Vec2d  f( void ) const      { return Vec2d( _fx, _fy ); }
+      double favg( void ) const   { return (_fx + _fy)/2.0; }
       double fx( void ) const     { return _fx; }
       double fy( void ) const     { return _fy; }
       Vec2d  c( void ) const       { return Vec2d(_cx,_cy); }
