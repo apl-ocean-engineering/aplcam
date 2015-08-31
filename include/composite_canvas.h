@@ -4,7 +4,9 @@
 
 #include <string>
 
-#include <opencv2/core/core.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/videoio.hpp>
 
 #include "image_pair.h"
 
@@ -50,8 +52,8 @@ namespace AplCam {
     CompositeCanvas( const Mat &mat0, const Mat &mat1, bool doCopy = true )
       : canvas()
     {
-      Size canvasSize( mat0.size().width + mat1.size().width, 
-          std::max(mat0.size().height, mat1.size().height) ); 
+      Size canvasSize( mat0.size().width + mat1.size().width,
+          std::max(mat0.size().height, mat1.size().height) );
 
       canvas.create( canvasSize, mat0.type() );
 
@@ -106,7 +108,7 @@ namespace AplCam {
       return out;
     }
 
-    cv::Point origin( int i ) 
+    cv::Point origin( int i )
     { return cv::Point( rect[i].x, rect[i].y ); }
 
 
@@ -134,14 +136,14 @@ namespace AplCam {
   };
 
   struct CompositeVideo
-  { 
+  {
     CompositeVideo( const std::string &filepath )
       : _filepath( filepath ), _video( filepath ) {;}
 
     bool isOpened( void ) const { return _video.isOpened(); }
 
     bool read(  CompositeCanvas &canvas )
-    { 
+    {
       Mat frame;
       if( _video.read( frame ) ) {
         canvas = CompositeCanvas( frame );
@@ -155,15 +157,15 @@ namespace AplCam {
       return _video.get( flag );
     }
 
-    bool seek( double frame ) { return _video.set( CV_CAP_PROP_POS_FRAMES, frame ); }
-    bool rewind( void )       { _video.release(); _video.open( _filepath ); }
-    double frame( void )      { return get( CV_CAP_PROP_POS_FRAMES ); }
+    bool seek( double frame ) { return _video.set( cv::CAP_PROP_POS_FRAMES, frame ); }
+    bool rewind( void )       { _video.release(); _video.open( _filepath );  return true; }
+    double frame( void )      { return get( cv::CAP_PROP_POS_FRAMES ); }
 
-    double fps( void )        { return _video.get( CV_CAP_PROP_FPS ); }
-    Size   fullSize( void )   { return cv::Size( _video.get( CV_CAP_PROP_FRAME_WIDTH ),
-                                                 _video.get( CV_CAP_PROP_FRAME_HEIGHT ) ); }
-    Size   frameSize( void )   { return cv::Size( _video.get( CV_CAP_PROP_FRAME_WIDTH ) / 2.0,
-                                                 _video.get( CV_CAP_PROP_FRAME_HEIGHT ) ); }
+    double fps( void )        { return _video.get( cv::CAP_PROP_FPS ); }
+    Size   fullSize( void )   { return cv::Size( _video.get( cv::CAP_PROP_FRAME_WIDTH ),
+                                                 _video.get( cv::CAP_PROP_FRAME_HEIGHT ) ); }
+    Size   frameSize( void )   { return cv::Size( _video.get( cv::CAP_PROP_FRAME_WIDTH ) / 2.0,
+                                                 _video.get( cv::CAP_PROP_FRAME_HEIGHT ) ); }
 
 
     std::string _filepath;
@@ -176,4 +178,3 @@ namespace AplCam {
 }
 
 #endif
-
