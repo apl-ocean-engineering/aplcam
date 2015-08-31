@@ -25,15 +25,18 @@ namespace AplCam {
 
       Mat E, F, R, t;
 
-      static const std::string fundamentalTag, 
-                   essentialTag, 
-                   rotationTag, 
+      static const std::string fundamentalTag,
+                   essentialTag,
+                   rotationTag,
                    translationTag;
   };
 
   class StereoRectification {
     public:
       StereoRectification() {;}
+
+      bool isInitialized( void ) const
+          { return !( R[0].empty() || R[1].empty() || P[0].empty() || P[1].empty()); }
 
       void save( cv::FileStorage &fs ) const ;
 
@@ -42,7 +45,7 @@ namespace AplCam {
 
       Mat R[2], P[2];
 
-      static const std::string rect0Tag, rect1Tag, 
+      static const std::string rect0Tag, rect1Tag,
                                proj0Tag, proj1Tag;
   };
 
