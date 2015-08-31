@@ -27,7 +27,7 @@ namespace AplCam {
   template <typename _Tp>
   class _Histogram {
   public:
-    _Histogram( unsigned int numBins, float min = 0.0, float max = 1.0 );
+    _Histogram( unsigned int numBins ); //, float min = 0.0, float max = 1.0 );
 
     unsigned int numBins( void ) const { return _bins.size(); }
 
@@ -46,7 +46,7 @@ namespace AplCam {
 
     vector<_Tp> _bins;
 
-    float _min, _max;
+    //float _min, _max;
   };
 
   typedef _Histogram<unsigned int> Histogram;

@@ -5,16 +5,16 @@
 namespace AplCam {
 
   template <typename _Tp>
-  _Histogram<_Tp>::_Histogram( unsigned int numBins, float mn, float mx )
-  : _bins( numBins ), _min( std::min( mn, mx) ), _max( std::max(mn,mx) )
+  _Histogram<_Tp>::_Histogram( unsigned int numBins ) //, float mn, float mx )
+  : _bins( numBins )  //,  _min( std::min( mn, mx) ), _max( std::max(mn,mx) )
   {
     ;
   }
 
   template <typename _Tp>
-  void _Histogram<_Tp>::add( float value )
+  void _Histogram<_Tp>::add( float bin )
   {
-    unsigned int bin = floor( (value-_min) / (_max-_min) * numBins() );
+    //unsigned int bin = floor( (value-_min) / (_max-_min) * numBins() );
 
     if( (bin > 0) && (bin < numBins()) ) ++_bins[bin];
   }
@@ -61,33 +61,33 @@ namespace AplCam {
     return scaled;
   }
 
-    template <typename _Tp>
-    cv::Mat _Histogram<_Tp>::draw( unsigned int height,  const Gaussian &gaussian, float scale, float sigma ) const
+  template <typename _Tp>
+  cv::Mat _Histogram<_Tp>::draw( unsigned int height,  const Gaussian &gaussian, float scale, float sigma ) const
+  {
+    Mat img( draw( height, scale ) );
+
+    float mean = gaussian.mean(), stddev = gaussian.sigma(), ss = stddev*sigma;
+
     {
-      Mat img( draw( height, scale ) );
-
-      float mean = gaussian.mean(), stddev = gaussian.sigma(), ss = stddev*sigma;
-
-      {
-        double at = mean;
-        if( (at >= 0) && (at < numBins()) )
-        for( cv::Point p(at, 0); p.y < height; ++p.y ) img.at<cv::Vec3b>(p*scale) = cv::Vec3b(0,0,255);
-      }
-
-      {
-        double at = mean + stddev*sigma;
-        if( (at >= 0) && (at < numBins()) )
-        for( cv::Point p(at, 0); p.y < height; ++p.y ) img.at<cv::Vec3b>(p*scale) = cv::Vec3b(255,0,255);
-      }
-
-      {
-        double at = mean - stddev*sigma;
-        if( (at >= 0) && (at < numBins()) )
-        for( cv::Point p(at, 0); p.y < height; ++p.y ) img.at<cv::Vec3b>(p*scale) = cv::Vec3b(255,0,255);
-      }
-      return img;
-
+      double at = mean;
+      if( (at >= 0) && (at < numBins()) )
+      for( cv::Point p(at, 0); p.y < height; ++p.y ) img.at<cv::Vec3b>(p*scale) = cv::Vec3b(0,0,255);
     }
+
+    {
+      double at = mean + stddev*sigma;
+      if( (at >= 0) && (at < numBins()) )
+      for( cv::Point p(at, 0); p.y < height; ++p.y ) img.at<cv::Vec3b>(p*scale) = cv::Vec3b(255,0,255);
+    }
+
+    {
+      double at = mean - stddev*sigma;
+      if( (at >= 0) && (at < numBins()) )
+      for( cv::Point p(at, 0); p.y < height; ++p.y ) img.at<cv::Vec3b>(p*scale) = cv::Vec3b(255,0,255);
+    }
+    return img;
+
+  }
 
   template <typename _Tp>
   Gaussian _Histogram<_Tp>::fitGaussian( void ) const
