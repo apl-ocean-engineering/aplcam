@@ -66,7 +66,7 @@ namespace AplCam {
   {
     Mat img( draw( height, scale ) );
 
-    float mean = gaussian.mean(), stddev = gaussian.sigma(), ss = stddev*sigma;
+    float mean = gaussian.mean(), stddev = gaussian.sigma();
 
     {
       double at = mean;

@@ -15,10 +15,13 @@ find_package( OpenCV REQUIRED )
 #find_package( PCL 1.2 REQUIRED )
 find_package( Ceres REQUIRED )
 
+set( GTEST_ROOT /usr )
+
 # Packages supported by local Find*.cmake files
 list(APPEND CMAKE_MODULE_PATH "${aplcam_SOURCE_DIR}/cmake")
 find_package( GSL REQUIRED )
 find_package( Eigen REQUIRED )
+find_package( TCLAP REQUIRED )
 
 #
 #
@@ -37,16 +40,15 @@ find_package( Boost REQUIRED COMPONENTS thread system filesystem )
 set( Boost_USE_MULTITHREADED ON )
 
 
-#include_directories( ${EIGEN_INCLUDE_DIR} 
-#	${OpenCV_INCLUDE_DIRS} 
+#include_directories( ${EIGEN_INCLUDE_DIR}
+#	${OpenCV_INCLUDE_DIRS}
 #        ${KyotoCabinet_INCLUDE_DIRS} )
 #
 #link_directories( ${PCL_LIBRARY_DIRS} )
 
-include_directories( ${OpenCV_INCLUDE_DIRS} 
-  ${CERES_INCLUDE_DIRS} 
-  "${aplcam_SOURCE_DIR}/include" 
-  "${aplcam_SOURCE_DIR}/third_party/tclap/include" )
+include_directories( ${OpenCV_INCLUDE_DIRS}
+  ${CERES_INCLUDE_DIRS}
+  "${aplcam_SOURCE_DIR}/include" )
 
 add_definitions( -std=c++11 -DEIGEN_DONT_VECTORIZE -DEIGEN_DONT_ALIGN )
 
@@ -57,24 +59,26 @@ endif()
 
 option( USE_APRILTAGS "Use AprilTags" ON )
 if( USE_APRILTAGS )
+  set( Apriltags_SOURCE_DIR "/home/aaron/workspace/vision_exp/apriltags")
+  find_package( Apriltags REQUIRED )
   add_definitions( -DUSE_APRILTAGS )
-  add_subdirectory( "${aplcam_SOURCE_DIR}/third_party/apriltags" )
 
-  find_path( APRILTAGS_INCLUDE_DIR AprilTags/TagDetection.h
-    PATHS ${aplcam_SOURCE_DIR}/third_party/apriltags/ PARENT_SCOPE )
-  set( APRILTAGS_LIBS ${aplcam_BINARY_DIR}/third_party/apriltags/libapriltags.a )
-  set( APRILTAGS_LIBS ${APRILTAGS_LIBS} PARENT_SCOPE )
+  #add_subdirectory( "${aplcam_SOURCE_DIR}/third_party/apriltags" )
 
-  include_directories( ${APRILTAGS_INCLUDE_DIR} )
+  # find_path( APRILTAGS_INCLUDE_DIR AprilTags/TagDetection.h
+  #   PATHS ${aplcam_SOURCE_DIR}/third_party/apriltags/ PARENT_SCOPE )
+  # set( APRILTAGS_LIBS ${aplcam_BINARY_DIR}/third_party/apriltags/libapriltags.a )
+  # set( APRILTAGS_LIBS ${APRILTAGS_LIBS} PARENT_SCOPE )
+  #
+  # include_directories( ${APRILTAGS_INCLUDE_DIR} )
 endif()
 
-set( aplcam_INCLUDE_DIR "${aplcam_SOURCE_DIR}/include" PARENT_SCOPE )
-set( aplcam_LIBS "${aplcam_BINARY_DIR}/lib/libaplcam.a" )
-set( aplcam_LIBS ${aplcam_LIBS} PARENT_SCOPE )
-
-set( tclap_INCLUDE_DIR "${aplcam_SOURCE_DIR}/third_party/tclap/include" PARENT_SCOPE)
+# set( aplcam_INCLUDE_DIR "${aplcam_SOURCE_DIR}/include" PARENT_SCOPE )
+# set( aplcam_LIBS "${aplcam_BINARY_DIR}/lib/libaplcam.a" )
+# set( aplcam_LIBS ${aplcam_LIBS} PARENT_SCOPE )
+#
+# set( tclap_INCLUDE_DIR "${aplcam_SOURCE_DIR}/third_party/tclap/include" PARENT_SCOPE)
 
 
 add_subdirectory(lib)
 add_subdirectory(tools)
-

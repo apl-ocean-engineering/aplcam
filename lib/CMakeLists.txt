@@ -51,5 +51,5 @@ target_include_directories( aplcam
 
 if( USE_APRILTAGS )
   target_include_directories( aplcam
-    PUBLIC ${APRILTAGS_INCLUDE_DIR} )
+    PUBLIC ${apriltags_INCLUDE_DIR} )
 endif()
