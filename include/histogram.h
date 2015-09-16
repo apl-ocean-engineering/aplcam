@@ -35,7 +35,7 @@ namespace AplCam {
 
     vector<float> percentages( void ) const;
 
-    template <typename _St = _Tp>  _St sum( void ) const;
+    template <typename _St>  _St sum( void ) const;
 
     cv::Mat draw( unsigned int height, float scale = 1.0 ) const;
     cv::Mat draw( unsigned int height, const Gaussian &g, float scale = 1.0, float sigma = 1.0 ) const;
