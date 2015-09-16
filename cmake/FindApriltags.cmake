@@ -24,6 +24,12 @@ else()
   ## Should get Apriltags from sources...
 endif()
 
+ExternalProject_Add_Step( apriltags forceconfigure
+     COMMAND ${CMAKE_COMMAND} -E echo "Force build of apriltags"
+     DEPENDEES configure
+     DEPENDERS build
+     ALWAYS 1)
+
 ExternalProject_Get_Property( apriltags SOURCE_DIR BINARY_DIR )
 
 set( apriltags_INCLUDE_DIRS ${SOURCE_DIR}/include )
@@ -32,4 +38,4 @@ add_library( libapriltags STATIC IMPORTED )
 set_property( TARGET libapriltags PROPERTY IMPORTED_LOCATION ${BINARY_DIR}/libapriltags.a )
 set( apriltags_LIBS libapriltags )
 
-find_package_handle_standard_args( apriltags DEFAULT_MSG apriltags_INCLUDE_DIR )
+find_package_handle_standard_args( apriltags DEFAULT_MSG apriltags_INCLUDE_DIRS apriltags_LIBS  )
