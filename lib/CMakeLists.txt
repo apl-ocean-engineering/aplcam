@@ -47,9 +47,5 @@ add_library( aplcam
   calib_frame_selectors/keyframe_frame_selector.cpp )
 
 target_include_directories( aplcam
-  PUBLIC ${libaplcam_SOURCE_DIR}/include  )
+	PUBLIC	${aplcam_INCLUDE_DIRS} )
 
-if( USE_APRILTAGS )
-  target_include_directories( aplcam
-    PUBLIC ${apriltags_INCLUDE_DIR} )
-endif()

@@ -73,8 +73,10 @@ if( USE_APRILTAGS )
   # include_directories( ${APRILTAGS_INCLUDE_DIR} )
 endif()
 
-# set( aplcam_INCLUDE_DIR "${aplcam_SOURCE_DIR}/include" PARENT_SCOPE )
-# set( aplcam_LIBS "${aplcam_BINARY_DIR}/lib/libaplcam.a" )
+set( aplcam_INCLUDE_DIRS "${aplcam_SOURCE_DIR}/include" 
+			  ${apriltags_INCLUDE_DIRS} )
+set( aplcam_LIBS aplcam ${Apriltags_LIBS} )
+
 # set( aplcam_LIBS ${aplcam_LIBS} PARENT_SCOPE )
 #
 # set( tclap_INCLUDE_DIR "${aplcam_SOURCE_DIR}/third_party/tclap/include" PARENT_SCOPE)

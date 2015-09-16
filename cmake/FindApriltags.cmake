@@ -9,7 +9,7 @@ if( Apriltags_SOURCE_DIR )
     SOURCE_DIR ${Apriltags_SOURCE_DIR}
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/apriltags
     CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}"
-    BUILD_COMMAND ${CMAKE_COMMAND} --build .
+    BUILD_COMMAND ${CMAKE_COMMAND} --build . -- apriltags
     INSTALL_COMMAND ""
   )
 else()
@@ -26,8 +26,10 @@ endif()
 
 ExternalProject_Get_Property( apriltags SOURCE_DIR BINARY_DIR )
 
-set( apriltags_INCLUDE_DIR ${SOURCE_DIR}/include )
+set( apriltags_INCLUDE_DIRS ${SOURCE_DIR}/include )
+
 add_library( libapriltags STATIC IMPORTED )
 set_property( TARGET libapriltags PROPERTY IMPORTED_LOCATION ${BINARY_DIR}/libapriltags.a )
+set( apriltags_LIBS libapriltags )
 
 find_package_handle_standard_args( apriltags DEFAULT_MSG apriltags_INCLUDE_DIR )
