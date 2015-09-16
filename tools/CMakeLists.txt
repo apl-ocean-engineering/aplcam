@@ -1,13 +1,9 @@
 
-include_directories( "${CMAKE_SOURCE_DIR}/include"
-		      ${TCLAP_INCLUDE_DIR}  )
-
 link_libraries( ${OpenCV_LIBS}
-							  libaplcam
-								libapriltags
-								${Boost_LIBRARIES}
-                glog
-								cryptopp )
+		${aplcam_LIBS}
+		${Boost_LIBRARIES}
+		glog
+		cryptopp )
 
 #	${GSL_LIBRARIES}
 #	${Boost_LIBRARIES}
@@ -22,6 +18,4 @@ add_executable( extract_one_frame extract_one_frame.cpp )
 
 if( USE_APRILTAGS )
   add_executable( apriltags_player apriltags_player.cpp )
-  target_include_directories( apriltags_player PUBLIC ${apriltags_INCLUDE_DIR} )
-  link_libraries( apriltags_player libapriltags ${OpenCV_LIBS} )
 endif()

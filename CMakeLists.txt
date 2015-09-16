@@ -40,16 +40,6 @@ find_package( Boost REQUIRED COMPONENTS thread system filesystem )
 set( Boost_USE_MULTITHREADED ON )
 
 
-#include_directories( ${EIGEN_INCLUDE_DIR}
-#	${OpenCV_INCLUDE_DIRS}
-#        ${KyotoCabinet_INCLUDE_DIRS} )
-#
-#link_directories( ${PCL_LIBRARY_DIRS} )
-
-include_directories( ${OpenCV_INCLUDE_DIRS}
-  ${CERES_INCLUDE_DIRS}
-  "${aplcam_SOURCE_DIR}/include" )
-
 add_definitions( -std=c++11 -DEIGEN_DONT_VECTORIZE -DEIGEN_DONT_ALIGN )
 
 option( USE_TBB "Use TBB" ON )
@@ -75,7 +65,14 @@ endif()
 
 set( aplcam_INCLUDE_DIRS "${aplcam_SOURCE_DIR}/include" 
 			  ${apriltags_INCLUDE_DIRS} )
-set( aplcam_LIBS aplcam ${Apriltags_LIBS} )
+set( aplcam_LIBS aplcam ${apriltags_LIBS} )
+
+
+include_directories( ${OpenCV_INCLUDE_DIRS}
+  ${CERES_INCLUDE_DIRS}
+  ${aplcam_INCLUDE_DIRS} )
+
+
 
 # set( aplcam_LIBS ${aplcam_LIBS} PARENT_SCOPE )
 #
