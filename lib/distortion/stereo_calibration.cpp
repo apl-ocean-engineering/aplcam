@@ -145,7 +145,8 @@ namespace AplCam {
   const string StereoRectification::rect0Tag = "rectification_0",
         StereoRectification::rect1Tag = "rectification_1",
         StereoRectification::proj0Tag = "projection_0",
-        StereoRectification::proj1Tag = "projection_1";
+        StereoRectification::proj1Tag = "projection_1",
+        StereoRectification::qTag = "disparity_mapping";
 
   void StereoRectification::save( FileStorage &fs ) const
   {
@@ -154,6 +155,8 @@ namespace AplCam {
 
     fs << proj0Tag << P[0];
     fs << proj1Tag << P[1];
+
+    fs << qTag << Q;
   }
 
 
@@ -163,8 +166,11 @@ namespace AplCam {
     fs[ rect1Tag ] >> R[1];
     fs[ proj0Tag ] >> P[0];
     fs[ proj1Tag ] >> P[1];
+    fs[ qTag ] >> Q;
 
-    if( R[0].empty() || R[1].empty() || P[0].empty() || P[1].empty() ) return false;
+    cout << Q;
+
+    if( R[0].empty() || R[1].empty() || P[0].empty() || P[1].empty() || Q.empty() ) return false;
 
     return true;
   }

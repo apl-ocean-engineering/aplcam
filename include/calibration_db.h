@@ -36,7 +36,7 @@ namespace AplCam {
       bool has( const string &key );
 
       void findKeysStartingWith( const string &val, vector< string > &keys );
-      
+
 
     protected:
       uint32_t modeFlags( bool writable );

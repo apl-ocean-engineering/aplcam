@@ -36,17 +36,18 @@ namespace AplCam {
       StereoRectification() {;}
 
       bool isInitialized( void ) const
-          { return !( R[0].empty() || R[1].empty() || P[0].empty() || P[1].empty()); }
+          { return !( R[0].empty() || R[1].empty() || P[0].empty() || P[1].empty() || Q.empty()); }
 
       void save( cv::FileStorage &fs ) const ;
 
       bool load( cv::FileStorage &fs );
       bool load( const std::string &filename );
 
-      Mat R[2], P[2];
+      Mat R[2], P[2], Q;
 
       static const std::string rect0Tag, rect1Tag,
-                               proj0Tag, proj1Tag;
+                               proj0Tag, proj1Tag,
+                                qTag;
   };
 
 }
