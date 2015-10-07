@@ -168,8 +168,6 @@ namespace AplCam {
     fs[ proj1Tag ] >> P[1];
     fs[ qTag ] >> Q;
 
-    cout << Q;
-
     if( R[0].empty() || R[1].empty() || P[0].empty() || P[1].empty() || Q.empty() ) return false;
 
     return true;
