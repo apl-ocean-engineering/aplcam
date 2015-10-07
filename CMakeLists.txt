@@ -39,7 +39,6 @@ find_package( TCLAP REQUIRED )
 find_package( Boost REQUIRED COMPONENTS thread system filesystem )
 set( Boost_USE_MULTITHREADED ON )
 
-
 add_definitions( -std=c++11 -DEIGEN_DONT_VECTORIZE -DEIGEN_DONT_ALIGN )
 
 option( USE_TBB "Use TBB" ON )
@@ -63,7 +62,7 @@ if( USE_APRILTAGS )
   # include_directories( ${APRILTAGS_INCLUDE_DIR} )
 endif()
 
-set( aplcam_INCLUDE_DIRS "${aplcam_SOURCE_DIR}/include" 
+set( aplcam_INCLUDE_DIRS "${aplcam_SOURCE_DIR}/include"
 			  ${apriltags_INCLUDE_DIRS} )
 set( aplcam_LIBS aplcam ${apriltags_LIBS} )
 

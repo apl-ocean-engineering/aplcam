@@ -42,10 +42,10 @@ add_library( aplcam
   splitter_common.cpp
   hough_circles.cpp
   image_accumulator.cpp
+  sonar_pose.cpp
   frame_selector/keyframe_selector.cpp
   calib_frame_selectors/random_frame_selector.cpp
   calib_frame_selectors/keyframe_frame_selector.cpp )
 
 target_include_directories( aplcam
 	PUBLIC	${aplcam_INCLUDE_DIRS} )
-
