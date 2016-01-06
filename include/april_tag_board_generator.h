@@ -23,7 +23,7 @@ namespace cv {
     public:
 
       AprilTagBoard( const AprilTags::TagCodes &tagCode,
-          const Size &arraySize, const float tagSize = 1, 
+          const Size &arraySize, const float tagSize = 1,
           const float tagSpacing = 1.5 );
 
       Size arraySize( void ) const { return _arraySize; }
@@ -36,20 +36,20 @@ namespace cv {
       float tagSize( void ) const { return _tagSize; }
       float pixelSize( void ) const  { return _tagSize / tagSizePixels(); }
 
-      Size2f boardSize( void ) const 
+      Size2f boardSize( void ) const
       { return Size2f( _tagSpacing * (arraySize().width-1) + _tagSize + (2*margin()),
                        _tagSpacing * (arraySize().height-1)  + _tagSize + (2*margin()) ); }
 
 
       unsigned int tagSizePixels( void ) const {
-        return _tagFamily.dimension + 2*_tagFamily.blackBorder;
+        return _tagFamily.dimension() + 2*_tagFamily.blackBorder;
      }
 
-     unsigned int tagBits( void ) const { return _tagFamily.bits; }
-     unsigned int tagDimension( void ) const { return _tagFamily.dimension; }
+     unsigned int tagBits( void ) const { return _tagFamily.bits(); }
+     unsigned int tagDimension( void ) const { return _tagFamily.dimension(); }
 
      unsigned int codeIdAt( int i, int j ) const;
-     unsigned long long codeAt( int i, int j ) const;
+     AprilTags::Code_t codeAt( int i, int j ) const;
 
      Point3f locationAt( int x, int y ) const;
 
@@ -73,7 +73,7 @@ int calculateDistance( const Mat &ids, const Point2i &offset );
 
 
 
-  class SimulatedImage 
+  class SimulatedImage
   {
     public:
       Mat image;
@@ -88,7 +88,7 @@ vector<Point2f> boardToImage( const vector<Point3f> &boardPts, const Mat &camMat
       Point3f _origin, _pb1, _pb2;
   };
 
-class AprilTagBoardGenerator 
+class AprilTagBoardGenerator
 {
 public:
     double sensorWidth;
@@ -114,7 +114,7 @@ private:
     // Breaks a line segment into _segmentsPerEdge sub-segments
     void generateEdge(const Point3f& p1, const Point3f& p2, vector<Point3f>& out) const;
 
-    vector<Point> worldToImage( const vector<Point3f> &worldPts, 
+    vector<Point> worldToImage( const vector<Point3f> &worldPts,
         const Mat& camMat, const Mat& distCoeffs)  const;
 
     Mat drawBoard(const Mat& bg, const Mat& camMat, const Mat& distCoeffs,

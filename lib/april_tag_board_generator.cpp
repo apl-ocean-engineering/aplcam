@@ -14,19 +14,20 @@ using namespace std;
 
 
 AprilTagBoard::AprilTagBoard( const AprilTags::TagCodes &tagCode,
-    const Size& _arraySize, 
-    float tagSize, float tagSpacing )  
-: _arraySize( _arraySize ), 
+    const Size& _arraySize,
+    float tagSize,
+    float tagSpacing )
+: _arraySize( _arraySize ),
   _tagSize( tagSize ),
   _tagSpacing( tagSpacing ),
   _tagFamily( tagCode ),
   _tags( _arraySize, CV_16U )
 {
-  cv::randu( _tags, 0, _tagFamily.codes.size() );
+  cv::randu( _tags, 0, _tagFamily.codes().size() );
 
   cout << endl;
-  for( int j = 0; j < arraySize().height; ++j ) {
-    for( int i = 0; i < arraySize().width; ++i )
+  for(   int j = 0; j < arraySize().height; ++j ) {
+    for( int i = 0; i < arraySize().width;  ++i )
       cout << std::setw(4) << codeIdAt(i,j);
     cout << endl;
   }
@@ -45,15 +46,15 @@ AprilTagBoard::AprilTagBoard( const AprilTags::TagCodes &tagCode,
 unsigned int AprilTagBoard::codeIdAt( int i, int j ) const
 {
   assert( i >= 0 && i < arraySize().width &&
-      j >= 0 && j < arraySize().height );
+          j >= 0 && j < arraySize().height );
   return _tags.at<uint16_t>(j,i);
 }
 
-unsigned long long AprilTagBoard::codeAt( int i, int j ) const
+AprilTags::Code_t AprilTagBoard::codeAt( int i, int j ) const
 {
   assert( i >= 0 && i < arraySize().width &&
-      j >= 0 && j < arraySize().height );
-  return _tagFamily.codes[ codeIdAt(i,j) ];
+          j >= 0 && j < arraySize().height );
+  return _tagFamily.codes()[ codeIdAt(i,j) ];
 }
 
 bool AprilTagBoard::hasId( unsigned int id ) const
@@ -103,7 +104,7 @@ int AprilTagBoard::calculateDistance( const Mat &ids, const Point2i &offset )
       Point2i idsIdx = pt - offset;
       if( ids.at<int16_t>(idsIdx.y, idsIdx.x) < 0 ) continue;
 
-      distance += _tagFamily.hammingDistance( _tagFamily.codes[ ids.at<int16_t>(idsIdx.y, idsIdx.x) ], codeAt(x,y) );
+      distance += _tagFamily.hammingDistance( _tagFamily.codes()[ ids.at<int16_t>(idsIdx.y, idsIdx.x) ], codeAt(x,y) );
 
     }
   }
@@ -150,7 +151,7 @@ Mat AprilTagBoard::mostLikelyAlignment( const Mat &ids, Mat &valid )
       if( tagsRect.contains( idx ) ) {
         valid.at<uint8_t>(y,x) = 1;
         positions.at<Point3f>(y,x) = locationAt( x, y );
-      } 
+      }
     }
   }
 
@@ -164,7 +165,7 @@ Mat AprilTagBoard::mostLikelyAlignment( const Mat &ids, Mat &valid )
 
 struct BoardToWorld
 {
-  const Point3f &_origin, &_pb1, &_pb2; 
+  const Point3f &_origin, &_pb1, &_pb2;
   const Point2f &_scale;
 
   BoardToWorld( const Point3f &origin, const Point3f &pb1, const Point3f &pb2, const Point2f &scale = Point2f(1,1) )
@@ -188,10 +189,10 @@ struct Mult
 {
   float m;
 
-  Mult(int mult) 
+  Mult(int mult)
     : m((float)mult) {}
 
-  Point2f operator()(const Point2f& p) const 
+  Point2f operator()(const Point2f& p) const
   { return p * m; }
 };
 
@@ -245,7 +246,7 @@ const int AprilTagBoardGenerator::_rendererResolutionMultiplier = 4;
 const size_t AprilTagBoardGenerator::_segmentsPerEdge = 200;
 
 AprilTagBoardGenerator::AprilTagBoardGenerator( const AprilTagBoard &board )
-  : 
+  :
     tvec(Mat::zeros(1, 3, CV_32F)),
     _board( board )
 {
@@ -260,7 +261,7 @@ void cv::AprilTagBoardGenerator::generateEdge(const Point3f& p1, const Point3f& 
 }
 
 
-vector<Point> AprilTagBoardGenerator::worldToImage( const vector<Point3f> &worldPts, 
+vector<Point> AprilTagBoardGenerator::worldToImage( const vector<Point3f> &worldPts,
     const Mat& camMat, const Mat& distCoeffs)  const
 {
   vector<Point3f> edges3d;
@@ -268,7 +269,7 @@ vector<Point> AprilTagBoardGenerator::worldToImage( const vector<Point3f> &world
   // worldPts is assumed to be a set of corners describing a closed contour
   if( worldPts.size() < 2 ) return vector<Point>();
 
-  int i;
+  unsigned int i;
   for( i = 0; i < worldPts.size()-1; ++i ) {
     generateEdge(worldPts[i], worldPts[i+1], edges3d);
   }
@@ -333,7 +334,7 @@ Mat cv::AprilTagBoardGenerator::drawBoard(const Mat& bg, const Mat& camMat, cons
   vector< Point2f > tagOrigins;
   for( int i = 0; i < _board.arraySize().width; ++i ) {
     for( int j = 0; j < _board.arraySize().height; ++j ) {
-      //Point2f tagOrigin( _board.margin() + i * _board.tagSpacing() - (0.5 * _board.tagSize()), 
+      //Point2f tagOrigin( _board.margin() + i * _board.tagSpacing() - (0.5 * _board.tagSize()),
       //                   _board.margin() + j * _board.tagSpacing() - (0.5 * _board.tagSize()) );
       Point2f tagOrigin( _board.margin() + i * _board.tagSpacing(),
                          _board.margin() + j * _board.tagSpacing() );
@@ -342,7 +343,7 @@ Mat cv::AprilTagBoardGenerator::drawBoard(const Mat& bg, const Mat& camMat, cons
 
       unsigned long long code = _board.codeAt( i, j );
 
-      // First, build a bitmap of each tag 
+      // First, build a bitmap of each tag
       Mat bitmap( Mat::ones( Size( _board.tagSizePixels(), _board.tagSizePixels() ), CV_8U ) );
       Mat roi( bitmap, Rect( 1,1, _board.tagDimension(), _board.tagDimension() ) );
 
@@ -351,15 +352,15 @@ Mat cv::AprilTagBoardGenerator::drawBoard(const Mat& bg, const Mat& camMat, cons
       //
       // In the "canonical" tag images, starts with LSB at lower _right_ and goes up?
       // This works in canonical image coordinates, origin at upper left and goes
-      // down ... they're the same just rotated by 180 
-      for( int y = 0; y < _board.tagDimension(); ++y )
-        for( int x = 0; x < _board.tagDimension(); ++x ) 
+      // down ... they're the same just rotated by 180
+      for( unsigned int y = 0; y < _board.tagDimension(); ++y )
+        for( unsigned int x = 0; x < _board.tagDimension(); ++x )
           if( code & (1 << (y*_board.tagDimension() + x)) )
             roi.at<uint8_t>(x,y) = 0;
 
 
-      for( int x = 0; x < _board.tagSizePixels(); ++x ) 
-        for( int y = 0; y < _board.tagSizePixels(); ++y ) 
+      for( unsigned int x = 0; x < _board.tagSizePixels(); ++x )
+        for( unsigned int y = 0; y < _board.tagSizePixels(); ++y )
           if( bitmap.at<uint8_t>(x,y) != 0 ) {
             vector<Point2f> corners;
             Point2f bitOrigin = tagOrigin + Point2f( x * _board.pixelSize(), y * _board.pixelSize() );
@@ -423,7 +424,7 @@ Mat cv::AprilTagBoardGenerator::drawBoard(const Mat& bg, const Mat& camMat, cons
     drawContours(result, outlineContour, -1, Scalar::all(255), CV_FILLED, CV_AA);
     drawContours(result, tagContours, -1, Scalar::all(0), CV_FILLED, CV_AA);
 
-    ///for( vector< Point2f >::iterator itr = tagOriginsImage.begin(); 
+    ///for( vector< Point2f >::iterator itr = tagOriginsImage.begin();
     ///    itr != tagOriginsImage.end(); ++itr ) {
     ///  cv::circle( result, (*itr), 5, Scalar( 255,0,255 ), -1 );
     ///}
@@ -446,7 +447,7 @@ Mat cv::AprilTagBoardGenerator::drawBoard(const Mat& bg, const Mat& camMat, cons
     vector< Point2f > imageOrigins;
     projectPoints( Mat(worldOrigins), rvec, tvec, camMat, distCoeffs, imageOrigins );
 
-    for( int i = 0; i < 3; ++i ) 
+    for( int i = 0; i < 3; ++i )
       imageOrigins[i] *= _rendererResolutionMultiplier;
 
     cv::circle( tmp, imageOrigins[0], 4*_rendererResolutionMultiplier, Scalar(0,0,255 ), -1 );
@@ -456,7 +457,7 @@ Mat cv::AprilTagBoardGenerator::drawBoard(const Mat& bg, const Mat& camMat, cons
         Scalar(0,255,0), 4*_rendererResolutionMultiplier );
 #endif
 
-    //for( vector< Point2f >::iterator itr = tagOriginsImage.begin(); 
+    //for( vector< Point2f >::iterator itr = tagOriginsImage.begin();
     //    itr != tagOriginsImage.end(); ++itr ) {
     //  cv::circle( tmp, (*itr)*_rendererResolutionMultiplier, 5*_rendererResolutionMultiplier,
     //      Scalar( 255,0,255 ), -1 );
@@ -548,7 +549,6 @@ SimulatedImage cv::AprilTagBoardGenerator::generateImageOfBoard(const Mat& bg, c
   // Define an origin in the upper left of the calibration image
     Point3f origin( p - pb1 * cbHalfWidth - cbHalfHeight * pb2 );
 
-  return SimulatedImage( drawBoard(bg, camMat, distCoeffs, origin, pb1, pb2 ), 
+  return SimulatedImage( drawBoard(bg, camMat, distCoeffs, origin, pb1, pb2 ),
       origin, pb1, pb2 );
 }
-

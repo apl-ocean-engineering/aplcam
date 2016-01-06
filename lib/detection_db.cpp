@@ -1,4 +1,6 @@
 
+#include <iostream>
+
 #include "detection_db.h"
 #include "detection_set.h"
 
@@ -133,7 +135,8 @@ namespace AplCam {
 
     virtual const char *visit_full( const char *kbuf, size_t ksiz, const char *vbuf, size_t vsiz, size_t *sp )
     {
-      _max = std::max( _max, (int)atoi( kbuf ) );
+      if( 0 != strncmp( kbuf, DetectionDb::MetaKey.c_str(), std::min(ksiz,(size_t)4) ) ) 
+	_max = std::max( _max, (int)atoi( kbuf ) );
       return Visitor::NOP;
     }
 
@@ -193,6 +196,12 @@ namespace AplCam {
       fs[ MetaHeightKey ] >> height;
       _imageSize = Size( width, height );
       fs[ MetaLengthKey ] >> _vidLength;
+
+
+	// TODO:   Figure out why vidLength is ocassionally incorrect
+	cerr << "Meta tag says this db has " << _vidLength << " entries.";
+	_vidLength = maxKey();
+	cerr << "But the max key is " << _vidLength;
 
     }
   }
