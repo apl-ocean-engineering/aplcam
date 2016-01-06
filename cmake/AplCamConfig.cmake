@@ -11,10 +11,16 @@ find_package( OpenCV REQUIRED )
 find_package( Ceres REQUIRED )
 find_package( Boost REQUIRED COMPONENTS thread system filesystem )
 set( Boost_USE_MULTITHREADED ON )
-if( USE_APRILTAGS )
-  find_package( Apriltags REQUIRED )
-	set( apriltags_LIBS libapriltags )
-endif()
+
+# if( USE_APRILTAGS )
+#   message("Find_package apriltags in AplCamConfig.txt")
+#   find_package( Apriltags REQUIRED )
+# 	set( apriltags_LIBS libapriltags )
+#
+# 	message("Apriltags_SOURCE_DIR is ${Apriltags_SOURCE_DIR}")
+# 	# set( Apriltags_SOURCE_DIR ${Apriltags_SOURCE_DIR} CACHE FILEPATH "Location of Apriltags" )
+# 	# set( ENV{APRILTAGS_SOURCE_DIR} ${Apriltags_SOURCE_DIR} )
+# endif()
 
 ExternalProject_Get_Property( aplcam SOURCE_DIR BINARY_DIR )
 add_library( libaplcam STATIC IMPORTED )
@@ -26,7 +32,7 @@ set( aplcam_INCLUDE_DIRS
      ${OpenCV_INCLUDE_DIRS}
 		 ${EIGEN_INCLUDE_DIR}
 		 ${GSL_INCLUDE_DIRS}
-		${CERES_INCLUDE_DIRS} )
+		 ${CERES_INCLUDE_DIRS} )
 
 set( aplcam_LIBS
      libaplcam
@@ -37,5 +43,6 @@ set( aplcam_LIBS
      ${Boost_LIBRARIES}
  		 ${CERES_LIBRARIES}
 		 gtest )
+
 
 find_package_handle_standard_args( aplcam DEFAULT_MSG aplcam_INCLUDE_DIRS aplcam_LIBS )

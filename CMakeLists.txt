@@ -48,7 +48,8 @@ endif()
 
 option( USE_APRILTAGS "Use AprilTags" ON )
 if( USE_APRILTAGS )
-  set( Apriltags_SOURCE_DIR "/home/aaron/workspace/vision_exp/apriltags")
+  #set( apriltags_SOURCE_DIR "/home/aaron/workspace/vision_exp/apriltags")
+  message("Find_package apriltags in CMakeLists.txt")
   find_package( Apriltags REQUIRED )
   add_definitions( -DUSE_APRILTAGS )
 
