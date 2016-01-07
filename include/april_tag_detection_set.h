@@ -9,10 +9,9 @@
 using AprilTags::TagDetection;
 using std::vector;
 
-
 class AprilTagDetectionSet {
   public:
-    struct DetectionNode 
+    struct DetectionNode
     {
       public:
         DetectionNode()
@@ -30,10 +29,10 @@ class AprilTagDetectionSet {
 
     const TagDetection &operator[]( int idx ) const { return _detections[idx]; }
 
-    const TagDetection &at( int x, int y ) const 
+    const TagDetection &at( int x, int y ) const
     { return _detections[ indexAt( x, y )]; }
 
-    int indexAt( int x, int y ) const 
+    int indexAt( int x, int y ) const
     { return _grid.at<int16_t>(y,x); }
 
     bool validAt( int x, int y ) const
@@ -46,7 +45,7 @@ class AprilTagDetectionSet {
 
     void arrangeIntoGrid( void );
 
-    void assignToGraph( const vector<DetectionNode> &nodes, const int idx, 
+    void assignToGraph( const vector<DetectionNode> &nodes, const int idx,
                         cv::Mat &graph, const int x, const int y, int *limits );
 
     const vector<TagDetection> _detections;

@@ -10,7 +10,7 @@
 #include "board/apriltags.h"
 #include "board/circle.h"
 
-#include "detection.h"
+#include "detection/detection.h"
 
 using namespace std;
 using namespace cv;
@@ -113,9 +113,9 @@ ObjectPointsVec Board::corners( void ) // const CornersReference ref )
   Point3f halfSize( squareSize * size().width / 2.0, squareSize * size().height / 2.0, 0 );
 
   ObjectPointsVec out;
-  for( int x = 0; x < width; ++x ) 
-    for( int y = 0; y < height; ++y ) 
-      //if( ref == BOARD_UL ) 
+  for( int x = 0; x < width; ++x )
+    for( int y = 0; y < height; ++y )
+      //if( ref == BOARD_UL )
       //  out.push_back( worldLocation( Point2i( x, y ) ) );
       //else
       out.push_back( worldLocation( Point2i(x,y) ) );
@@ -136,5 +136,3 @@ void Board::extents( ObjectPointsVec &vec ) const
   vec[2] = worldLocation( Point2i( width-1,height-1 ) );
   vec[3] = worldLocation( Point2i( 0,height-1 ) );
 }
-
-

@@ -6,7 +6,7 @@
 
 #include <opencv2/core/core.hpp>
 
-#include "detection.h"
+#include "detection/detection.h"
 
 #include <kchashdb.h>
 

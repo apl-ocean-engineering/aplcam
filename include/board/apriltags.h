@@ -1,6 +1,6 @@
 
-#ifndef __APRILTAG_BOARD_H__
-#define __APRILTAG_BOARD_H__
+#ifndef __APRILTAGS_BOARD_H__
+#define __APRILTAGS_BOARD_H__
 
 #include <vector>
 #include <string>
@@ -17,34 +17,42 @@
 #include <AprilTags/TagFamily.h>
 #include <AprilTags/Tag36h11.h>
 
+
 namespace AplCam {
 
-using AplCam::ObjectPointsVec;
-using AplCam::ImagePointsVec;
+  using AplCam::ObjectPointsVec;
+  using AplCam::ImagePointsVec;
 
-class AprilTagsBoard : public Board {
- public:
+  class AprilTagsSubtagDetection;
+  class AprilTagsDetection;
 
-  AprilTagsBoard( int w, int h, float squares, const std::string &name )
-      : Board(  APRILTAGS, w, h, squares, name ), _tagCode( AprilTags::tagCodes36h11 )
-  {;} 
+  class AprilTagsBoard : public Board {
+   public:
 
-  virtual Detection *detectPattern( const cv::Mat &gray );
+    static const float DefaultSubtagThreshold;
 
-  virtual std::vector< int > ids( void );
+    AprilTagsBoard( int w, int h, float squares, const std::string &name, bool doSubtags = false );
 
-  bool find( const int id, cv::Point2i &xy  ) const;
+    virtual Detection *detectPattern( const cv::Mat &gray );
+    AprilTagsSubtagDetection *attemptSubtagDetection( const cv::Mat &gray, std::vector<AprilTags::TagDetection> &detections );
 
- protected:
+    virtual std::vector< int > ids( void );
 
-  virtual void loadCallback( cv::FileStorage &fs );
+    bool find( const int id, cv::Point2i &xy  ) const;
 
- private:
+    float setSubtagThreshold( float x ) { return _subtagThreshold = x; }
+    float subtagThreshold( void ) const { return _subtagThreshold; }
 
-  cv::Mat _ids;
+   protected:
 
-  AprilTags::TagCodes _tagCode;
-};
+    virtual void loadCallback( cv::FileStorage &fs );
+
+   private:
+
+    cv::Mat _ids;
+    AprilTags::TagCodes _tagCode;
+    float _subtagThreshold;
+  };
 
 }
 #endif

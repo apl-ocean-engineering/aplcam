@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <string>
 
-#include "detection.h"
+#include "detection/detection.h"
 #include "detection_db.h"
 
 namespace AplCam {
@@ -21,7 +21,7 @@ namespace AplCam {
 
       typedef vector< Detection * > DetectionMap;
 
-      DetectionSet() 
+      DetectionSet()
         : _name(""), _detections(), _frames()
       {;}
 
@@ -33,12 +33,12 @@ namespace AplCam {
       size_t size( void ) const { return _detections.size(); }
 
       void addDetection( DetectionDb &db, const int frame )
-      { 
+      {
         addDetection( db.load( frame ), frame );
       }
 
       void addDetection( Detection *detection, const int frame )
-      { 
+      {
         if( detection ) {
           _detections.push_back( detection );
           _frames.push_back( frame );
@@ -66,28 +66,28 @@ namespace AplCam {
       // Inefficient, for now
       ObjectPointsVecVec objectPoints( void ) const {
         ObjectPointsVecVec v;
-        for( DetectionMap::const_iterator itr = _detections.begin(); itr != _detections.end(); ++itr ) 
+        for( DetectionMap::const_iterator itr = _detections.begin(); itr != _detections.end(); ++itr )
           v.push_back( (*itr)->corners );
         return v;
       }
 
       ImagePointsVecVec imagePoints( void ) const {
         ImagePointsVecVec v;
-        for( DetectionMap::const_iterator itr = _detections.begin(); itr != _detections.end(); ++itr ) 
+        for( DetectionMap::const_iterator itr = _detections.begin(); itr != _detections.end(); ++itr )
           v.push_back( (*itr)->points );
         return v;
       }
 
       RotVec rvecs( void ) const {
         RotVec v;
-        for( DetectionMap::const_iterator itr = _detections.begin(); itr != _detections.end(); ++itr ) 
+        for( DetectionMap::const_iterator itr = _detections.begin(); itr != _detections.end(); ++itr )
           v.push_back( (*itr)->rot );
         return v;
       }
 
       TransVec tvecs( void ) const {
         TransVec v;
-        for( DetectionMap::const_iterator itr = _detections.begin(); itr != _detections.end(); ++itr ) 
+        for( DetectionMap::const_iterator itr = _detections.begin(); itr != _detections.end(); ++itr )
           v.push_back( (*itr)->trans );
         return v;
       }
@@ -123,7 +123,7 @@ namespace AplCam {
       };
 
 
-      SetElement operator[]( unsigned int i) 
+      SetElement operator[]( unsigned int i)
       {
         return SetElement( _frames[i], _detections[i] );
       }
@@ -135,7 +135,7 @@ namespace AplCam {
       const string &name( void ) const
       { return _name; }
 
-      const vector<int> &frames( void ) const 
+      const vector<int> &frames( void ) const
       { return _frames; }
 
 

@@ -5,7 +5,8 @@ if( USE_APRILTAGS )
     april_tag_board_generator.cpp
     april_tag_detection_set.cpp
     board/apriltags.cpp
-    detection/apriltags.cpp )
+    detection/apriltags.cpp
+    detection/apriltags_subtag.cpp)
 else()
   message( INFO " USE_APRILTAGS not set" )
 endif()
@@ -17,7 +18,7 @@ add_library( aplcam
   board/circle.cpp
   image.cpp
   video.cpp
-  detection.cpp
+  detection/detection.cpp
   detection/circle.cpp
   detection_db.cpp
   detection_set.cpp
