@@ -41,7 +41,7 @@ Detection *Board::detectPattern( const Mat &gray )
       return NULL;
   }
 
-  detect->calculateCorners( *this );
+  //detect->calculateCorners( *this );
   return detect;
 }
 
@@ -89,7 +89,7 @@ Board *Board::load( const string &infile, const string &name )
   } else if( type_s.compare("apriltags_36h11" ) == 0) {
 #ifdef USE_APRILTAGS
     LOG(INFO) << "Creating Apriltags 36H11 board.";
-    board = new AprilTagsBoard( width, height, squares, name );
+    board = AprilTagsBoard::Load( fs, name );
 #else
     LOG(ERROR) << "Not compiled for Apriltags." << endl;
 #endif
@@ -102,15 +102,16 @@ Board *Board::load( const string &infile, const string &name )
   return board;
 }
 
-cv::Point3f Board::worldLocation( const cv::Point2i &xy ) const
+ObjectPoint Board::worldLocation( const cv::Point2i &xy ) const
 {
-  Point3f halfSize( squareSize * size().width / 2.0, squareSize * size().height / 2.0, 0 );
-  return Point3f( xy.x * squareSize, xy.y * squareSize, 0 ) - halfSize;
+  Point2f idx( xy.x - (float)(size().width-1)/2.0, xy.y - (float)(size().height-1)/2.0 );
+  //ObjectPoint halfSize( size().width * squareSize / 2.0, size().height * squareSize / 2.0, 0 );
+  return ObjectPoint( idx.x * squareSize, idx.y * squareSize, 0.0 );
 }
 
 ObjectPointsVec Board::corners( void ) // const CornersReference ref )
 {
-  Point3f halfSize( squareSize * size().width / 2.0, squareSize * size().height / 2.0, 0 );
+  ObjectPoint halfSize( squareSize * size().width / 2.0, squareSize * size().height / 2.0, 0 );
 
   ObjectPointsVec out;
   for( int x = 0; x < width; ++x )

@@ -86,14 +86,14 @@ Detection *ColorSegmentationCircleBoard::detectPattern( const cv::Mat &img )
 
 
   Mat diff( channels[0].size(), CV_32FC1 );
-  assert( diff.type() == CV_32FC1 && 
-      channels[0].type() == CV_32FC1 && 
-      channels[1].type() == CV_32FC1 && 
+  assert( diff.type() == CV_32FC1 &&
+      channels[0].type() == CV_32FC1 &&
+      channels[1].type() == CV_32FC1 &&
       channels[2].type() == CV_32FC1 );
 
   float *d = (float *)diff.data,
         *h = (float *)channels[0].data,
-        *s = (float *)channels[1].data, 
+        *s = (float *)channels[1].data,
         *v = (float *)channels[2].data;
 
   for( int i = 0; i < (diff.rows * diff.cols); i++ )  {
@@ -124,7 +124,7 @@ Detection *ColorSegmentationCircleBoard::detectPattern( const cv::Mat &img )
 //
 //  imshow(enhancedWindow, enhancedBGR );
 
-  Mat gray; 
+  Mat gray;
   diff.convertTo( gray, CV_8UC1, 255 );
 
   const string grayWindow = "gray";
@@ -163,10 +163,8 @@ Detection *CircleGridBoard::detectPattern( const cv::Mat &gray )
   Detection *detect = new Detection();
   detect->found = findCirclesGrid( gray, size(), detect->points );
 
-  detect->calculateCorners( *this );
+  //detect->calculateCorners( *this );
   return detect;
 }
 
 }
-
-

@@ -5,8 +5,7 @@ if( USE_APRILTAGS )
     april_tag_board_generator.cpp
     april_tag_detection_set.cpp
     board/apriltags.cpp
-    detection/apriltags.cpp
-    detection/apriltags_subtag.cpp)
+    detection/apriltags.cpp )
 else()
   message( INFO " USE_APRILTAGS not set" )
 endif()

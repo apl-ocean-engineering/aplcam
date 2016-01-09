@@ -10,8 +10,8 @@
 #include "types.h"
 
 namespace AplCam {
-enum Pattern { CHESSBOARD, 
-  CIRCLE, 
+enum Pattern { CHESSBOARD,
+  CIRCLE,
   COLOR_SEG_CIRCLE,
   CIRCLES_GRID, ASYMMETRIC_CIRCLES_GRID, APRILTAGS };
 
@@ -48,7 +48,7 @@ class Board {
 
   virtual void extents( ObjectPointsVec &ext ) const;
 
-  virtual cv::Point3f worldLocation( const cv::Point2i &xy ) const;
+  virtual ObjectPoint worldLocation( const cv::Point2i &xy ) const;
 
   static Board *load( const std::string &infile, const std::string &name );
 

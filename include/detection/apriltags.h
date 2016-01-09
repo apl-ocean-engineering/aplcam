@@ -19,29 +19,16 @@ namespace AplCam {
 
   struct AprilTagsDetection : public Detection
   {
-    AprilTagsDetection( vector< AprilTags::TagDetection > det )
-        : Detection(), _det(det) {;}
+    AprilTagsDetection( vector< AprilTags::TagDetection > det, ObjectPointsVec worldLocations );
 
     vector< AprilTags::TagDetection > _det;
 
-    virtual void calculateCorners( const AprilTagsBoard &board );
+//    virtual void calculateCorners( const AprilTagsBoard &board );
 
     virtual Detection::Validate_Return_Code validate( void );
 
   };
 
-  struct AprilTagsSubtagDetection : public Detection
-  {
-    AprilTagsSubtagDetection( void )
-        : Detection() {;}
-
-    // vector< AprilTags::TagDetection > _det;
-    //
-    // virtual void calculateCorners( const AprilTagsBoard &board );
-
-    virtual Detection::Validate_Return_Code validate( void );
-
-  };
 }
 
 

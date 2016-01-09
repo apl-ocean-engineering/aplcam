@@ -23,35 +23,41 @@ namespace AplCam {
   using AplCam::ObjectPointsVec;
   using AplCam::ImagePointsVec;
 
-  class AprilTagsSubtagDetection;
-  class AprilTagsDetection;
+  // class AprilTagsDetection;
 
   class AprilTagsBoard : public Board {
    public:
 
-    static const float DefaultSubtagThreshold;
-
-    AprilTagsBoard( int w, int h, float squares, const std::string &name, bool doSubtags = false );
+    AprilTagsBoard( const Mat &ids, float squares, const std::string &name,  bool doSubtags = false );
 
     virtual Detection *detectPattern( const cv::Mat &gray );
-    AprilTagsSubtagDetection *attemptSubtagDetection( const cv::Mat &gray, std::vector<AprilTags::TagDetection> &detections );
+    Detection *attemptSubtagDetection( const cv::Mat &gray, std::vector<AprilTags::TagDetection> &detections );
 
     virtual std::vector< int > ids( void );
 
     bool find( const int id, cv::Point2i &xy  ) const;
+    ObjectPoint worldLocation( const int id ) const;
 
-    float setSubtagThreshold( float x ) { return _subtagThreshold = x; }
-    float subtagThreshold( void ) const { return _subtagThreshold; }
+    float setSubtagMinSize( float x ) { return _subtagMinSize = x; }
+    float subtagMinSize( void ) const { return _subtagMinSize; }
+
+    static AprilTagsBoard *Load( cv::FileStorage &fs, const string &name );
+
+    void setTagSize( float width, float height = -1 );
+    void setBlackBorder( unsigned int border );
 
    protected:
 
-    virtual void loadCallback( cv::FileStorage &fs );
+    // virtual void loadCallback( cv::FileStorage &fs );
 
    private:
 
     cv::Mat _ids;
     AprilTags::TagCodes _tagCode;
-    float _subtagThreshold;
+    int _subtagMinSize;
+
+    unsigned int _blackBorder;
+    cv::Size2f _tagSize;
   };
 
 }

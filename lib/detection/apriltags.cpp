@@ -20,33 +20,44 @@ namespace AplCam {
   //  AprilTagDetection
   //============================================================================
 
-  void AprilTagsDetection::calculateCorners( const AprilTagsBoard &board )
-  {
-    // Go for a simple model here, assume all tags are unique on the board
-
-    points.clear();
-    corners.clear();
-    ids.clear();
-
-
-    Point3f ptSpace = board.worldLocation( Point2i(0,0) ) - board.worldLocation(Point2i(1,1));
-    pointSpacing =  ptSpace.x * ptSpace.x + ptSpace.y * ptSpace.y;
-
-    for( size_t i = 0; i < _det.size(); ++i ) {
-
-      Point2i loc;
-      if( board.find( _det[i].id, loc ) ) {
-        //cout << "Found  tag id " << _det[i].id << endl;
-
-        points.push_back( Point2f( _det[i].cxy.first, _det[i].cxy.second ) );
-        corners.push_back( board.worldLocation( loc ) );
-        ids.push_back( _det[i].id );
-
-      } else {
-        LOG(ERROR) << "Couldn't find tag \'" << _det[i].id << "\'" << endl;
+  AprilTagsDetection::AprilTagsDetection( vector< AprilTags::TagDetection > det, ObjectPointsVec worldLocations )
+      : Detection(), _det(det)
+    {
+      assert( _det.size() == worldLocations.size() );
+      for( size_t i = 0; i < _det.size(); ++i ) {
+        add( worldLocations[i], Point2f( _det[i].cxy.first, _det[i].cxy.second ), _det[i].id );
       }
     }
-  }
+
+
+  //
+  // void AprilTagsDetection::calculateCorners( const AprilTagsBoard &board )
+  // {
+  //   // Go for a simple model here, assume all tags are unique on the board
+  //
+  //   points.clear();
+  //   corners.clear();
+  //   ids.clear();
+  //
+  //
+  //   Point3f ptSpace = board.worldLocation( Point2i(0,0) ) - board.worldLocation(Point2i(1,1));
+  //   pointSpacing =  ptSpace.x * ptSpace.x + ptSpace.y * ptSpace.y;
+  //
+  //   for( size_t i = 0; i < _det.size(); ++i ) {
+  //
+  //     Point2i loc;
+  //     if( board.find( _det[i].id, loc ) ) {
+  //       //cout << "Found  tag id " << _det[i].id << endl;
+  //
+  //       points.push_back( Point2f( _det[i].cxy.first, _det[i].cxy.second ) );
+  //       corners.push_back( board.worldLocation( loc ) );
+  //       ids.push_back( _det[i].id );
+  //
+  //     } else {
+  //       LOG(ERROR) << "Couldn't find tag \'" << _det[i].id << "\'" << endl;
+  //     }
+  //   }
+  // }
 
 
   typedef vector< std::array< size_t, 4 > > IdArray;
