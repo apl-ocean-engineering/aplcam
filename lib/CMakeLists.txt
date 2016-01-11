@@ -13,7 +13,7 @@ endif()
 add_library( aplcam
   bits_to_hex.cpp
   types.cpp
-  board.cpp
+  board/board.cpp
   board/circle.cpp
   image.cpp
   video.cpp

@@ -80,15 +80,15 @@ namespace AplCam {
 
       RotVec rvecs( void ) const {
         RotVec v;
-        for( DetectionMap::const_iterator itr = _detections.begin(); itr != _detections.end(); ++itr )
-          v.push_back( (*itr)->rot );
+        // for( DetectionMap::const_iterator itr = _detections.begin(); itr != _detections.end(); ++itr )
+        //   v.push_back( (*itr)->rot );
         return v;
       }
 
       TransVec tvecs( void ) const {
         TransVec v;
-        for( DetectionMap::const_iterator itr = _detections.begin(); itr != _detections.end(); ++itr )
-          v.push_back( (*itr)->trans );
+        // for( DetectionMap::const_iterator itr = _detections.begin(); itr != _detections.end(); ++itr )
+        //   v.push_back( (*itr)->trans );
         return v;
       }
 

@@ -23,18 +23,17 @@ Detection *Board::detectPattern( const Mat &gray )
   switch( pattern )
   {
     case CHESSBOARD:
-      detect->found = findChessboardCorners( gray, size(), detect->points,
+      findChessboardCorners( gray, size(), detect->points,
                                             CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FAST_CHECK | CV_CALIB_CB_NORMALIZE_IMAGE);
 
-      // improve the found corners' coordinate accuracy
-      if( detect->found) cornerSubPix( gray, detect->points, Size(11,11), Size(-1,-1), TermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 30, 0.1 ));
+      if( detect->good() ) cornerSubPix( gray, detect->points, Size(11,11), Size(-1,-1), TermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 30, 0.1 ));
 
       break;
     case CIRCLES_GRID:
-      detect->found = findCirclesGrid( gray, size(), detect->points );
+      findCirclesGrid( gray, size(), detect->points );
       break;
     case ASYMMETRIC_CIRCLES_GRID:
-      detect->found = findCirclesGrid( gray, size(), detect->points, CALIB_CB_ASYMMETRIC_GRID );
+      findCirclesGrid( gray, size(), detect->points, CALIB_CB_ASYMMETRIC_GRID );
       break;
     default:
       cerr << "Unknown pattern type" << endl;

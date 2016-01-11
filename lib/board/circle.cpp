@@ -161,7 +161,7 @@ void CircleGridBoard::loadCallback( FileStorage &fs )
 Detection *CircleGridBoard::detectPattern( const cv::Mat &gray )
 {
   Detection *detect = new Detection();
-  detect->found = findCirclesGrid( gray, size(), detect->points );
+  findCirclesGrid( gray, size(), detect->points );
 
   //detect->calculateCorners( *this );
   return detect;

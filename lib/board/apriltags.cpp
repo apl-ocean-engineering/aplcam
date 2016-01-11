@@ -101,7 +101,7 @@ namespace AplCam {
       float area = detections[i].totalArea();
 
       bool doSubtag = (area >= _subtagMinSize);
-      LOG(INFO) << "Tag is larger than " << area << " pixels, " << (doSubtag ? "attempting" : "skipping") << " subtag detection";
+      LOG(INFO) << "Tag area of " << area << " pixels, " << (doSubtag ? "attempting" : "skipping") << " subtag detection";
 
       if( !doSubtag ) continue;
 

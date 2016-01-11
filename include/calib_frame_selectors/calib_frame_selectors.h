@@ -57,7 +57,7 @@ namespace AplCam {
           DB::Cursor *cur = db.cursor();
           cur->jump();
           string key;
-          while( cur->get_key( &key, true ) ) 
+          while( cur->get_key( &key, true ) )
             if( isNotMeta( key ) ) {
               if( minTagCriteriaGiven() ) {
                 int frame = stoi( key );
@@ -78,7 +78,7 @@ namespace AplCam {
     class AllGoodFrameSelector : public FrameSelector {
       public:
         AllGoodFrameSelector( int minTags = -1 )
-        : FrameSelector( minTags ) 
+        : FrameSelector( minTags )
         {;}
 
         virtual void generate( DetectionDb &db, DetectionSet &set )
@@ -95,7 +95,7 @@ namespace AplCam {
             if( minTagCriteriaGiven() and !hasMinTags( detection ) ) continue;
 
             if( detection ) {
-              if( detection->rot[0] == 0.0 && detection->rot[1] == 0.0 && detection->rot[2] == 0.0 ) continue;
+              //if( detection->rot[0] == 0.0 && detection->rot[1] == 0.0 && detection->rot[2] == 0.0 ) continue;
 
               set.addDetection( detection, frame );
             }
@@ -118,7 +118,7 @@ namespace AplCam {
         {;}
 
 
-        //RandomFrameSelector( const RandomSelectorOpts &opts ) 
+        //RandomFrameSelector( const RandomSelectorOpts &opts )
         //    : _count( opts.count )
         //{;}
 
@@ -144,7 +144,7 @@ namespace AplCam {
         {
           int e = std::min( _end, db.maxKey() );
 
-          for( int i = _start; i < e; i += _interval ) 
+          for( int i = _start; i < e; i += _interval )
             set.addDetection( db,  i );
 
           stringstream strm;

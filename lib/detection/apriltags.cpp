@@ -116,7 +116,7 @@ namespace AplCam {
     int bestSupport = -1;
     Mat bestH;
 
-    float threshold = pointSpacing;
+    float threshold = 1.0; // TODO:  was Detection::pointSpacing, but that should lie in the Board, not in the detection
     LOG(INFO) << "Using inlier threshold " << threshold << endl;
 
     for( IdArray::iterator itr = combos.begin(); itr != combos.end(); ++itr ) {

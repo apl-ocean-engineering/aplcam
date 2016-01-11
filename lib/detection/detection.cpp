@@ -40,7 +40,7 @@ using namespace AplCam;
 void Detection::drawCorners( const Board &board, Mat &view ) const
 {
  // cout << "Drawing " << corners.size() << " corners" << endl;
-  drawChessboardCorners( view, board.size(), Mat(points), found );
+  drawChessboardCorners( view, board.size(), Mat(points), good() );
 }
 
 Mat Detection::boardToImageH( void ) const
@@ -83,8 +83,8 @@ void Detection::serializeToFileStorage(  FileStorage &fs ) const
   fs << "world_points" << Mat( corners );
   fs << "ids" << Mat( ids );
 
-  fs << "t" << trans;
-  fs << "R" << rot;
+  // fs << "t" << trans;
+  // fs << "R" << rot;
 }
 
 
@@ -131,15 +131,15 @@ Detection *Detection::unserializeFromFileStorage( const FileStorage &fs )
     detection->ids.push_back( pts.at<int>(i,0) );
   }
 
-  if( !fs["t"].empty() ) {
-    fs["t"] >> detection->trans;
-    detection->hasTrans = true;
-  }
-
-  if( !fs["R"].empty() ) {
-    fs["R"] >> detection->rot;
-    detection->hasRot = true;
-  }
+  // if( !fs["t"].empty() ) {
+  //   fs["t"] >> detection->trans;
+  //   detection->hasTrans = true;
+  // }
+  //
+  // if( !fs["R"].empty() ) {
+  //   fs["R"] >> detection->rot;
+  //   detection->hasRot = true;
+  // }
 
   return detection;
 }
@@ -148,8 +148,8 @@ SharedPoints Detection::sharedWith( const Detection &a, const Detection &b )
 {
   SharedPoints shared;
 
-  for( int i = 0; i < a.size(); ++i ) {
-    for( int j = 0; j < b.size(); ++j ) {
+  for( unsigned int i = 0; i < a.size(); ++i ) {
+    for( unsigned int j = 0; j < b.size(); ++j ) {
 
       if( a.ids[i] == b.ids[j] ) {
         //      cout << "Comparing " << a.ids[i] << " to " << b.ids[j] << endl;

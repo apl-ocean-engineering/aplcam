@@ -24,22 +24,25 @@ struct SharedPoints
 
 struct Detection
 {
-  Detection(  )
-      : found(false), points(), corners(), ids(),
-        trans(0,0,0), rot(0,0,0), hasTrans(false), hasRot(false) {;}
+  Detection( void )
+      : points(), corners(), ids()
+  { ; }
+
+//  trans(0,0,0), rot(0,0,0), hasTrans(false), hasRot(false) {;}
 
   virtual ~Detection() {;}
 
-  bool found;
+  // bool found;
   ImagePointsVec points;
   ObjectPointsVec corners;
   std::vector< int > ids;
 
-  float pointSpacing;
+  // float pointSpacing;
 
-  cv::Vec3f trans, rot;
-  bool hasTrans, hasRot;
+  // cv::Vec3f trans, rot;
+  // bool hasTrans, hasRot;
 
+  virtual bool good( void ) const { return size() > 0; }
   unsigned int size( void ) const { return points.size(); }
 
   void add( const ObjectPoint &obj, const ImagePoint &img, const int id )
