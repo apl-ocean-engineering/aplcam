@@ -1,10 +1,10 @@
 
 #include <iostream>
 
-#include "detection_db.h"
-#include "detection_set.h"
+#include "AplCam/detection_db.h"
+#include "AplCam/detection_set.h"
 
-#include "file_utils.h"
+#include "AplCam/file_utils.h"
 
 using namespace std;
 using namespace cv;

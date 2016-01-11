@@ -3,12 +3,12 @@
 #include <sstream>
 #include <glog/logging.h>
 
-#include "splitter_common.h"
+#include "AplCam/splitter_common.h"
 
 using namespace std;
 using namespace AplCam;
 
-int main( int argc, char **argv ) 
+int main( int argc, char **argv )
 {
   google::InitGoogleLogging( argv[0] );
   FLAGS_logtostderr = true;
@@ -26,5 +26,3 @@ int main( int argc, char **argv )
   exit( main.run() ? 0 : -1 );
 
 }
-
-

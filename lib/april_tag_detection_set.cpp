@@ -9,8 +9,7 @@
 
 #include <gsl/gsl_randist.h>
 
-
-#include "april_tag_detection_set.h"
+#include "AplCam/april_tag_detection_set.h"
 
 using namespace Eigen;
 using namespace cv;
@@ -19,7 +18,7 @@ using namespace std;
 
   AprilTagDetectionSet::AprilTagDetectionSet( const vector<TagDetection> detections )
 : _detections( detections ), _grid()
-{ 
+{
   arrangeIntoGrid();
 }
 
@@ -37,7 +36,7 @@ cv::Mat AprilTagDetectionSet::gridOfIds( void )
 {
   Mat ids( _grid.size(), CV_16S );
 
-  for( int i = 0; i < _grid.rows; ++i ) 
+  for( int i = 0; i < _grid.rows; ++i )
     for( int j = 0; j < _grid.cols; ++j )  {
       int idx = _grid.at<int16_t>(i,j);
       ids.at<int16_t>(i,j) = (idx >= 0) ?  _detections[ _grid.at<int16_t>(i,j) ].id : -1;
@@ -50,8 +49,8 @@ cv::Mat AprilTagDetectionSet::gridOfIds( void )
 int AprilTagDetectionSet::gridCount( void ) const
 {
   int count = 0;
-  for( int y = 0; y < _grid.rows; ++y ) 
-    for( int x = 0; x < _grid.cols; ++x )  
+  for( int y = 0; y < _grid.rows; ++y )
+    for( int x = 0; x < _grid.cols; ++x )
       if( indexAt(x,y) >= 0 ) ++count;
 
   return count;
@@ -65,8 +64,8 @@ int AprilTagDetectionSet::gridCount( void ) const
 //============================================================================
 
 bool CompareAlongTrack( const pair< double, int > &a, const pair< double, int> &b  )
-{ 
-  return (a.first < b.first);  
+{
+  return (a.first < b.first);
 }
 
 struct Gaussian
@@ -86,7 +85,7 @@ int nearestNode( const vector< Vector2d > &centers, const Vector2d &vector )
 {
   map< double, int > candidates;
 
-  for( int i = 0; i < centers.size(); ++i ) {
+  for( unsigned int i = 0; i < centers.size(); ++i ) {
     if( centers[i].hasNaN() ) continue;
 
     double along = vector.dot( centers[i] );
@@ -94,7 +93,7 @@ int nearestNode( const vector< Vector2d > &centers, const Vector2d &vector )
 
     //cout << "To " << centers[i].second->detection.id << " is " << along << " cos " << cos << endl;
 
-    if( (cos > cosLimit ) and (along > 0) ) 
+    if( (cos > cosLimit ) and (along > 0) )
       candidates[ along ] = i;
 
   }
@@ -109,7 +108,7 @@ int mostLikelyNode( const vector< Vector2d > &centers, const Gaussian &gaussian,
 {
   map< double, int > candidates;
 
-  for( int i = 0; i < centers.size(); ++i ) {
+  for( unsigned int i = 0; i < centers.size(); ++i ) {
     if( centers[i].hasNaN() ) continue;
 
     double along = vector.dot( centers[i] );
@@ -118,7 +117,7 @@ int mostLikelyNode( const vector< Vector2d > &centers, const Gaussian &gaussian,
     //cout << "To " << centers[i].second->detection.id << " is " << along << " cos " << cos << endl;
 
     float prob = gaussian.p(along);
-    if( (cos > cosLimit ) and (along > 0) and (prob > 0.99) ) 
+    if( (cos > cosLimit ) and (along > 0) and (prob > 0.99) )
       candidates[ prob ] = i;
 
   }
@@ -177,20 +176,20 @@ Gaussian estimateCenterSpacing( list<double> &values )
 
 void AprilTagDetectionSet::arrangeIntoGrid( void )
 {
-  // Identify the four corners of the 
+  // Identify the four corners of the
   vector< DetectionNode > nodes( _detections.size() );
 
   // Try to identify the distribution of distances to adjacent tags
   list< double > lrSpacing, udSpacing;
 
-  for( int current = 0; current < _detections.size(); ++current ) {
+  for( unsigned int current = 0; current < _detections.size(); ++current ) {
 
     Matrix3d invHom( _detections[current].homography.inverse() );
     vector< Vector2d  > centers( _detections.size() );
 
     centers[current] = Vector2d(NAN,NAN);
 
-    for( int other = 0; other < _detections.size(); ++other ) {
+    for( unsigned int other = 0; other < _detections.size(); ++other ) {
       if( other == current ) continue;
 
       Vector3d warped( invHom *
@@ -224,14 +223,14 @@ void AprilTagDetectionSet::arrangeIntoGrid( void )
   cout << "UD spacing has mean " << udGaussian.mean << " sigma " << udGaussian.sigma << endl;
 
 
-  for( int current = 0; current < _detections.size(); ++current ) {
+  for( unsigned int current = 0; current < _detections.size(); ++current ) {
 
     Matrix3d invHom( _detections[current].homography.inverse() );
     vector< Vector2d  > centers( _detections.size() );
 
     centers[current] = Vector2d(NAN,NAN);
 
-    for( int other = 0; other < _detections.size(); ++other ) {
+    for( unsigned int other = 0; other < _detections.size(); ++other ) {
       if( other == current ) continue;
 
       Vector3d warped( invHom *
@@ -287,7 +286,7 @@ void AprilTagDetectionSet::arrangeIntoGrid( void )
   ofstream dot("/tmp/graph.dot");
 
   dot << "graph april {" << endl;
-  for( int i = 0; i < _detections.size(); ++i ) {
+  for( unsigned int i = 0; i < _detections.size(); ++i ) {
     dot << i << " [label=\"" << _detections[i].id << "\"]" << endl;
     if( nodes[i].right >= 0 ) dot << i << "--" << nodes[i].right << endl;
     if( nodes[i].left >= 0 ) dot << i << "--" << nodes[i].left << endl;
@@ -306,7 +305,7 @@ void AprilTagDetectionSet::arrangeIntoGrid( void )
   // Try to seed the graph with a well-connected individual.
   vector< int > connections(4);
   for( int i = 0; i < 4; ++i ) connections[i] = -1;
-  for( int i = 0; i < _detections.size(); ++i ) {
+  for( unsigned int i = 0; i < _detections.size(); ++i ) {
     int neighbors = 0;
     if( nodes[i].right >= 0 ) neighbors++;
     if( nodes[i].left >= 0 ) neighbors++;
@@ -320,8 +319,8 @@ void AprilTagDetectionSet::arrangeIntoGrid( void )
 
   int use = connections[4];
   if( use == -1 ) use = connections[3];
-if( use == -1 ) use = connections[2];
-if( use == -1 ) { cout << "Tag graph is pathological.  Giving up" << endl; return; }
+  if( use == -1 ) use = connections[2];
+  if( use == -1 ) { cout << "Tag graph is pathological.  Giving up" << endl; return; }
 
   assignToGraph( nodes, use, graph, x, y, limits );
 
@@ -362,9 +361,9 @@ if( use == -1 ) { cout << "Tag graph is pathological.  Giving up" << endl; retur
         projCorners[i] = projCorners[i] / projCorners[i].z();
       }
 
-      // Offset relative to mean 
+      // Offset relative to mean
       Vector2d mean(0.0, 0.0);
-      for( int i = 0; i < 4; ++i ) 
+      for( int i = 0; i < 4; ++i )
         mean += Vector2d( projCorners[i].x(), projCorners[i].y() );
       mean *= 1.0/4;
 
@@ -388,8 +387,8 @@ if( use == -1 ) { cout << "Tag graph is pathological.  Giving up" << endl; retur
     }
 
     double reprojError = 0;
-    for( int i = 0; i < 4; ++i ) 
-      for( int j = 0; j < reprojCorners.size(); ++j ) 
+    for( int i = 0; i < 4; ++i )
+      for( int j = 0; j < reprojCorners.size(); ++j )
         reprojError += ( reprojCorners[j][i] - meanCorner[i] ).squaredNorm();
 
 

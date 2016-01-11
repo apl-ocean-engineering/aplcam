@@ -1,5 +1,5 @@
 
-#include "calibration_db.h"
+#include "AplCam/calibration_db.h"
 
 namespace AplCam {
 
@@ -35,7 +35,7 @@ namespace AplCam {
 
   bool CalibrationDb::has( const string &key )
   {
-    return (_db.check( key ) != -1 ); 
+    return (_db.check( key ) != -1 );
   }
 
   bool CalibrationDb::save( const string &key, const CalibrationSerializer &ser )

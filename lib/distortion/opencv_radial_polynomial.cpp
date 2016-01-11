@@ -4,7 +4,7 @@
 
 #include <math.h>
 
-#include "distortion/radial_polynomial.h"
+#include "AplCam/distortion/radial_polynomial.h"
 
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>

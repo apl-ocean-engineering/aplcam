@@ -1,7 +1,7 @@
 
 #include <glog/logging.h>
 
-#include "image_accumulator.h"
+#include "AplCam/image_accumulator.h"
 
 namespace AplCam {
 
@@ -51,21 +51,21 @@ void ImageAccumulator::update( void )
     _mean = Mat::zeros(0,0,CV_64F);
     _var = Mat::zeros(0,0,CV_64F);
     return;
-  } 
+  }
 
   _mean = Mat::zeros( _imgs.begin()->size(),
                      CV_MAKE_TYPE( CV_64F, _imgs.begin()->channels() ) );
   _var = Mat::zeros( _mean.size(), _mean.type() );
 
   for( vector< Mat >::iterator itr = _imgs.begin(); itr != _imgs.end(); ++itr ) {
-    Mat m( _mean.size(), _mean.type() ); 
+    Mat m( _mean.size(), _mean.type() );
     (*itr).convertTo( m, m.type() );
     _mean += m;
   }
   _mean /= _imgs.size();
 
   for( vector< Mat >::iterator itr = _imgs.begin(); itr != _imgs.end(); ++itr ) {
-    Mat m( _mean.size(), _mean.type() ); 
+    Mat m( _mean.size(), _mean.type() );
     (*itr).convertTo( m, m.type() );
 
     Mat diff = m - _mean;

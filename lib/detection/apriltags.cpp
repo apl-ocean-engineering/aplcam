@@ -4,11 +4,11 @@
 
 #include <opencv2/calib3d/calib3d.hpp>
 
-#include "detection/detection.h"
-#include "file_utils.h"
+#include "AplCam/file_utils.h"
 
-#include "detection/apriltags.h"
-#include "board/apriltags.h"
+#include "AplCam/detection/detection.h"
+#include "AplCam/detection/apriltags.h"
+#include "AplCam/board/apriltags.h"
 
 #include <glog/logging.h>
 

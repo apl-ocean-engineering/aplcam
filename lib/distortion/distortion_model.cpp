@@ -4,9 +4,9 @@ using namespace std;
 
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include "distortion/distortion_model.h"
-#include "distortion/angular_polynomial.h"
-#include "distortion/radial_polynomial.h"
+#include "AplCam/distortion/distortion_model.h"
+#include "AplCam/distortion/angular_polynomial.h"
+#include "AplCam/distortion/radial_polynomial.h"
 
 namespace Distortion {
 

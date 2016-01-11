@@ -1,4 +1,4 @@
-#include "motion_model.h"
+#include "AplCam/motion_model.h"
 
 
 namespace AplCam {
@@ -18,7 +18,7 @@ namespace AplCam {
   // Model is:
   //
   // x_t+1 = x_t + v_t dt
-  // v_t+1 = alpha v_t 
+  // v_t+1 = alpha v_t
   //
   //
 

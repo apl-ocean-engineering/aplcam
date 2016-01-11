@@ -6,11 +6,11 @@
 
 #include <glog/logging.h>
 
-#include "board.h"
-#include "board/apriltags.h"
-#include "board/circle.h"
+#include "AplCam/board/board.h"
+#include "AplCam/board/apriltags.h"
+#include "AplCam/board/circle.h"
 
-#include "detection/detection.h"
+#include "AplCam/detection/detection.h"
 
 using namespace std;
 using namespace cv;

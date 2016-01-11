@@ -1,5 +1,5 @@
 
-#include "trendnet_time_code.h"
+#include "AplCam/trendnet_time_code.h"
 
 using namespace cv;
 

@@ -5,10 +5,11 @@
 
 #include <opencv2/imgproc.hpp>
 
-#include "calib_frame_selectors/calib_frame_selectors.h"
+#include "AplCam/calib_frame_selectors/calib_frame_selectors.h"
 
 
 namespace AplCam {
+
 namespace CalibFrameSelectors {
 
 using namespace cv;

@@ -1,10 +1,10 @@
 
 #include <opencv2/calib3d/calib3d.hpp>
-#include "file_utils.h"
+#include "AplCam/file_utils.h"
 
-#include "detection/detection.h"
-#include "detection/apriltags.h"
-#include "detection/circle.h"
+#include "AplCam/detection/detection.h"
+#include "AplCam/detection/apriltags.h"
+#include "AplCam/detection/circle.h"
 
 using namespace std;
 using namespace cv;

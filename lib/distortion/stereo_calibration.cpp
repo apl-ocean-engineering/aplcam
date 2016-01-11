@@ -4,7 +4,7 @@
 
 #include <opencv2/calib3d.hpp>
 
-#include "stereo_calibration.h"
+#include "AplCam/stereo_calibration.h"
 
 
 namespace AplCam {

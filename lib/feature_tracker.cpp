@@ -4,7 +4,7 @@
 
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include "feature_tracker.h"
+#include "AplCam/feature_tracker.h"
 
 namespace AplCam {
 
@@ -77,7 +77,7 @@ namespace AplCam {
       Mat roi( img, searchArea );
 
       Point2f match;
-      bool matched = track.search( roi, match ); 
+      bool matched = track.search( roi, match );
 
       match  = match + Point2f(searchArea.x, searchArea.y);
       //cout << pred.pt.x << " " << pred.pt.y << " -- " << match.x << " " << match.y << endl;
@@ -119,7 +119,7 @@ namespace AplCam {
 
     // Delete any dropped tracks
     for( vector< list<KeyPointTrack>::iterator >::iterator itr = dropList.begin();
-        itr != dropList.end(); ++itr ) 
+        itr != dropList.end(); ++itr )
       _tracks.erase( *itr );
 
     // Process any new keypoints
@@ -218,4 +218,3 @@ namespace AplCam {
 
 
 }
-

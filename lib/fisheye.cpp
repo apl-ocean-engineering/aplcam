@@ -44,7 +44,7 @@
 //M*/
 
 
-#include "distortion_fisheye.h"
+#include "AplCam/distortion_fisheye.h"
 
 #include <opencv2/calib3d/calib3d.hpp>
 
@@ -84,13 +84,13 @@ namespace Distortion {
     : DistortionModel( cam ), _distCoeffs( distCoeffs )
   {;}
 
-  Fisheye Fisheye::Calibrate( 
-      const ObjectPointsVecVec &objectPoints, 
-      const ImagePointsVecVec &imagePoints, 
+  Fisheye Fisheye::Calibrate(
+      const ObjectPointsVecVec &objectPoints,
+      const ImagePointsVecVec &imagePoints,
       const Size& image_size,
-      vector< Vec3d > &rvecs, 
+      vector< Vec3d > &rvecs,
       vector< Vec3d > &tvecs,
-      int flags, 
+      int flags,
       cv::TermCriteria criteria)
   {
     Fisheye fe( Vec4d(0.0, 0.0, 0.0, 0.0), InitialCameraEstimate( image_size ) );
@@ -110,12 +110,12 @@ namespace Distortion {
 
 
   double Fisheye::calibrate(
-      const ObjectPointsVecVec &objectPoints, 
-      const ImagePointsVecVec &imagePoints, 
+      const ObjectPointsVecVec &objectPoints,
+      const ImagePointsVecVec &imagePoints,
       const Size& image_size,
-      vector< Vec3d > &rvecs, 
+      vector< Vec3d > &rvecs,
       vector< Vec3d > &tvecs,
-      int flags, 
+      int flags,
       cv::TermCriteria criteria)
   {
 
@@ -218,8 +218,8 @@ namespace Distortion {
     return rms;
   }
 
-  void Fisheye::undistortPoints( const vector< Point2d > &distorted, 
-      vector< Point2d > &undistorted, 
+  void Fisheye::undistortPoints( const vector< Point2d > &distorted,
+      vector< Point2d > &undistorted,
       const Mat &R, const Mat &P)
   {
     // will support only 2-channel data now for points
@@ -286,14 +286,14 @@ namespace Distortion {
 
   }
 
-  void Fisheye::projectPoints( const ObjectPointsVec &objectPoints, ImagePointsVec &imagePoints, 
+  void Fisheye::projectPoints( const ObjectPointsVec &objectPoints, ImagePointsVec &imagePoints,
       const Affine3d& affine, OutputArray jacobian) const
   {
     projectPoints(objectPoints, imagePoints, affine.rvec(), affine.translation(), jacobian);
   }
 
-  void Fisheye::projectPoints( const ObjectPointsVec &objectPoints, ImagePointsVec &imagePoints, 
-      const Vec3d &_rvec, const Vec3d &_tvec, 
+  void Fisheye::projectPoints( const ObjectPointsVec &objectPoints, ImagePointsVec &imagePoints,
+      const Vec3d &_rvec, const Vec3d &_tvec,
       OutputArray jacobian) const
   {
     // will support only 3-channel data now for points
@@ -465,7 +465,7 @@ namespace Distortion {
       const ImagePointsVecVec &imagePoints,
       const IntrinsicParams& param, const int check_cond,
       const double thresh_cond,
-      vector< Vec3d > &omc, 
+      vector< Vec3d > &omc,
       vector< Vec3d > &Tc )
   {
     omc.resize( imagePoints.size() );
@@ -482,7 +482,7 @@ namespace Distortion {
 
       initExtrinsics(imagePoints[image_idx], objectPoints[image_idx], param, omckk, Tckk);
 
-      computeExtrinsicRefine(imagePoints[image_idx], objectPoints[image_idx], omckk, Tckk, JJ_kk, 
+      computeExtrinsicRefine(imagePoints[image_idx], objectPoints[image_idx], omckk, Tckk, JJ_kk,
           maxIter, param, thresh_cond);
 
       if (check_cond)
@@ -498,11 +498,11 @@ namespace Distortion {
     }
   }
 
-  void Fisheye::computeJacobians( const ObjectPointsVecVec &objectPoints, 
+  void Fisheye::computeJacobians( const ObjectPointsVecVec &objectPoints,
       const ImagePointsVecVec &imagePoints,
-      const IntrinsicParams& param, 
+      const IntrinsicParams& param,
       const vector< Vec3d > &omc, const vector< Vec3d > &Tc,
-      const int check_cond, const double thresh_cond, 
+      const int check_cond, const double thresh_cond,
       Mat& JJ2_inv, Mat& ex3)
   {
 
@@ -567,13 +567,13 @@ namespace Distortion {
     JJ2_inv = JJ3.inv();
   }
 
-  double Fisheye::estimateUncertainties( const ObjectPointsVecVec &objectPoints, 
+  double Fisheye::estimateUncertainties( const ObjectPointsVecVec &objectPoints,
       const ImagePointsVecVec &imagePoints,
-      const IntrinsicParams& params, 
-      const vector< Vec3d > &omc, 
+      const IntrinsicParams& params,
+      const vector< Vec3d > &omc,
       const vector< Vec3d > &Tc,
-      IntrinsicParams& errors, 
-      Vec2d& std_err, 
+      IntrinsicParams& errors,
+      Vec2d& std_err,
       double thresh_cond, int check_cond )
   {
 
@@ -589,7 +589,7 @@ namespace Distortion {
       Mat om(omc[image_idx]), T(Tc[image_idx]);
 
       std::vector<Point2d> x;
-      projectPoints(objectPoints[image_idx], x, 
+      projectPoints(objectPoints[image_idx], x,
           omc[image_idx], Tc[image_idx], params, noArray());
 
       for( int ptIdx = 0; ptIdx < imagePoints[image_idx].size(); ++ptIdx ) {
@@ -603,7 +603,7 @@ namespace Distortion {
     // Awkward way to do this...
     vector< double > reshaped;
     for( vector< Point2d >::iterator itr = ex.begin(); itr != ex.end(); ++itr ){
-      reshaped.push_back( itr->x ); 
+      reshaped.push_back( itr->x );
       reshaped.push_back( itr->y );
     }
     Mat sigma_x;
@@ -750,7 +750,7 @@ namespace Distortion {
     //const Vec2d* ptr   = imagePoints.ptr<Vec2d>(0);
     //Vec2d* ptr_d = distorted.ptr<Vec2d>(0);
 
-    std::transform( imagePoints.begin(), imagePoints.end(), 
+    std::transform( imagePoints.begin(), imagePoints.end(),
         back_inserter( distorted ), TxNormalizePixels(param));
 
     //    for (size_t i = 0; i < imagePoints.total(); ++i)
@@ -764,7 +764,7 @@ namespace Distortion {
     Mat(undistorted).copyTo( normalized );
   }
 
-  void Fisheye::initExtrinsics(const ImagePointsVec& _imagePoints, const ObjectPointsVec& _objectPoints, 
+  void Fisheye::initExtrinsics(const ImagePointsVec& _imagePoints, const ObjectPointsVec& _objectPoints,
       const IntrinsicParams& param, Mat& omckk, Mat& Tckk)
   {
     // Splat both of these down to single-channel 2xN matrices
@@ -823,8 +823,8 @@ namespace Distortion {
     fe.projectPoints(objectPoints, imagePoints, _rvec, _tvec, jacobian);
   }
 
-  void Fisheye::computeExtrinsicRefine(const ImagePointsVec& imagePoints, 
-      const ObjectPointsVec& objectPoints, 
+  void Fisheye::computeExtrinsicRefine(const ImagePointsVec& imagePoints,
+      const ObjectPointsVec& objectPoints,
       Mat& rvec,
       Mat&  tvec, Mat& J, const int MaxIter,
       const IntrinsicParams& param, const double thresh_cond)

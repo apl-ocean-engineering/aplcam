@@ -1,7 +1,7 @@
 
 #include <math.h>
 
-#include "distortion/radial_polynomial.h"
+#include "AplCam/distortion/radial_polynomial.h"
 
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -14,7 +14,7 @@
 #include <iostream>
 using namespace std;
 
-#include "distortion/ceres_reprojection_error.h"
+#include "AplCam/distortion/ceres_reprojection_error.h"
 
 namespace Distortion {
 

@@ -1,27 +1,27 @@
 
-#include "bits_to_hex.h"
+#include "AplCam/bits_to_hex.h"
 
 namespace AplCam {
 
-  const string intsToHex( const vector< int > &bits ) 
+  const string intsToHex( const vector< int > &bits )
   {
     // Brute force way to do it
     vector<bool> bitmask;
     int mx = 0;
 
-    for( vector<int>::const_iterator itr = bits.begin(); itr != bits.end(); ++itr ) 
+    for( vector<int>::const_iterator itr = bits.begin(); itr != bits.end(); ++itr )
       mx = std::max( (*itr), mx );
 
     bitmask.resize( mx+1 );
 
-    for( vector<int>::const_iterator itr = bits.begin(); itr != bits.end(); ++itr ) 
+    for( vector<int>::const_iterator itr = bits.begin(); itr != bits.end(); ++itr )
       bitmask[ *itr ] = true;
 
     return bitsToHex( bitmask );
 
   }
 
-  const string bitsToHex( const vector< bool > &bits ) 
+  const string bitsToHex( const vector< bool > &bits )
   {
     static char hex[] = { '0', '1', '2', '3', '4', '5', '6', '7',
       '8', '9' ,'A', 'B', 'C', 'D', 'E', 'F' };

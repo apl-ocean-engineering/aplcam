@@ -2,7 +2,7 @@
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_multiroots.h>
 
-#include "my_undistort.h"
+#include "AplCam/my_undistort.h"
 
 #include <iostream>
 
@@ -44,7 +44,7 @@ int distortionError( const gsl_vector *xy, void *params, gsl_vector *err )
 
 static void printState( size_t iter, gsl_multiroot_fsolver *s )
 {
-  cout << "Iter " << iter << " : (x,y) = " << gsl_vector_get( s->x, 0 ) << " " << gsl_vector_get( s->x, 1 ) << 
+  cout << "Iter " << iter << " : (x,y) = " << gsl_vector_get( s->x, 0 ) << " " << gsl_vector_get( s->x, 1 ) <<
     " err(x,y) " << gsl_vector_get( s->f, 0 ) << " " << gsl_vector_get( s->f, 1 ) << endl;
 }
 
@@ -95,9 +95,9 @@ void myUndistortPoints( InputArray _src, OutputArray _dst,
   //        (CV_MAT_TYPE(src->type) == CV_32FC2 || CV_MAT_TYPE(src->type) == CV_64FC2) &&
   //        (CV_MAT_TYPE(dst->type) == CV_32FC2 || CV_MAT_TYPE(dst->type) == CV_64FC2));
 
-  CV_Assert( cameraMatrix.size().width == 3 && 
+  CV_Assert( cameraMatrix.size().width == 3 &&
       cameraMatrix.size().height == 3 );
-  cameraMatrix.convertTo( matA, CV_64F ); 
+  cameraMatrix.convertTo( matA, CV_64F );
 
   if( !distCoeffs.empty() )
   {
@@ -118,14 +118,14 @@ void myUndistortPoints( InputArray _src, OutputArray _dst,
   if( !R.empty() ) {
     CV_Assert( R.size().width*R.size().height == 9 );
     R.convertTo( matR, CV_64F );
-  } 
+  }
 
 
   if( !P.empty() ) {
     Mat matP( 3,3, CV_64F );
     P.convertTo( matP, CV_64F );
 
-    matR = matP * matR; 
+    matR = matP * matR;
   }
 
   //    {
@@ -237,5 +237,3 @@ void myUndistortPoints( InputArray _src, OutputArray _dst,
   gsl_vector_free( states );
 
 }
-
-

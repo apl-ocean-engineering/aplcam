@@ -1,10 +1,10 @@
 
 #include <iostream>
 
-#include "distortion/camera_factory.h"
+#include "AplCam/distortion/camera_factory.h"
 
-#include "distortion/angular_polynomial.h"
-#include "distortion/radial_polynomial.h"
+#include "AplCam/distortion/angular_polynomial.h"
+#include "AplCam/distortion/radial_polynomial.h"
 
 namespace Distortion {
 

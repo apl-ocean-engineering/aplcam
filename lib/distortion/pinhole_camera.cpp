@@ -3,7 +3,7 @@
 
 #include <glog/logging.h>
 
-#include "distortion/pinhole_camera.h"
+#include "AplCam/distortion/pinhole_camera.h"
 
 namespace Distortion {
 

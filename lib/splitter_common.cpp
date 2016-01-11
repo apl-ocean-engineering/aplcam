@@ -13,27 +13,27 @@
 #include <tclap/CmdLine.h>
 #include <glog/logging.h>
 
-#include "file_utils.h"
+#include "AplCam/file_utils.h"
 
-#include "frame_source.h"
+#include "AplCam/frame_source.h"
 
-#include "splitter_common.h"
+#include "AplCam/splitter_common.h"
 
 using namespace std;
 using namespace cv;
 
 namespace AplCam {
 
-  bool SplitterOpts::parseArgs( int argc, char **argv, stringstream &msg ) 
+  bool SplitterOpts::parseArgs( int argc, char **argv, stringstream &msg )
   {
 
     try{
       TCLAP::CmdLine cmd("Video splitter", ' ', "0.1");
 
       doParse( cmd, argc, argv );
-    } 
+    }
     catch (TCLAP::ArgException &e)  // catch any exceptions
-    { 
+    {
       msg << "error: " << e.error() << " for arg " << e.argId() << std::endl;
       return false;
     }
@@ -43,13 +43,13 @@ namespace AplCam {
   }
 
   void SplitterOpts::doParse( TCLAP::CmdLine &cmd, int argc, char **argv )
-  { 
+  {
     TCLAP::SwitchArg displayArg("D", "display", "Show progress in window", cmd, false );
     TCLAP::ValueArg< string > saveFramesArg("o", "save-frames", "Location to save frames.",
         false, ".", "dir", cmd );
     TCLAP::ValueArg< string > saveVideoArg("v", "save-video", "File to save video to.",
         false, "", "file name", cmd );
-    TCLAP::ValueArg< int > waitKeyArg("w", "wait-key", "Arg for waitkey()", 
+    TCLAP::ValueArg< int > waitKeyArg("w", "wait-key", "Arg for waitkey()",
         false, -1, "ms", cmd );
     TCLAP::ValueArg< float > seekToArg("s", "seek-to", "For video sources, seek <sec> frames into the video before starting", false, -1, "sec", cmd );
     TCLAP::ValueArg< float > scaleDisplayArg("S", "scale-display", "If displaying, scale to <mp> megapixels", false, -1, "megapix", cmd );
@@ -102,7 +102,7 @@ namespace AplCam {
 
 
   SplitterApp::SplitterApp( SplitterOpts options )
-    : _selector( options.makeSelector() ), _videoWriter(), _splitterOpts( options ) 
+    : _selector( options.makeSelector() ), _videoWriter(), _splitterOpts( options )
   {;}
 
 

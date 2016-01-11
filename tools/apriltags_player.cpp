@@ -8,7 +8,7 @@
 #include "AprilTags/Tag36h11.h"
 using namespace AprilTags;
 
-#include "splitter_common.h"
+#include "AplCam/splitter_common.h"
 
 using namespace std;
 using namespace AplCam;
@@ -20,8 +20,8 @@ class AprilTagSplitterApp : public SplitterApp {
         : SplitterApp( options )
       {;}
 
-      virtual bool processSplitFrame( Mat &img, Mat &toDisplay ) 
-      { 
+      virtual bool processSplitFrame( Mat &img, Mat &toDisplay )
+      {
         TagDetector detector( AprilTags::tagCodes36h11 );
 
         Mat grey;
@@ -37,7 +37,7 @@ class AprilTagSplitterApp : public SplitterApp {
 
         for( size_t i = 0; i < tags.size(); ++i ) {
           tags[i].draw( toDisplay );
-        } 
+        }
 
         imshow( "equalized", equalized );
 
@@ -49,7 +49,7 @@ class AprilTagSplitterApp : public SplitterApp {
   };
 
 
-  int main( int argc, char **argv ) 
+  int main( int argc, char **argv )
   {
     google::InitGoogleLogging( argv[0] );
     FLAGS_logtostderr = true;
@@ -70,5 +70,3 @@ class AprilTagSplitterApp : public SplitterApp {
     exit( main.run() ? 0 : -1 );
 
   }
-
-

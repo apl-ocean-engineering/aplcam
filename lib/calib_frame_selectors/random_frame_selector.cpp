@@ -1,4 +1,4 @@
-#include "calib_frame_selectors/calib_frame_selectors.h"
+#include "AplCam/calib_frame_selectors/calib_frame_selectors.h"
 
 namespace AplCam {
 
@@ -12,7 +12,7 @@ namespace AplCam {
       cur->jump();
 
       string key;
-      while( cur->get_key( &key, true) ) 
+      while( cur->get_key( &key, true) )
         if( isNotMeta( key ) ) {
           if( minTagCriteriaGiven() ) {
             int frame = stoi( key );
@@ -41,5 +41,3 @@ namespace AplCam {
 
   }
 }
-
-

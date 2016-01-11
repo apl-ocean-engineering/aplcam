@@ -2,8 +2,8 @@
 #include <cryptopp/hex.h>
 #include <cryptopp/files.h>
 
-#include "image.h"
-#include "file_utils.h"
+#include "AplCam/image.h"
+#include "AplCam/file_utils.h"
 
 using namespace std;
 

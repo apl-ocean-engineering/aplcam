@@ -1,7 +1,7 @@
 
 #include <iomanip>
 
-#include "video.h"
+#include "AplCam/video.h"
 
 using namespace std;
 using namespace cv;
@@ -19,7 +19,7 @@ Video::Video( const string &file )
 
 bool Video::read( Mat &mat )
 {
-  return capture.read( mat ); 
+  return capture.read( mat );
 }
 
 void Video::seek( int frame )
@@ -89,7 +89,7 @@ void Video::initializeTransitionStatistics( int start, int length, TransitionVec
 
 
 #ifdef MAKE_NORMFILE
-  normFile << i << " " << norms[i] << ' ' << p_norm << ' ' << p_dt << ' ' << p << endl; 
+  normFile << i << " " << norms[i] << ' ' << p_norm << ' ' << p_dt << ' ' << p << endl;
 #endif
 
   cout << "Have " << transitions.size() << " transitions" << endl;
@@ -110,7 +110,7 @@ bool Video::detectTransition( float norm, int dt )
   }
 
   bool result =  (p_norm * p_dt) > pThreshold;
-//   cout << dt << ' ' << std::setw(12) << norm << ' ' << std::setw(12) << p_norm << ' ' << std::setw(12) << p_dt << ' ' << std::setw(12) << (p_norm * p_dt) <<  (result ? " Y" : "") << endl; 
+//   cout << dt << ' ' << std::setw(12) << norm << ' ' << std::setw(12) << p_norm << ' ' << std::setw(12) << p_dt << ' ' << std::setw(12) << (p_norm * p_dt) <<  (result ? " Y" : "") << endl;
   return result;
 }
 
@@ -193,7 +193,7 @@ int VideoLookahead::closestTransition( int frame )
 }
 
 
-bool VideoLookahead::read( cv::Mat &mat ) 
+bool VideoLookahead::read( cv::Mat &mat )
 {
   Mat framein;
   while( _future.size() < _lookaheadFrames && capture.read( framein ) )  {
@@ -238,7 +238,7 @@ bool VideoLookahead::drop( void )
 }
 
 //== CachedFrame ===
-const Mat &CachedFrame::timecode( void ) 
+const Mat &CachedFrame::timecode( void )
 {
   if( _timecode.empty() ) {
     ExtractTimeCode( image, _timecode, _name );
@@ -318,5 +318,3 @@ void ExtractTimeCode( const Mat &img, Mat &dest, const string windowName )
   }
 
 }
-
-

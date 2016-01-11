@@ -7,7 +7,7 @@
 #include <opencv2/calib3d/calib3d.hpp>
 #include <vector>
 
-#include "distortion/distortion_stereo.h"
+#include "AplCam/distortion/distortion_stereo.h"
 
 namespace Distortion {
 

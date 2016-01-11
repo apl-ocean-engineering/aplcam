@@ -7,7 +7,7 @@
 #include <AprilTags/TagFamily.h>
 #include <AprilTags/Tag16h5.h>
 
-#include "april_tag_board_generator.h"
+#include "AplCam/april_tag_board_generator.h"
 
 using namespace cv;
 using namespace std;

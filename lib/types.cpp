@@ -1,5 +1,5 @@
 #include <opencv2/core/core.hpp>
-#include "types.h"
+#include "AplCam/types.h"
 
 namespace AplCam {
   using namespace std;
@@ -16,7 +16,7 @@ return Vec4f( projPt[0], projPt[1], error[0], error[1] );
     int sz = v.projPoints.size();
     vector< Vec4f > out( sz );
 
-    std::transform( v.projPoints.begin(), v.projPoints.end(), v.errors.begin(), out.begin(), 
+    std::transform( v.projPoints.begin(), v.projPoints.end(), v.errors.begin(), out.begin(),
         TxReprojErrorsToVec );
 
     cv::write( fs, a, Mat(out) );
@@ -27,8 +27,8 @@ return Vec4f( projPt[0], projPt[1], error[0], error[1] );
     vector< Vec4f > out;
 
     // Feeling lazy, this approach will be slower due to continual resizing of out..
-    for( size_t j = 0; j < v.size(); ++j ) 
-      std::transform( v[j].projPoints.begin(), v[j].projPoints.end(), v[j].errors.begin(), 
+    for( size_t j = 0; j < v.size(); ++j )
+      std::transform( v[j].projPoints.begin(), v[j].projPoints.end(), v[j].errors.begin(),
           back_inserter( out ), TxReprojErrorsToVec );
 
 

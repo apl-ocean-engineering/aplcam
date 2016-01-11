@@ -3,8 +3,8 @@
 
 #include <Eigen/LU>
 
-#include "synchronizer.h"
-#include "composite_canvas.h"
+#include "AplCam/synchronizer.h"
+#include "AplCam/composite_canvas.h"
 
 using namespace std;
 using namespace cv;
@@ -34,13 +34,13 @@ bool Synchronizer::seek( int which, int dest0 )
   if( which == 0 ) {
     int dest1 = dest0 + _offset;
 
-    if( dest0 >= 0 && dest0 < _video0.frameCount() && 
+    if( dest0 >= 0 && dest0 < _video0.frameCount() &&
        dest1 >= 0 && dest1 < _video1.frameCount() ) {
       _video0.seek(dest0);
       _video1.seek(dest1);
       cout << "Seeking to: " << _video0.frame() << ' ' << _video1.frame() << endl;
       return true;
-    } 
+    }
 
   } else {
     return seek( 0, dest0 - _offset );
@@ -63,13 +63,13 @@ bool Synchronizer::advanceToNextTransition( int which )
 
   if( transitions.size() == 0 )
     return false;
-  else 
+  else
   {
     if( transitions.begin()->first > current ) {
       seek( which, transitions.begin()->first );
       cout << "Advancing o " << which << " to frame " << transitions.begin()->first << endl;
       return true;
-    } 
+    }
 
     if( transitions.size() > 1 ) {
       TransitionMap::const_iterator itr = transitions.begin(), prev = itr;
@@ -88,8 +88,8 @@ bool Synchronizer::advanceToNextTransition( int which )
 }
 
 //Size Synchronizer::compositeSize( void )
-//{ 
-//  return  Size( Scale*(_video0.width() + _video1.width()), Scale*std::max(_video0.height(), _video1.height()) ); 
+//{
+//  return  Size( Scale*(_video0.width() + _video1.width()), Scale*std::max(_video0.height(), _video1.height()) );
 //}
 
 void Synchronizer::advanceOnly( int which )
@@ -131,7 +131,7 @@ bool Synchronizer::nextCompositeFrame( AplCam::CompositeCanvas &canvas )
 //  // TODO.  Should check size of input images
 //
 //  Size compSize( scale*(img0.cols + img1.cols),
-//      scale*std::max(img0.rows, img1.rows) ); 
+//      scale*std::max(img0.rows, img1.rows) );
 //  composite.create( compSize, CV_8UC3 );
 //
 //  Mat video0ROI( composite, Rect( 0, 0,               scale*img0.cols, scale*img0.rows) );
@@ -165,7 +165,7 @@ IndexPair Synchronizer::getSpan( const TransitionVec &transitions, int start, in
     if( transitions[i].frame > start ) { startIdx = i; break; }
 
   int endIdx = transitions.size();
-  for( size_t i = startIdx; i < transitions.size(); ++i ) 
+  for( size_t i = startIdx; i < transitions.size(); ++i )
     if( transitions[i].frame > (start+length) ) {endIdx = i; break;}
 
 
@@ -198,19 +198,19 @@ bool Synchronizer::shiftSpan( const TransitionVec &transitions, IndexPair &pair,
   pair.first += direction;
   pair.second = transitions.size();
   int max = transitions[pair.first].frame + length;
-  for( size_t i = pair.first; i < transitions.size(); ++i ) 
+  for( size_t i = pair.first; i < transitions.size(); ++i )
     if( transitions[i].frame > max ) {pair.second = i; break;}
 
   return true;
 }
 
-float Synchronizer::compareSpans( const TransitionVec &thisTransitions,  IndexPair &thisSpan, 
+float Synchronizer::compareSpans( const TransitionVec &thisTransitions,  IndexPair &thisSpan,
                                  const TransitionVec &otherTransitions, IndexPair &otherSpan )
 {
   cout << "======================" << endl;
   cout << "this span:  " << thisSpan.first << ' ' << thisSpan.second << endl;
   for( int i = thisSpan.first; i < thisSpan.second; ++i ) {
-    if( i > thisSpan.first ) 
+    if( i > thisSpan.first )
       cout << thisTransitions[i].frame << ' ' << thisTransitions[i].frame - thisTransitions[i-1].frame << endl;
     else
       cout << thisTransitions[i].frame << ' ' <<endl;
@@ -218,7 +218,7 @@ float Synchronizer::compareSpans( const TransitionVec &thisTransitions,  IndexPa
 
   cout << "other span: " << otherSpan.first << ' ' << otherSpan.second << endl;
   for( int i = otherSpan.first; i < otherSpan.second; ++i ) {
-    if( i > otherSpan.first ) 
+    if( i > otherSpan.first )
       cout << otherTransitions[i].frame << ' ' << otherTransitions[i].frame - otherTransitions[i-1].frame << endl;
     else
       cout << otherTransitions[i].frame << ' ' <<endl;
@@ -240,7 +240,7 @@ float Synchronizer::compareSpans( const TransitionVec &thisTransitions,  IndexPa
   return total;
 }
 
-int Synchronizer::estimateOffset( const TransitionVec &trans0,  const TransitionVec &trans1, float windowFrames, float maxDeltaFrames, int seekTo ) 
+int Synchronizer::estimateOffset( const TransitionVec &trans0,  const TransitionVec &trans1, float windowFrames, float maxDeltaFrames, int seekTo )
 {
   // TODO:  Currently assumes both videos have same FPS
   map <float, OffsetResult> results;
@@ -417,7 +417,7 @@ bool KFSynchronizer::nextSynchronizedFrames( cv::Mat &video0, cv::Mat &video1 )
       float max_p = std::min( 0.005 * _sinceLastUpdate, .5 ) * best_future;
 
       cout << "Best estimate dt = " << best_dt << " at " << best_future << " frames.  Predicted is " << _kf[best_future] << endl;
-      cout << "           Delta = " << best_p << " max delta = " << max_p << endl; 
+      cout << "           Delta = " << best_p << " max delta = " << max_p << endl;
 
 
       if( best_dt == 44 ) {
@@ -452,7 +452,7 @@ bool KFSynchronizer::nextSynchronizedFrames( cv::Mat &video0, cv::Mat &video1 )
   return result;
 }
 
-int KFSynchronizer::estimateOffset( const TransitionVec &trans0,  const TransitionVec &trans1, float windowFrames, float maxDeltaFrames, int seekTo ) 
+int KFSynchronizer::estimateOffset( const TransitionVec &trans0,  const TransitionVec &trans1, float windowFrames, float maxDeltaFrames, int seekTo )
 {
   int out = Synchronizer::estimateOffset( trans0, trans1, windowFrames, maxDeltaFrames, seekTo );
   _kf.setOffset( _offset );
@@ -549,4 +549,3 @@ int SynchroKalmanFilter::update( int obs, int future )
 
   return 0;
 }
-

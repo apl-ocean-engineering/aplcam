@@ -1,6 +1,6 @@
 #include <opencv2/features2d.hpp>
 
-#include "frame_selector/frame_selector.h"
+#include "AplCam/frame_selector/frame_selector.h"
 
 namespace AplCam {
 

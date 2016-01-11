@@ -2,7 +2,7 @@
 //
 
 
-#include <hough_circles.h>
+#include "AplCam/hough_circles.h"
 
 namespace AplCam {
 

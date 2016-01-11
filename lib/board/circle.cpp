@@ -5,8 +5,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-#include "board/circle.h"
-#include "detection/circle.h"
+#include "AplCam/board/circle.h"
+#include "AplCam/detection/circle.h"
 
 namespace AplCam {
 using namespace std;

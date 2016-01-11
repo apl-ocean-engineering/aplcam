@@ -2,7 +2,7 @@
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include "chess_board_generator.h"
+#include "AplCam/chess_board_generator.h"
 
 using namespace cv;
 using namespace std;

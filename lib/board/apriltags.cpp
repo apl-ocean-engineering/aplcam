@@ -13,8 +13,8 @@
 
 #include "AprilTags/SubtagDetector.h"
 
-#include "board/apriltags.h"
-#include "detection/apriltags.h"
+#include "AplCam/board/apriltags.h"
+#include "AplCam/detection/apriltags.h"
 
 namespace AplCam {
 
