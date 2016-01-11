@@ -37,11 +37,20 @@ using namespace AplCam;
 //   }
 // }
 
-void Detection::drawCorners( const Board &board, Mat &view ) const
+// void Detection::drawCorners( const Board &board, Mat &view ) const
+// {
+//  // cout << "Drawing " << corners.size() << " corners" << endl;
+//   drawChessboardCorners( view, board.size(), Mat(points), good() );
+// }
+
+void Detection::draw( Mat &img ) const
 {
- // cout << "Drawing " << corners.size() << " corners" << endl;
-  drawChessboardCorners( view, board.size(), Mat(points), good() );
+  for( unsigned int i = 0; i < points.size(); ++i ) {
+    Point2f p( points[i][0], points[i][1] );
+    cv::circle( img, p, 3, Scalar( 0, 0, 255), -1 );
+  }
 }
+
 
 Mat Detection::boardToImageH( void ) const
 {
@@ -60,11 +69,11 @@ Mat Detection::boardToImageH( void ) const
 //  Serialization/unserialization methods
 //============================================================================
 
-void Detection::serialize( string &str ) const
+string Detection::serialize( void ) const
 {
   FileStorage fs("foo.yml", FileStorage::WRITE | FileStorage::MEMORY );
   serializeToFileStorage( fs);
-  str = fs.releaseAndGetString();
+  return fs.releaseAndGetString();
 }
 
 void Detection::writeCache( const Board &board, const string &cacheFile ) const

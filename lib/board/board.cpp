@@ -136,3 +136,11 @@ void Board::extents( ObjectPointsVec &vec ) const
   vec[2] = worldLocation( Point2i( width-1,height-1 ) );
   vec[3] = worldLocation( Point2i( 0,height-1 ) );
 }
+
+void Board::draw( cv::Mat &img, Detection *detection ) const
+{
+  // Generic function, draw all of the detection points w/o knowledge of the
+  // board's structure
+
+  detection->draw( img );
+}

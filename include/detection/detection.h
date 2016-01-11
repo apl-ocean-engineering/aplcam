@@ -53,14 +53,15 @@ struct Detection
   }
 
   // virtual void calculateCorners( const Board &board );
-  virtual void drawCorners(  const Board &board, cv::Mat &view ) const;
+  //virtual void drawCorners(  const Board &board, cv::Mat &view ) const;
+  virtual void draw(  cv::Mat &img ) const;
 
   typedef enum { NO_GOOD_CONFIGURATIONS, NOT_ENOUGH_POINTS = -1, ALL_VALID = 0 } Validate_Return_Code;
 
   virtual Validate_Return_Code validate( void ) { return ALL_VALID; };
 
   virtual void writeCache( const Board &board, const std::string &cacheFile ) const;
-  virtual void serialize( std::string &str ) const;
+  virtual std::string serialize( void ) const;
   virtual void serializeToFileStorage( cv::FileStorage &fs ) const;
 
   cv::Mat boardToImageH( void ) const;

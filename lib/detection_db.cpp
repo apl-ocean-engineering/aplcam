@@ -59,8 +59,7 @@ namespace AplCam {
 
   bool DetectionDb::save( const int frame, const Detection &detection )
   {
-    string str;
-    detection.serialize( str );
+    string str( detection.serialize( ) );
     if( !_db.set( FrameToKey( frame ),  str ) ) return false;
     return true;
   }
@@ -80,7 +79,7 @@ namespace AplCam {
 
   bool DetectionDb::has( const string &key )
   {
-    return (_db.check( key ) != -1 ); 
+    return (_db.check( key ) != -1 );
   }
 
   bool DetectionDb::has_meta( void )
@@ -96,8 +95,7 @@ namespace AplCam {
 
   bool DetectionDb::update( const string &key, const Detection &detection )
   {
-    string str;
-    detection.serialize( str );
+    string str(detection.serialize());
     if( !_db.set( key,  str ) ) return false;
     return true;
   }
@@ -135,7 +133,7 @@ namespace AplCam {
 
     virtual const char *visit_full( const char *kbuf, size_t ksiz, const char *vbuf, size_t vsiz, size_t *sp )
     {
-      if( 0 != strncmp( kbuf, DetectionDb::MetaKey.c_str(), std::min(ksiz,(size_t)4) ) ) 
+      if( 0 != strncmp( kbuf, DetectionDb::MetaKey.c_str(), std::min(ksiz,(size_t)4) ) )
 	_max = std::max( _max, (int)atoi( kbuf ) );
       return Visitor::NOP;
     }

@@ -42,6 +42,8 @@ class Board {
 
   //typedef enum { BOARD_UL, BOARD_CENTER } CornersReference;
 
+  virtual void draw( cv::Mat &img, Detection *detection ) const;
+
   virtual ObjectPointsVec corners( void );  // const CornersReference ref = BOARD_UL );
 
   virtual std::vector< int > ids( void );

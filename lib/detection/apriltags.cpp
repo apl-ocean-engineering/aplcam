@@ -186,6 +186,8 @@ namespace AplCam {
 
 
     }
+
+    return ALL_VALID;
   }
 
 
