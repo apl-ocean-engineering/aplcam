@@ -72,11 +72,13 @@ class DistortionModel : public PinholeCamera {
 
   //
 
-  typedef enum { CALIBRATION_NONE, ANGULAR_POLYNOMIAL,
-                 RADIAL8_POLYNOMIAL, CERES_RADIAL, OPENCV_RADIAL } CalibrationType_t;
+  typedef enum { CALIBRATION_NONE,
+                 ANGULAR_POLYNOMIAL,
+                 RADIAL8_POLYNOMIAL,
+                 CERES_RADIAL, OPENCV_RADIAL } DistortionModelType_t;
 
-  static CalibrationType_t ParseCalibrationType( const std::string &arg );
-  static DistortionModel  *MakeDistortionModel( CalibrationType_t type );
+  static DistortionModelType_t ParseDistortionModel( const std::string &arg );
+  static DistortionModel      *MakeDistortionModel( DistortionModelType_t type );
 
 
   virtual DistortionModel *estimateMeanCamera( vector< DistortionModel *> cameras ) = 0;

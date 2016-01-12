@@ -102,12 +102,12 @@ namespace Distortion {
 
   //--- Statics related to unserailizing cameras... ----
 
-  DistortionModel::CalibrationType_t DistortionModel::ParseCalibrationType( const string &arg )
+  DistortionModel::DistortionModelType_t DistortionModel::ParseDistortionModel( const string &arg )
     {
-      cout << arg << endl;
-      if( arg == "angular" ) {
+      // cout << arg << endl;
+      if( arg.compare("angular") == 0 ) {
         return ANGULAR_POLYNOMIAL;
-      } else if ( arg == "radial" ) {
+      } else if ( arg.compare("radial") == 0 ) {
         return CERES_RADIAL;
       } else if ( arg.compare("cv_radial") == 0 ) {
         return OPENCV_RADIAL;
@@ -118,7 +118,7 @@ namespace Distortion {
 
 
 
-  DistortionModel *DistortionModel::MakeDistortionModel( CalibrationType_t type )
+  DistortionModel *DistortionModel::MakeDistortionModel( DistortionModelType_t type )
     {
       // Could/should farm this out to distortion..
       switch( type ) {
