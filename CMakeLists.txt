@@ -18,12 +18,11 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 find_package( OpenCV REQUIRED core imgproc calib3d features2d highgui )
 #find_package( PCL 1.2 REQUIRED )
-#find_package( Ceres REQUIRED )
+find_package( Ceres REQUIRED )
 
 # Packages supported by local Find*.cmake files
 find_package( GSL REQUIRED )
 find_package( Eigen3 REQUIRED )
-find_package( TCLAP REQUIRED )
 
 ## As suggested, always build a local copy of GTest
 
@@ -31,15 +30,16 @@ find_package( TCLAP REQUIRED )
 #
 #
 ## KyotoCabinet stuff
-#find_path(KyotoCabinet_INCLUDE_DIR kcdb.h
-#  HINTS ${PC_KyotoCabinet_INCLUDEDIR} ${PC_KyotoCabinet_INCLUDE_DIRS})
-#
-#find_library(KyotoCabinet_LIBRARY NAMES libkyotocabinet kyotocabinet
-#  HINTS ${PC_KyotoCabinet_LIBDIR} ${PC_KyotoCabinet_LIBRARY_DIRS})
-#
-#set(KyotoCabinet_LIBRARIES ${KyotoCabinet_LIBRARY})
-#set(KyotoCabinet_INCLUDE_DIRS ${KyotoCabinet_INCLUDE_DIR})
-#
+find_path(KyotoCabinet_INCLUDE_DIR kcdb.h
+ HINTS ${PC_KyotoCabinet_INCLUDEDIR} ${PC_KyotoCabinet_INCLUDE_DIRS})
+
+find_library(KyotoCabinet_LIBRARY NAMES libkyotocabinet kyotocabinet
+      HINTS /usr/lib /usr/lib/x86_64-linux-gnu/
+      ${PC_KyotoCabinet_LIBDIR} ${PC_KyotoCabinet_LIBRARY_DIRS})
+
+set(KyotoCabinet_LIBS ${KyotoCabinet_LIBRARY})
+set(KyotoCabinet_INCLUDE_DIRS ${KyotoCabinet_INCLUDE_DIR})
+
 find_package( Boost REQUIRED COMPONENTS thread system filesystem )
 set( Boost_USE_MULTITHREADED ON )
 
@@ -50,25 +50,13 @@ if( USE_TBB )
   add_definitions( -DUSE_TBB )   # -DTBB_USE_DEBUG=1
 endif()
 
-# option( USE_APRILTAGS "Use AprilTags" ON )
-# if( USE_APRILTAGS )
-#   #set( apriltags_SOURCE_DIR "/home/aaron/workspace/vision_exp/apriltags")
-#   message("Find_package apriltags in CMakeLists.txt")
-#   find_package( Apriltags REQUIRED )
+option( USE_APRILTAGS "Use AprilTags" ON )
+if( USE_APRILTAGS )
 
 ## In the transition to Conan, force use of Apriltags for now...
 add_definitions( -DUSE_APRILTAGS )
 
-#
-#   #add_subdirectory( "${aplcam_SOURCE_DIR}/third_party/apriltags" )
-#
-#   # find_path( APRILTAGS_INCLUDE_DIR AprilTags/TagDetection.h
-#   #   PATHS ${aplcam_SOURCE_DIR}/third_party/apriltags/ PARENT_SCOPE )
-#   # set( APRILTAGS_LIBS ${aplcam_BINARY_DIR}/third_party/apriltags/libapriltags.a )
-#   # set( APRILTAGS_LIBS ${APRILTAGS_LIBS} PARENT_SCOPE )
-#   #
-#   # include_directories( ${APRILTAGS_INCLUDE_DIR} )
-# endif()
+endif()
 
 
 include_directories(
@@ -77,6 +65,8 @@ include_directories(
   ${EIGEN3_INCLUDE_DIRS}
   ${CERES_INCLUDE_DIRS} )
 
+
+OPTION( BUILD_SHARED_LIBS "Build shared libraries" ON )
 
 
 # set( aplcam_LIBS ${aplcam_LIBS} PARENT_SCOPE )

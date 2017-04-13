@@ -15,6 +15,7 @@ add_library( aplcam
   types.cpp
   board/board.cpp
   board/circle.cpp
+  board/apriltags.cpp
   image.cpp
   video.cpp
   detection/detection.cpp
@@ -50,3 +51,9 @@ add_library( aplcam
 target_include_directories( aplcam
 	PUBLIC	"${aplcam_SOURCE_DIR}/include"
     ${CONAN_INCLUDE_DIRS} )
+
+target_link_libraries( aplcam
+  ${CONAN_LIBS}
+${CERES_LIBRARY}
+${GSL_LIBS}
+${KyotoCabinet_LIBS} )

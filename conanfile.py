@@ -5,10 +5,10 @@ class AplcamConan(ConanFile):
   version = "master"
   settings = "os", "compiler", "build_type", "arch"
   generators = "cmake"
-  options = {"opencv_dir": "ANY", "build_parallel": [True, False]}
-  default_options = "opencv_dir=''", "build_parallel=True"
+  options = {"opencv_dir": "ANY", "build_parallel": [True, False], "shared": [True,False]}
+  default_options = "opencv_dir=''", "build_parallel=True", "shared=True"
   exports = '*'
-  requires = "apriltags/master@amarburg/testing"
+  requires = "apriltags/master@amarburg/testing", "TCLAP/master@jmmut/testing"
 
   def config(self):
     if self.scope.dev and self.scope.build_tests:
@@ -24,8 +24,7 @@ class AplcamConan(ConanFile):
     cmake_opts = ""
 
     cmake_opts += "-DOpenCV_DIR:PATH=%s " % (self.options.opencv_dir) if self.options.opencv_dir else ""
-
-    #cmake_opts += "-DBUILD_UNIT_TESTS:BOOL=1 -DBUILD_PERF_TEST:BOOL=ON" if self.scope.dev and self.scope.build_tests else ""
+    cmake_opts += "-DBUILD_SHARED_LIBS:BOOL=OFF " if not self.options.shared else ""
 
     build_opts = "-j" if self.options.build_parallel else ""
 

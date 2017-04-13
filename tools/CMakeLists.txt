@@ -8,6 +8,9 @@ link_libraries(
 		${CONAN_LIBS}
 		${OpenCV_LIBS}
 		${Boost_LIBRARIES}
+		${CERES_LIBRARY}
+		${KyotoCabinet_LIBS}
+		${GSL_LIBRARIES}
 		glog
 		cryptopp )
 
