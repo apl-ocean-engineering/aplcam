@@ -1,6 +1,11 @@
 
+include_directories(
+	${CMAKE_SOURCE_DIR}/include
+)
+
 link_libraries(
-		${aplcam_LIBS}
+		aplcam
+		${CONAN_LIBS}
 		${OpenCV_LIBS}
 		${Boost_LIBRARIES}
 		glog

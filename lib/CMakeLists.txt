@@ -48,4 +48,5 @@ add_library( aplcam
   calib_frame_selectors/keyframe_frame_selector.cpp )
 
 target_include_directories( aplcam
-	PUBLIC	${aplcam_INCLUDE_DIRS} )
+	PUBLIC	"${aplcam_SOURCE_DIR}/include"
+    ${CONAN_INCLUDE_DIRS} )
