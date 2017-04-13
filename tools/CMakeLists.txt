@@ -1,6 +1,7 @@
 
-link_libraries( ${OpenCV_LIBS}
+link_libraries(
 		${aplcam_LIBS}
+		${OpenCV_LIBS}
 		${Boost_LIBRARIES}
 		glog
 		cryptopp )

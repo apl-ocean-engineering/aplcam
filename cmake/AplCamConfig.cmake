@@ -41,8 +41,7 @@ set( aplcam_LIBS
      ${OpenCV_LIBS}
      ${GSL_LIBRARIES}
      ${Boost_LIBRARIES}
- 		 ${CERES_LIBRARIES}
-		 gtest )
+ 		 ${CERES_LIBRARIES} )
 
 
 find_package_handle_standard_args( aplcam DEFAULT_MSG aplcam_INCLUDE_DIRS aplcam_LIBS )

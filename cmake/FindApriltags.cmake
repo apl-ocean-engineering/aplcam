@@ -8,7 +8,7 @@ if( Apriltags_SOURCE_DIR )
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${Apriltags_SOURCE_DIR}
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/apriltags
-    CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}"
+    CMAKE_ARGS -DBUILD_UNIT_TESTS:BOOL=OFF -DBUILD_PERF_TESTS:BOOL=OFF
     BUILD_COMMAND ${CMAKE_COMMAND} --build . -- apriltags
     INSTALL_COMMAND ""
   )
@@ -16,8 +16,9 @@ else()
   message( "Using Apriltags from git repo" )
   ExternalProject_Add( apriltags
     GIT_REPOSITORY "https://github.com/amarburg/apriltags.git"
+    GIT_TAG subtag_detection
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/apriltags
-    CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}"
+    CMAKE_ARGS -DBUILD_UNIT_TESTS:BOOL=OFF -DBUILD_PERF_TESTS:BOOL=OFF
     BUILD_COMMAND ${CMAKE_COMMAND} --build .
     INSTALL_COMMAND ""
   )

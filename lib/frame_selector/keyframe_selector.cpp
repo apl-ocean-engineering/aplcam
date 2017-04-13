@@ -1,4 +1,4 @@
-#include <opencv2/features2d.hpp>
+#include <opencv2/features2d/features2d.hpp>
 
 #include "AplCam/frame_selector/frame_selector.h"
 

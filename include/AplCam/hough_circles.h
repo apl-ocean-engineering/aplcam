@@ -1,7 +1,7 @@
 #ifndef __HOUGH_CIRCLES_H__
 #define __HOUGH_CIRCLES_H__
 
-#include <opencv2/core.hpp>
+#include <opencv2/core/core.hpp>
 #include <vector>
 
 namespace AplCam {

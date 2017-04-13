@@ -2,7 +2,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include <opencv2/calib3d.hpp>
+#include <opencv2/calib3d/calib3d.hpp>
 
 #include "AplCam/stereo_calibration.h"
 

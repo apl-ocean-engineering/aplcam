@@ -3,7 +3,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include <opencv2/imgproc.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 #include "AplCam/calib_frame_selectors/calib_frame_selectors.h"
 

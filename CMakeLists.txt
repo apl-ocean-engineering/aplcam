@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 2.8)
 project(aplcam)
 
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
 set(CMAKE_C_FLAGS "-ggdb -Wall")
 set(CMAKE_CXX_FLAGS "-ggdb -Wall")
 
@@ -11,17 +13,16 @@ set(CMAKE_CXX_FLAGS "-ggdb -Wall")
 #set(CMAKE_C_FLAGS_RELEASE, "-Werror")
 #set(CMAKE_CXX_FLAGS_RELEASE, "-Werror")
 
-find_package( OpenCV REQUIRED )
+find_package( OpenCV REQUIRED core imgproc calib3d features2d highgui )
 #find_package( PCL 1.2 REQUIRED )
-find_package( Ceres REQUIRED )
-
-set( GTEST_ROOT /usr )
+#find_package( Ceres REQUIRED )
 
 # Packages supported by local Find*.cmake files
-list(APPEND CMAKE_MODULE_PATH "${aplcam_SOURCE_DIR}/cmake")
 find_package( GSL REQUIRED )
 find_package( Eigen REQUIRED )
 find_package( TCLAP REQUIRED )
+
+## As suggested, always build a local copy of GTest
 
 #
 #
@@ -69,6 +70,7 @@ set( aplcam_LIBS aplcam ${apriltags_LIBS} )
 
 
 include_directories( ${OpenCV_INCLUDE_DIRS}
+  ${EIGEN_INCLUDE_DIRS}
   ${CERES_INCLUDE_DIRS}
   ${aplcam_INCLUDE_DIRS} )
 

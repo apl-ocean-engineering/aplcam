@@ -3,7 +3,7 @@
 #define __IMAGE_ACCUMULATOR_H__
 
 #include <vector>
-#include <opencv2/core.hpp>
+#include <opencv2/core/core.hpp>
 
 namespace AplCam {
 

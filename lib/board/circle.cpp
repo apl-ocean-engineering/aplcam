@@ -27,11 +27,11 @@ Detection *CircleBoard::detectPattern( const cv::Mat &img )
 
   // Gaussian blur
   Mat blurred;
-  GaussianBlur( gray, blurred, Size(5,5), 0,0 );
+  cv::GaussianBlur( gray, blurred, Size(5,5), 0,0 );
 
   vector<Vec3f> circles;
   const float accumRes = 2, minDist = 4;
-  HoughCircles( blurred, circles, HOUGH_GRADIENT, accumRes, minDist, 100, 100 );
+  cv::HoughCircles( blurred, circles, CV_HOUGH_GRADIENT, accumRes, minDist, 100, 100 );
 
   return new CircleDetection( circles );
 }
@@ -144,7 +144,7 @@ Detection *ColorSegmentationCircleBoard::detectPattern( const cv::Mat &img )
 
   vector<Vec3f> circles;
   const float accumRes = 1, minDist = 4;
-  HoughCircles( blurred, circles, HOUGH_GRADIENT, accumRes, minDist, 100, 25 );
+  cv::HoughCircles( blurred, circles, CV_HOUGH_GRADIENT, accumRes, minDist, 100, 25 );
 
   return new CircleDetection( circles );
 }

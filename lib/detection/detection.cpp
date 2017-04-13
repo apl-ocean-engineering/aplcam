@@ -1,5 +1,7 @@
 
+#include <opencv2/core/core.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
+
 #include "AplCam/file_utils.h"
 
 #include "AplCam/detection/detection.h"
@@ -7,7 +9,10 @@
 #include "AplCam/detection/circle.h"
 
 using namespace std;
-using namespace cv;
+using cv::FileStorage;
+using cv::Scalar;
+using cv::Point2f;
+using cv::Point3f;
 
 using namespace AplCam;
 

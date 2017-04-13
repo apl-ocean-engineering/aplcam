@@ -3,9 +3,9 @@
 
 #include <string>
 
-#include <opencv2/core.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/videoio.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 #include "AplCam/image_pair.h"
 
@@ -84,8 +84,8 @@ namespace AplCam {
     //    }
 
     operator Mat &() { return canvas; }
-    operator cv::_InputArray() { return cv::_InputArray(canvas); }
-    operator cv::_InputOutputArray() { return cv::_InputOutputArray(canvas); }
+    operator cv::InputArray() { return cv::InputArray(canvas); }
+    operator cv::InputOutputArray() { return cv::InputOutputArray(canvas); }
 
     Mat &operator[]( int i ){ return roi[i]; }
     const Mat &operator[]( int i ) const { return roi[i]; }
@@ -156,15 +156,15 @@ namespace AplCam {
       return _video.get( flag );
     }
 
-    bool seek( double frame ) { return _video.set( cv::CAP_PROP_POS_FRAMES, frame ); }
+    bool seek( double frame ) { return _video.set( CV_CAP_PROP_POS_FRAMES, frame ); }
     bool rewind( void )       { _video.release(); _video.open( _filepath );  return true; }
-    double frame( void )      { return get( cv::CAP_PROP_POS_FRAMES ); }
+    double frame( void )      { return get( CV_CAP_PROP_POS_FRAMES ); }
 
-    double fps( void )        { return _video.get( cv::CAP_PROP_FPS ); }
-    Size   fullSize( void )   { return cv::Size( _video.get( cv::CAP_PROP_FRAME_WIDTH ),
-                                                 _video.get( cv::CAP_PROP_FRAME_HEIGHT ) ); }
-    Size   frameSize( void )   { return cv::Size( _video.get( cv::CAP_PROP_FRAME_WIDTH ) / 2.0,
-                                                 _video.get( cv::CAP_PROP_FRAME_HEIGHT ) ); }
+    double fps( void )        { return _video.get( CV_CAP_PROP_FPS ); }
+    Size   fullSize( void )   { return cv::Size( _video.get( CV_CAP_PROP_FRAME_WIDTH ),
+                                                 _video.get( CV_CAP_PROP_FRAME_HEIGHT ) ); }
+    Size   frameSize( void )   { return cv::Size( _video.get( CV_CAP_PROP_FRAME_WIDTH ) / 2.0,
+                                                 _video.get( CV_CAP_PROP_FRAME_HEIGHT ) ); }
 
 
     std::string _filepath;

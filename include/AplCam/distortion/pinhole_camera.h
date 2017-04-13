@@ -2,8 +2,8 @@
 #ifndef __PINHOLE_CAMERA_H__
 #define __PINHOLE_CAMERA_H__
 
-#include <opencv2/core.hpp>
-#include <opencv2/calib3d.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/calib3d/calib3d.hpp>
 
 #include <vector>
 #include <algorithm>

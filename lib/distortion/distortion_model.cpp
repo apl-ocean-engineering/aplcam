@@ -2,6 +2,7 @@
 #include <iostream>
 using namespace std;
 
+#include <opencv2/core/affine.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "AplCam/distortion/distortion_model.h"

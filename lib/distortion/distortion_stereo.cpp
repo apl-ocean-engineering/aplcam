@@ -42,7 +42,7 @@ namespace Distortion {
 
     double rms = cv::stereoCalibrate( _objectPoints, _undistorted1, _undistorted2,
         camMat1, camMat2, dist1, dist2,
-        imageSize, _Rmat, _Tmat, _Emat, _Fmat, flags, criteria );
+        imageSize, _Rmat, _Tmat, _Emat, _Fmat, criteria, flags );
 
     // I know this will never be called..
     if( !(flags & CV_CALIB_FIX_INTRINSIC) ) {

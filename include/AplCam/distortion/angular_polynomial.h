@@ -2,7 +2,7 @@
 #ifndef __DISTORTION_ANGULAR_POLYNOMIAL_H__
 #define __DISTORTION_ANGULAR_POLYNOMIAL_H__
 
-#include <opencv2/core.hpp>
+#include <opencv2/core/core.hpp>
 
 #include "AplCam/cv_types.h"
 #include "AplCam/distortion/distortion_model.h"

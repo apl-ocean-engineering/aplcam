@@ -1,7 +1,7 @@
 #ifndef __CV_TYPES_H__
 #define __CV_TYPES_H__
 
-#include <opencv2/core.hpp>
+#include <opencv2/core/core.hpp>
 
 namespace cv {
   typedef Vec<double,5> Vec5d;
