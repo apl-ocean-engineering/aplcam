@@ -4,6 +4,7 @@
 #include <fstream>
 
 #include <list>
+#include <map>
 
 // AprilTags currently uses Eigen for fixed-size vectors and matrices
 #include <Eigen/Core>

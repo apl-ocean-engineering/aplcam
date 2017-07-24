@@ -40,9 +40,15 @@ namespace Distortion {
 
     flags |= CV_CALIB_FIX_INTRINSIC;
 
+#ifdef OPENCV_3
+double rms = cv::stereoCalibrate( _objectPoints, _undistorted1, _undistorted2,
+    camMat1, camMat2, dist1, dist2,
+    imageSize, _Rmat, _Tmat, _Emat, _Fmat, flags, criteria );
+#else
     double rms = cv::stereoCalibrate( _objectPoints, _undistorted1, _undistorted2,
         camMat1, camMat2, dist1, dist2,
         imageSize, _Rmat, _Tmat, _Emat, _Fmat, criteria, flags );
+#endif
 
     // I know this will never be called..
     if( !(flags & CV_CALIB_FIX_INTRINSIC) ) {

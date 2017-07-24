@@ -17,6 +17,12 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 #set(CMAKE_CXX_FLAGS_RELEASE, "-Werror")
 
 find_package( OpenCV REQUIRED core imgproc calib3d features2d highgui )
+if( OpenCV_VERSION_MAJOR VERSION_LESS "3.0.0" )
+  add_definitions( -DOPENCV_2 )
+else()
+  add_definitions( -DOPENCV_3 )
+endif()
+
 #find_package( PCL 1.2 REQUIRED )
 find_package( Ceres REQUIRED )
 
