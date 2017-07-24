@@ -15,7 +15,6 @@ add_library( aplcam
   types.cpp
   board/board.cpp
   board/circle.cpp
-  board/apriltags.cpp
   image.cpp
   video.cpp
   detection/detection.cpp
