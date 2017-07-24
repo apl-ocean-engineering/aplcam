@@ -53,6 +53,10 @@ target_include_directories( aplcam
 
 target_link_libraries( aplcam
   ${CONAN_LIBS}
-${CERES_LIBRARY}
-${GSL_LIBS}
-${KyotoCabinet_LIBS} )
+  ${OpenCV_LIBS}
+  ${Boost_LIBRARIES}
+  ${GSL_LIBRARIES}
+  ${CERES_LIBRARY}
+  cryptopp
+  glog
+  ${KyotoCabinet_LIBS} )

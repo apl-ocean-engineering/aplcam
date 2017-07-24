@@ -24,7 +24,7 @@ class AplcamConan(ConanFile):
     cmake_opts = ""
 
     cmake_opts += "-DOpenCV_DIR:PATH=%s " % (self.options.opencv_dir) if self.options.opencv_dir else ""
-    cmake_opts += "-DBUILD_SHARED_LIBS:BOOL=OFF " if not self.options.shared else ""
+    cmake_opts += "-DSHARED_LIBS:BOOL=OFF " if not self.options.shared else ""
 
     build_opts = "-j" if self.options.build_parallel else ""
 

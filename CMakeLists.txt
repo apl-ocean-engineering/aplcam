@@ -65,6 +65,9 @@ include_directories(
   ${EIGEN3_INCLUDE_DIRS}
   ${CERES_INCLUDE_DIRS} )
 
+link_directories( /usr/local/lib )
+
+
 
 OPTION( BUILD_SHARED_LIBS "Build shared libraries" ON )
 
