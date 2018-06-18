@@ -1,6 +1,1 @@
-__pycache__/
-*.o
-\.*.swp
-.DS_Store
-build/
-.AppleDouble
+.fips-*
