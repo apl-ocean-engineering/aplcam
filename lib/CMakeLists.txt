@@ -55,7 +55,7 @@ fips_begin_lib( aplcam )
     ${OpenCV_LIBS}
     ${Boost_LIBRARIES}
     ${GSL_LIBRARIES}
-    ${CERES_LIBRARY}
+    ${CERES_LIBRARIES}
     cryptopp
     glog
     ${KyotoCabinet_LIBS} )
