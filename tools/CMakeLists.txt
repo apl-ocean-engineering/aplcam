@@ -21,10 +21,17 @@ link_libraries(
 #        cryptopp )
 #
 
-add_executable( video_splitter video_splitter.cpp )
+fips_begin_app( video_splitter cmdline )
+ 	fips_files( video_splitter.cpp )
+fips_end_app()
 
-add_executable( extract_one_frame extract_one_frame.cpp )
+fips_begin_app( extract_one_frame cmdline )
+ 	fips_files( extract_one_frame.cpp )
+fips_end_app()
 
 if( USE_APRILTAGS )
-  add_executable( apriltags_player apriltags_player.cpp )
+  fips_begin_app( apriltags_player cmdline )
+		fips_files( apriltags_player.cpp )
+		fips_deps( apriltags )
+	fips_end_app()
 endif()

@@ -1,20 +1,14 @@
-cmake_minimum_required (VERSION 2.8)
-project(aplcam)
+if (NOT FIPS_IMPORT)
+  cmake_minimum_required(VERSION 3.5.0)
 
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
+  get_filename_component(FIPS_ROOT_DIR "../fips" ABSOLUTE)
+  include("${FIPS_ROOT_DIR}/cmake/fips.cmake")
+
+  fips_setup(PROJECT aplcam)
+endif()
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-# set(CMAKE_C_FLAGS "-ggdb -Wall")
-# set(CMAKE_CXX_FLAGS "-ggdb -Wall")
-
-#set(CMAKE_BUILD_TYPE Debug )
-#set(CMAKE_C_FLAGS_DEBUG, "-Wall -ggdb")
-#set(CMAKE_CXX_FLAGS_DEBUG, "-Wall -ggdb")
-#
-#set(CMAKE_C_FLAGS_RELEASE, "-Werror")
-#set(CMAKE_CXX_FLAGS_RELEASE, "-Werror")
 
 find_package( OpenCV REQUIRED core imgproc calib3d features2d highgui )
 if( OpenCV_VERSION_MAJOR VERSION_LESS "3.0.0" )
@@ -58,18 +52,16 @@ endif()
 
 option( USE_APRILTAGS "Use AprilTags" ON )
 if( USE_APRILTAGS )
-
-## In the transition to Conan, force use of Apriltags for now...
-add_definitions( -DUSE_APRILTAGS )
-
+  ## In the transition to Conan, force use of Apriltags for now...
+  add_definitions( -DUSE_APRILTAGS )
 endif()
 
 
-include_directories(
-  ${CONAN_INCLUDE_DIRS}
+fips_include_directories(
   ${OpenCV_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
-  ${CERES_INCLUDE_DIRS} )
+  ${CERES_INCLUDE_DIRS}
+  include )
 
 link_directories( /usr/local/lib )
 
@@ -78,10 +70,16 @@ link_directories( /usr/local/lib )
 OPTION( BUILD_SHARED_LIBS "Build shared libraries" ON )
 
 
-# set( aplcam_LIBS ${aplcam_LIBS} PARENT_SCOPE )
-#
-# set( tclap_INCLUDE_DIR "${aplcam_SOURCE_DIR}/third_party/tclap/include" PARENT_SCOPE)
+fips_add_subdirectory(lib)
+fips_add_subdirectory(tools)
 
 
-add_subdirectory(lib)
-add_subdirectory(tools)
+
+if( NOT FIPS_IMPORT )
+
+  # if( FIPS_UNITTESTS )
+  #   add_subdirectory( test/unit )
+  # endif()
+
+  fips_finish()
+endif()
