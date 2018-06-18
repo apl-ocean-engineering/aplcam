@@ -1,6 +1,4 @@
-
-#ifndef __DISTORTION_MODEL_H__
-#define __DISTORTION_MODEL_H__
+#pragma once
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
@@ -88,6 +86,3 @@ class DistortionModel : public PinholeCamera {
 };
 
 }
-
-
-#endif
