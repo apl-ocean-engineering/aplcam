@@ -1,9 +1,11 @@
-#ifndef __TYPES_H__
-#define __TYPES_H__
+#pragma once
 
 #include <vector>
 
 #include <opencv2/core/core.hpp>
+
+#include "nlohmann/json.hpp"
+
 
 namespace AplCam {
   using cv::Vec3f;
@@ -12,6 +14,7 @@ namespace AplCam {
 
   using std::vector;
 
+  using nlohmann::json;
 
   typedef Vec3f ObjectPoint;
   typedef vector< ObjectPoint > ObjectPointsVec;
@@ -35,6 +38,3 @@ namespace AplCam {
   void write(cv::FileStorage &fs, std::string a, const ReprojErrorsVecVec &v );
 
 }
-
-
-#endif

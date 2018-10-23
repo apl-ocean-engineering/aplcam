@@ -1,5 +1,6 @@
 
 #include <fstream>
+#include <iomanip>
 
 #include "AplCam/detection_db.h"
 
@@ -26,7 +27,9 @@ namespace AplCam {
     json j = *this;
 
     ofstream out( _filename );
-    out << j;
+
+    // From the json.hpp docs: the setw manipulator was overloaded to set the indentation for pretty printing
+    out << std::setw(4) << j;
   }
 
   bool InMemoryDetectionDb::insert( const std::string &frame, const std::shared_ptr<Detection> &detection ) {
@@ -45,7 +48,15 @@ namespace AplCam {
   //======
 
   void to_json(json& j, const InMemoryDetectionDb& p) {
+    j = {};
 
+    json detections = {};
+
+    for( auto const &itr : p._map ) {
+      detections[itr.first] = *(itr.second);
+    }
+
+    j["detections"] = detections;
   }
 
   void from_json(const json& j, InMemoryDetectionDb& p) {
