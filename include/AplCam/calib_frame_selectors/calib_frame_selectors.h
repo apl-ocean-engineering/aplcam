@@ -54,21 +54,21 @@ namespace AplCam {
 
         virtual void generate( DetectionDb &db, DetectionSet &set )
         {
-          DB::Cursor *cur = db.cursor();
-          cur->jump();
-          string key;
-          while( cur->get_key( &key, true ) )
-            if( isNotMeta( key ) ) {
-              if( minTagCriteriaGiven() ) {
-                int frame = stoi( key );
-                Detection *detection = db.load( frame );
-                if( hasMinTags( detection ) ) set.addDetection( detection, frame );
-              } else {
-                set.addDetection( db, stoi(key) );
-              }
-            }
-
-          set.setName( "all" );
+          // DB::Cursor *cur = db.cursor();
+          // cur->jump();
+          // string key;
+          // while( cur->get_key( &key, true ) )
+          //   if( isNotMeta( key ) ) {
+          //     if( minTagCriteriaGiven() ) {
+          //       int frame = stoi( key );
+          //       Detection *detection = db.load( frame );
+          //       if( hasMinTags( detection ) ) set.addDetection( detection, frame );
+          //     } else {
+          //       set.addDetection( db, stoi(key) );
+          //     }
+          //   }
+          //
+          // set.setName( "all" );
 
           //delete cur;
 
@@ -83,26 +83,26 @@ namespace AplCam {
 
         virtual void generate( DetectionDb &db, DetectionSet &set )
         {
-          DB::Cursor *cur = db.cursor();
-          cur->jump();
-          string key, value;
-          while( cur->get_key( &key, true ) ){
-            if( !isNotMeta( key ) ) continue;
-
-            int frame = stoi( key );
-            Detection *detection = db.load( frame );
-
-            if( minTagCriteriaGiven() and !hasMinTags( detection ) ) continue;
-
-            if( detection ) {
-              //if( detection->rot[0] == 0.0 && detection->rot[1] == 0.0 && detection->rot[2] == 0.0 ) continue;
-
-              set.addDetection( detection, frame );
-            }
-
-          }
-
-          set.setName( "all" );
+          // DB::Cursor *cur = db.cursor();
+          // cur->jump();
+          // string key, value;
+          // while( cur->get_key( &key, true ) ){
+          //   if( !isNotMeta( key ) ) continue;
+          //
+          //   int frame = stoi( key );
+          //   Detection *detection = db.load( frame );
+          //
+          //   if( minTagCriteriaGiven() and !hasMinTags( detection ) ) continue;
+          //
+          //   if( detection ) {
+          //     //if( detection->rot[0] == 0.0 && detection->rot[1] == 0.0 && detection->rot[2] == 0.0 ) continue;
+          //
+          //     set.addDetection( detection, frame );
+          //   }
+          //
+          // }
+          //
+          // set.setName( "all" );
 
           //delete cur;
 
@@ -142,14 +142,14 @@ namespace AplCam {
 
         virtual void generate( DetectionDb &db, DetectionSet &set )
         {
-          int e = std::min( _end, db.maxKey() );
-
-          for( int i = _start; i < e; i += _interval )
-            set.addDetection( db,  i );
-
-          stringstream strm;
-          strm << "interval(" << _start << "," << _interval << ',' << e << ")_" << intsToHex( set.frames() );
-          set.setName( strm.str() );
+          // int e = std::min( _end, db.maxKey() );
+          //
+          // for( int i = _start; i < e; i += _interval )
+          //   set.addDetection( db,  i );
+          //
+          // stringstream strm;
+          // strm << "interval(" << _start << "," << _interval << ',' << e << ")_" << intsToHex( set.frames() );
+          // set.setName( strm.str() );
         }
 
       protected:

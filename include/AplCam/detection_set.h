@@ -1,5 +1,4 @@
-#ifndef __DETECTION_SET_H__
-#define __DETECTION_SET_H__
+#pragma once
 
 #include <map>
 #include <vector>
@@ -33,7 +32,7 @@ namespace AplCam {
 
       void addDetection( DetectionDb &db, const int frame )
       {
-        addDetection( db.load( frame ), frame );
+        //addDetection( db.load( frame ), frame );
       }
 
       void addDetection( Detection *detection, const int frame )
@@ -146,9 +145,3 @@ namespace AplCam {
   };
 
 }
-
-
-
-
-
-#endif

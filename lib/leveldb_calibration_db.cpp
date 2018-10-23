@@ -1,5 +1,7 @@
 
-#include "AplCam/calibration_db.h"
+#include <libg3logger/g3logger.h>
+
+#include "AplCam/leveldb_calibration_db.h"
 
 namespace AplCam {
 
@@ -13,13 +15,23 @@ namespace AplCam {
   // CalibrationDb::CalibrationDb( void )
   //   : _db()
   // {;}
-  //
-  // CalibrationDb::CalibrationDb( const string &filename, bool writable )
-  //   : _db()
-  // {
-  //   _db.open( filename, modeFlags( writable ) );
-  // }
-  //
+
+  LevelDbCalibrationDb::LevelDbCalibrationDb( const string dbFile, bool writer )
+    : _db(nullptr)
+    //, _cursor(NULL), _imageSize( 0,0 ), _vidLength(0), _fps(1.0)
+  {
+    leveldb::Options options;
+    options.create_if_missing = true;
+    leveldb::Status status = leveldb::DB::Open(options, dbFile, &_db);
+    CHECK(status.ok() && _db) << "Unable to open database file \"" << dbFile << "\"";
+  }
+
+  LevelDbCalibrationDb::~LevelDbCalibrationDb()
+  {
+    if( _db ) delete _db;
+  }
+
+
   // bool CalibrationDb::open( const string &filename, bool writable )
   // {
   //   return  _db.open( filename, modeFlags( writable ) );

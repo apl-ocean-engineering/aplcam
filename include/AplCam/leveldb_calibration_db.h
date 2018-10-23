@@ -1,8 +1,8 @@
-#ifndef __CALIBRATION_DB_H__
-#define __CALIBRATION_DB_H__
+#pragma once
 
 #include <string>
-// #include <kchashdb.h>
+
+#include "leveldb/db.h"
 
 #include "AplCam/calibration_serializer.h"
 
@@ -12,12 +12,11 @@ namespace AplCam {
   // using kyotocabinet::BasicDB;
   // using kyotocabinet::HashDB;
 
-  class CalibrationDb {
+  class LevelDbCalibrationDb {
     public:
 
-      CalibrationDb( void );
-
-      CalibrationDb( const string &filename, bool writable = false );
+      LevelDbCalibrationDb( const string filename, bool writable = false );
+      ~LevelDbCalibrationDb();
 
       // bool open( const string &filename, bool writable = false );
       // //
@@ -28,7 +27,7 @@ namespace AplCam {
       // // bool isOpened( void ) { return (_db.flags() & HashDB::FOPEN); }
       // // uint8_t flags( void ) { return _db.flags(); }
       //
-      //bool save( const string &key, const CalibrationSerializer &ser );
+      // bool save( const string &key, const CalibrationSerializer &ser );
       //
       // bool get( const string &key, string * value )
       // { return _db.get( key, value ); }
@@ -37,17 +36,15 @@ namespace AplCam {
       //
       // void findKeysStartingWith( const string &val, vector< string > &keys );
 
-      //bool save( const std::string &key, )
-
 
     protected:
+
+      leveldb::DB* _db;
+
 //      uint32_t modeFlags( bool writable );
 
-//      HashDB _db;
   };
 
 
 
 }
-
-#endif

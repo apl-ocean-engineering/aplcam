@@ -11,6 +11,7 @@ fips_begin_lib( aplcam )
     detection/detection.cpp
     detection/circle.cpp
     detection_db.cpp
+    leveldb_detection_db.cpp
     detection_set.cpp
     my_undistort.cpp
     ${APRILTAG_SRCS}
@@ -30,6 +31,7 @@ fips_begin_lib( aplcam )
     motion_model.cpp
     feature_tracker.cpp
     calibration_db.cpp
+    leveldb_calibration_db.cpp
     splitter_common.cpp
     hough_circles.cpp
     image_accumulator.cpp
@@ -56,8 +58,8 @@ fips_begin_lib( aplcam )
     ${Boost_LIBRARIES}
     ${GSL_LIBRARIES}
     ${CERES_LIBRARIES}
+    ${LevelDB_LIBRARIES}
     cryptopp
-    glog
-    ${KyotoCabinet_LIBS} )
+    glog )
 
 fips_end_lib()

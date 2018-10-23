@@ -47,7 +47,7 @@ namespace AplCam {
         return serialize( fs );
       }
 
-      bool serialize( string &str ) const
+      virtual bool serialize( string &str ) const
       {
         FileStorage fs("foo.yml", FileStorage::WRITE | FileStorage::MEMORY );
         bool res = serialize( fs );

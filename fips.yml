@@ -1,6 +1,8 @@
 imports:
     fips-googletest:
         git: https://github.com/amarburg/fips-googletest.git
+    libg3logger:
+        git: https://github.com/amarburg/libg3logger.git
     apriltags:
         git: https://github.com/amarburg/apriltags.git
         branch: fips
@@ -9,6 +11,7 @@ imports:
 exports:
    header-dirs:
      - include/
+     - thirdparty/
    modules:
      aplcam: .
 

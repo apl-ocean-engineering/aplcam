@@ -7,8 +7,7 @@ if (NOT FIPS_IMPORT)
   fips_setup(PROJECT aplcam)
 endif()
 
-list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 find_package( OpenCV REQUIRED core imgproc calib3d features2d highgui )
 if( OpenCV_VERSION_MAJOR VERSION_LESS "3.0.0" )
@@ -26,19 +25,18 @@ find_package( Eigen3 REQUIRED )
 
 ## As suggested, always build a local copy of GTest
 
-#
-#
-#
+find_package( LevelDB REQUIRED )
+
 ## KyotoCabinet stuff
-find_path(KyotoCabinet_INCLUDE_DIR kcdb.h
- HINTS ${PC_KyotoCabinet_INCLUDEDIR} ${PC_KyotoCabinet_INCLUDE_DIRS})
+# find_path(KyotoCabinet_INCLUDE_DIR kcdb.h
+#  HINTS ${PC_KyotoCabinet_INCLUDEDIR} ${PC_KyotoCabinet_INCLUDE_DIRS})
+#
+# find_library(KyotoCabinet_LIBRARY NAMES libkyotocabinet kyotocabinet
+#       HINTS /usr/lib /usr/lib/x86_64-linux-gnu/
+#       ${PC_KyotoCabinet_LIBDIR} ${PC_KyotoCabinet_LIBRARY_DIRS})
 
-find_library(KyotoCabinet_LIBRARY NAMES libkyotocabinet kyotocabinet
-      HINTS /usr/lib /usr/lib/x86_64-linux-gnu/
-      ${PC_KyotoCabinet_LIBDIR} ${PC_KyotoCabinet_LIBRARY_DIRS})
-
-set(KyotoCabinet_LIBS ${KyotoCabinet_LIBRARY})
-set(KyotoCabinet_INCLUDE_DIRS ${KyotoCabinet_INCLUDE_DIR})
+# set(KyotoCabinet_LIBS ${KyotoCabinet_LIBRARY})
+# set(KyotoCabinet_INCLUDE_DIRS ${KyotoCabinet_INCLUDE_DIR})
 
 find_package( Boost REQUIRED COMPONENTS thread system filesystem )
 set( Boost_USE_MULTITHREADED ON )
@@ -61,7 +59,9 @@ fips_include_directories(
   ${OpenCV_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
   ${CERES_INCLUDE_DIRS}
-  include )
+  ${LevelDB_INCLUDES}
+  include
+  thirdparty )
 
 link_directories( /usr/local/lib )
 
@@ -77,9 +77,9 @@ fips_add_subdirectory(tools)
 
 if( NOT FIPS_IMPORT )
 
-  # if( FIPS_UNITTESTS )
-  #   add_subdirectory( test/unit )
-  # endif()
+  if( FIPS_UNITTESTS )
+    add_subdirectory( test/unit )
+  endif()
 
   fips_finish()
 endif()

@@ -1,5 +1,4 @@
-#ifndef __BOARD_H__
-#define __BOARD_H__
+#pragma once
 
 #include <vector>
 #include <string>
@@ -87,7 +86,5 @@ class Board {
 
  private:
 };
+
 }
-
-
-#endif

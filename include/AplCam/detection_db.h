@@ -1,79 +1,144 @@
-#ifndef __DETECTION_DB_H__
-#define __DETECTION_DB_H__
+#pragma once
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include <opencv2/core/core.hpp>
 
+#include "nlohmann/json.hpp"
+
 #include "AplCam/detection/detection.h"
 
-#include <kchashdb.h>
-
-
-using kyotocabinet::HashDB;
 
 namespace AplCam {
-  class DetectionSet;
+
+  using nlohmann::json;
 
   class DetectionDb {
-    public:
+     public:
 
-      DetectionDb();
-      DetectionDb( const string &dbFile, bool writer = false );
+       static const string MetaKey,
+                           MetaFpsKey,
+                           MetaWidthKey,
+                           MetaHeightKey,
+                           MetaLengthKey;
 
-      ~DetectionDb();
+       DetectionDb() {;}
+       virtual ~DetectionDb() {;}
 
-      bool open( const string &dbFile, bool writer = false );
-      bool open( const string &dbDir, const string &videoFile, bool writer = false );
+       virtual void sync() {;}
 
-      bool save( const int frame, const Detection &detection );
-      bool save( const DetectionSet &detSet );
+  //     virtual Detection *load( const int frame ) = 0;
 
-      bool has( const int frame );
-      bool has( const string &key );
-      bool has_meta( void );
+       virtual bool insert( const std::string &frame, const std::shared_ptr<Detection> &detection ) = 0;
+       virtual std::shared_ptr<Detection> at( const std::string &frame ) = 0;
 
-      bool update( const int frame, const Detection &detection );
-      bool update( const string &key, const Detection &detection );
-
-      Detection *load( const int frame );
-      Detection *load( const string &key );
-
-      kyotocabinet::BasicDB::Error error( void ) { return _db.error(); }
-
-      int maxKey( void );
-
-      static const std::string FrameToKey( const int frame );
-
-      kyotocabinet::DB::Cursor *cursor( void );
-
-      cv::Size imageSize( void ) const { return _imageSize; }
-      int vidLength( void ) const { return _vidLength; }
-      float fps( void ) const { return _fps; }
-
-      bool setMeta( unsigned int length, int width, int height, float fps );
-
-      static const string MetaKey,
-                          MetaFpsKey,
-                          MetaWidthKey,
-                          MetaHeightKey,
-                          MetaLengthKey;
-
-    protected:
-
-      bool saveMeta( void );
-      void loadMeta( void );
-
-      HashDB _db;
-      kyotocabinet::DB::Cursor *_cursor;
-
-      // Metadata
-      cv::Size _imageSize;
-      int _vidLength;
-      float _fps;
+       virtual bool setMeta( unsigned int length, int width, int height, float fps ) = 0;
 
   };
-}
 
-#endif
+
+  class InMemoryDetectionDb;
+
+  void   to_json(json& j, const InMemoryDetectionDb& p);
+  void from_json(const json& j, InMemoryDetectionDb& p);
+
+
+  class InMemoryDetectionDb {
+  public:
+
+    InMemoryDetectionDb( const std::string &filename = std::string("") );
+    ~InMemoryDetectionDb();
+
+    virtual void sync();
+
+    virtual bool insert( const std::string &frame, const std::shared_ptr<Detection> &detection );
+    virtual std::shared_ptr<Detection> at( const std::string &frame );
+
+    virtual bool setMeta( unsigned int length, int width, int height, float fps );
+
+    // Friend functions for serializing and unserializaing to JSON
+    friend void to_json(json& j, const InMemoryDetectionDb& p);
+    friend void from_json(const json& j, InMemoryDetectionDb& p);
+
+  protected:
+
+    typedef std::map< std::string, std::shared_ptr<Detection> > DetectionMap;
+
+    DetectionMap _map;
+
+    std::string _filename;
+
+  };
+
+
+
+    //   DetectionDb( const string &dbFile, bool writer = false );
+    //
+    //   ~DetectionDb();
+    //
+    //   bool open( const string &dbFile, bool writer = false );
+    //   bool open( const string &dbDir, const string &videoFile, bool writer = false );
+    //
+
+    //   bool save( const DetectionSet &detSet );
+    //
+    //   bool has( const int frame );
+    //   bool has( const string &key );
+    //   bool has_meta( void );
+    //
+    //   bool update( const int frame, const Detection &detection );
+    //   bool update( const string &key, const Detection &detection );
+    //
+    //   Detection *load( const int frame );
+    //   Detection *load( const string &key );
+    //
+    //   kyotocabinet::BasicDB::Error error( void ) { return _db.error(); }
+    //
+    //   int maxKey( void );
+    //
+    //   static const std::string FrameToKey( const int frame );
+    //
+    //   kyotocabinet::DB::Cursor *cursor( void );
+    //
+    //   cv::Size imageSize( void ) const { return _imageSize; }
+    //   int vidLength( void ) const { return _vidLength; }
+    //   float fps( void ) const { return _fps; }
+    //
+    //
+    //   static const string MetaKey,
+    //                       MetaFpsKey,
+    //                       MetaWidthKey,
+    //                       MetaHeightKey,
+    //                       MetaLengthKey;
+    //
+    // protected:
+    //
+    //   bool saveMeta( void );
+    //   void loadMeta( void );
+    //
+    //   HashDB _db;
+    //   kyotocabinet::DB::Cursor *_cursor;
+    //
+    //   // Metadata
+    //   cv::Size _imageSize;
+    //   int _vidLength;
+    //   float _fps;
+    //
+//  };
+
+  //
+  // class JsonDbSerializer {
+  // public:
+  //
+  //   static bool Write( const std::string &filename, const DetectionDb &db );
+  //   static DetectionDb *Read( const std::string &filename );
+  //
+  // private:
+  //
+  //   JsonDbSerializer() = delete;
+  //   JsonDbSerializer( const JsonDbSerializer &other ) = delete;
+  // };
+
+}

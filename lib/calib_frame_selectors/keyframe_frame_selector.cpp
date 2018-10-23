@@ -69,9 +69,9 @@ void KeyframeFrameSelector::generate( DetectionDb &db, DetectionSet &set )
 
 
   bool first = true;
-  size_t vidLength = db.vidLength();
+  size_t vidLength = 0; // db.vidLength();
   for( size_t i = 0; i < vidLength; ++i ) {
-    det = db.load( i );
+    //det = db.load( i );
 
     if( det == NULL ) continue;
 
