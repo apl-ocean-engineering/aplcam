@@ -412,6 +412,12 @@ namespace Distortion {
     return out;
   }
 
+  void AngularPolynomial::to_json( json &j ) const {
+    PinholeCamera::to_json(j);
+    j["distortion_coefficients"] = { _distCoeffs[0], _distCoeffs[1], _distCoeffs[2], _distCoeffs[3] };
+  }
+
+
   AngularPolynomial *AngularPolynomial::Load( cv::FileStorage &in )
   {
     Mat kmat;

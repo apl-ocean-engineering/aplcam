@@ -26,15 +26,15 @@ namespace AplCam {
 
   typedef vector< Vec3d > RotVec, TransVec;
 
-  struct ReprojErrorsVec {
-    ImagePointsVec projPoints, errors;
+  struct ReprojError {
+    ImagePoint projPoint, error;
   };
 
+  typedef vector< ReprojError > ReprojErrorVec;
+  typedef vector< ReprojErrorVec > ReprojErrorVecVec;
 
-  typedef vector< ReprojErrorsVec > ReprojErrorsVecVec;
 
-
-  void write(cv::FileStorage &fs, std::string a, const ReprojErrorsVec& v );
-  void write(cv::FileStorage &fs, std::string a, const ReprojErrorsVecVec &v );
+  void write(cv::FileStorage &fs, std::string a, const ReprojErrorVec& v );
+  void write(cv::FileStorage &fs, std::string a, const ReprojErrorVecVec &v );
 
 }

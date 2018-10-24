@@ -50,6 +50,8 @@ virtual Mat coefficientsMat( void ) const;
   //--- Serialize/Unserialize functions ----
   static RadialPolynomial *Load( cv::FileStorage &in );
   virtual cv::FileStorage &write( cv::FileStorage &out ) const;
+  virtual void to_json( json &j ) const;
+
 
 
 protected:

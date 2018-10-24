@@ -66,7 +66,7 @@ namespace AplCam {
           fs << "square_size" << _board->squareSize;
         }
         if( _camera) _camera->write( fs );
-        if( _results ) _results->serialize( fs );
+        //if( _results ) _results->serialize( fs );
 
         return true;
       }

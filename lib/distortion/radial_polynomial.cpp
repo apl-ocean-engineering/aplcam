@@ -182,5 +182,11 @@ namespace Distortion {
           return out;
         }
 
+        void RadialPolynomial::to_json( json &j ) const {
+          PinholeCamera::to_json(j);
+          j["distortion_coefficients"] = { _distCoeffs[0], _distCoeffs[1], _distCoeffs[2], _distCoeffs[3], _distCoeffs[4], _distCoeffs[5], _distCoeffs[6], _distCoeffs[7] };
+        }
+
+
 
       }

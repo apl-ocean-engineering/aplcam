@@ -347,11 +347,24 @@ namespace Distortion {
   double PinholeCamera::reprojectionError( const ObjectPointsVec &objPts,
       const Vec3d &rvec, const Vec3d &tvec,
       const ImagePointsVec &imgPts,
-      ReprojErrorsVec &reproj )
+      ReprojErrorVec &reproj )
   {
-    projectPoints( objPts, rvec, tvec, reproj.projPoints);
-    subtract( reproj.projPoints, imgPts, reproj.errors );
-    double err = cv::norm( reproj.errors, NORM_L2 );
+    ImagePointsVec projectedPoints;
+
+    projectPoints( objPts, rvec, tvec, projectedPoints);
+    std::transform( projectedPoints.begin(), projectedPoints.end(), imgPts.begin(), std::back_inserter(reproj),
+                  [&]( const ImagePoint &projPt, const ImagePoint &imgPt ) -> ReprojError {
+                    ReprojError rpj;
+                    rpj.projPoint = projPt;
+                    rpj.error = projPt - imgPt;
+                    return rpj;
+                  } );
+
+    vector< Vec2f > errors;
+    std::transform( reproj.begin(), reproj.end(), std::back_inserter(errors),
+                    []( const ReprojError &rep ) -> Vec2f { return Vec2f( rep.error[0], rep.error[1]); } );
+
+    double err = cv::norm( errors, NORM_L2 );
     return sqrt( (err*err) / objPts.size() );
   }
 
@@ -385,11 +398,13 @@ namespace Distortion {
                                              const RotVec &rvecs,
                                              const TransVec &tvecs,
                                              const ImagePointsVecVec &imgPts,
-                                             ReprojErrorsVecVec &reproj,
+                                             ReprojErrorVecVec &reproj,
                                              const vector<bool> mask )
   {
     int numPoints = 0;
     double rms = 0.0;
+
+    // TODO.  Reduce DRY with other reprojectionError functions
 
     reproj.resize( objPts.size() );
     for( size_t j = 0; j < objPts.size(); ++j ) {
@@ -398,11 +413,22 @@ namespace Distortion {
 
       numPoints += objPts[j].size();
 
-      ReprojErrorsVec &rep( reproj[j] );
-      projectPoints( objPts[j], rvecs[j], tvecs[j], rep.projPoints );
-      subtract( rep.projPoints, imgPts[j], rep.errors );
+      ImagePointsVec projectedPoints;
+      projectPoints( objPts[j], rvecs[j], tvecs[j], projectedPoints );
 
-      double err = cv::norm( rep.errors, NORM_L2 );
+      std::transform( projectedPoints.begin(), projectedPoints.end(), imgPts[j].begin(), std::back_inserter(reproj[j]),
+                      [&]( const ImagePoint &projPt, const ImagePoint &imgPt ) -> ReprojError {
+                        ReprojError rpj;
+                        rpj.projPoint = projPt;
+                        rpj.error = projPt - imgPt;
+                        return rpj;
+                      } );
+
+      vector< Vec2f > errors;
+      std::transform( reproj[j].begin(), reproj[j].end(), std::back_inserter(errors),
+                      []( const ReprojError &rep ) -> Vec2f { return Vec2f( rep.error[0], rep.error[1]); } );
+
+      double err = cv::norm( errors, NORM_L2 );
       rms += err*err;
     }
 
@@ -417,6 +443,15 @@ namespace Distortion {
    out << "camera_model" << name();
    out << "camera_matrix" << mat();
    return out;
+ }
+
+
+  void PinholeCamera::to_json( json &j ) const {
+    j["camera_model"] = name();
+    j["camera_matrix"] = { mat().at<double>(0), mat().at<double>(1), mat().at<double>(2), mat().at<double>(3), mat().at<double>(4), mat().at<double>(5), mat().at<double>(6), mat().at<double>(7), mat().at<double>(8) };
+   //out << "camera_model" << name();
+   //out << "camera_matrix" << mat();
+   //return out;
  }
 
 

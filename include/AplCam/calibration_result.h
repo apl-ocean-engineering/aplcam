@@ -12,7 +12,6 @@ namespace AplCam {
 
   using cv::FileStorage;
 
-
   struct Result {
     Result( size_t sz = 0 )
       : rms(-1), reprojErrors( sz ), good( true ),
@@ -27,29 +26,53 @@ namespace AplCam {
       reprojErrors.resize( sz );
     }
 
-    virtual void serialize( FileStorage &fs )
+    // virtual void serialize( FileStorage &fs )
+    // {
+    //   fs << "success" << good;
+    //   fs << "numPoints" << numPoints;
+    //   fs << "numImages" << numImages;
+    //   fs << "rms" << rms;
+    //   fs << "reprojErrors" << reprojErrors;
+    // }
+
+    virtual void to_json( json &j ) const
     {
-      fs << "success" << good;
-      fs << "numPoints" << numPoints;
-      fs << "numImages" << numImages;
-      fs << "rms" << rms;
-      fs << "reprojErrors" << reprojErrors;
+      j["success"] = good;
+      j["numPoints"] = numPoints;
+      j["numImages"] = numImages;
+      j["rms"] = rms;
+
+      std::transform( reprojErrors.begin(), reprojErrors.end(), std::back_inserter( j["reprojErrors"]),
+                      []( const ReprojErrorVec &errors ) -> json {
+                        json j;
+                        std::transform( errors.begin(), errors.end(), std::back_inserter(j),
+                                        []( const ReprojError &err ) -> json {
+                                          return {err.projPoint[0], err.projPoint[1], err.error[0], err.error[1]};
+                                        } );
+                        return j;
+                      } );
+
+      //j["reprojErrors"] = reprojErrors;
     }
 
-    std::string toString(  void )
-    {
-      FileStorage fs("foo.yml", FileStorage::WRITE | FileStorage::MEMORY );
-      serialize( fs );
-      return fs.releaseAndGetString();
-    }
+    // std::string toString(  void )
+    // {
+    //   FileStorage fs("foo.yml", FileStorage::WRITE | FileStorage::MEMORY );
+    //   //serialize( fs );
+    //   return fs.releaseAndGetString();
+    // }
 
     double rms;
-    ReprojErrorsVecVec reprojErrors;
+    ReprojErrorVecVec reprojErrors;
     bool good;
     int numPoints, numImages;
 
-
   };
+
+  void   to_json(json& j, const Result& p);
+  void from_json(const json& j, Result& p);
+
+
 
 
   struct CalibrationResult : public Result {
@@ -71,13 +94,24 @@ namespace AplCam {
       status.resize( sz, false );
     }
 
-    virtual void serialize( FileStorage &fs )
-    {
-      Result::serialize(fs);
+    // virtual void serialize( FileStorage &fs )
+    // {
+    //   Result::serialize(fs);
+    //
+    //   fs << "totalTime" << totalTime;
+    //   fs << "residual" << residual;
+    // }
 
-      fs << "totalTime" << totalTime;
-      fs << "residual" << residual;
+
+    virtual void to_json( json &j ) const
+    {
+      Result::to_json(j);
+
+      j["totalTime"] = totalTime;
+      j["residual"] = residual;
     }
+
+
 
     double totalTime, residual;
 
@@ -85,6 +119,9 @@ namespace AplCam {
     TransVec tvecs;
     vector< bool > status;
   };
+
+  void   to_json(json& j, const CalibrationResult& p);
+  void from_json(const json& j, CalibrationResult& p);
 
 }
 

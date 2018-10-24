@@ -31,6 +31,7 @@ fips_begin_lib( aplcam )
     motion_model.cpp
     feature_tracker.cpp
     calibration_db.cpp
+    calibration_result.cpp
     leveldb_calibration_db.cpp
     splitter_common.cpp
     hough_circles.cpp

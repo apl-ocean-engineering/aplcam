@@ -59,6 +59,9 @@ namespace Distortion {
       virtual cv::FileStorage &write( cv::FileStorage &out ) const;
       static AngularPolynomial *Load( cv::FileStorage &in );
 
+      virtual void to_json( json &j ) const;
+
+
 
     protected:
 

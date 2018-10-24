@@ -132,10 +132,12 @@ namespace Distortion {
         return m;
       }
 
-
-
       //---- Serialize/Unserialize functions ----
       virtual cv::FileStorage &write( cv::FileStorage &out ) const;
+
+      virtual void to_json( json &j ) const;
+
+
 
       Mat getOptimalNewCameraMatrix( const Size &imgSize, double alpha,
           const Size &newImgSize, cv::Rect &validPixROI, bool centerPrincipalPoint = false );
@@ -285,7 +287,7 @@ namespace Distortion {
       double reprojectionError( const ObjectPointsVec &objPts,
           const Vec3d &rvec, const Vec3d &tvec,
           const ImagePointsVec &imgPts,
-          ReprojErrorsVec &reprojErrors );
+          ReprojErrorVec &reprojErrors );
 
       double reprojectionError( const ObjectPointsVecVec &obPtsj,
           const RotVec &rvecs, const TransVec &tvecs,
@@ -295,7 +297,7 @@ namespace Distortion {
       double reprojectionError( const ObjectPointsVecVec &obPtsj,
           const RotVec &rvecs, const TransVec &tvecs,
           const ImagePointsVecVec &imgPts,
-          ReprojErrorsVecVec &reprojErrors,
+          ReprojErrorVecVec &reprojErrors,
           const vector<bool> mask = vector<bool>() );
 
 
