@@ -184,36 +184,26 @@ SharedPoints Detection::sharedWith( const Detection &a, const Detection &b )
 
 // TODO:  See "How do I convert third-party types?" at https://github.com/nlohmann/json
 void to_json(json& j, const Detection& p) {
-  {
-    // Wonkiness when serializing OpenCV types using the ::json mechanism
-    json jpoint;
-    for( auto const &pt : p.points ) {
-      json jpt;
-      jpt[0] = pt[0];
-      jpt[1] = pt[1];
-      jpoint.push_back(jpt);
-    }
-    j["image_points"] = jpoint;
-  }
+  std::transform( p.points.begin(), p.points.end(), std::back_inserter(j["image_points"]),
+                  []( const ImagePoint &pt ) -> json { return {pt[0], pt[1]}; } );
 
-  {
-    // Wonkiness when serializing OpenCV types using the ::json mechanism
-    json jworld;
-    for( auto const &pt : p.corners ) {
-      json jpt;
-      jpt[0] = pt[0];
-      jpt[1] = pt[1];
-      jpt[2] = pt[2];
-      jworld.push_back(jpt);
-    }
-    j["world_points"] = jworld;
-  }
-
+  std::transform( p.corners.begin(), p.corners.end(), std::back_inserter(j["world_points"]),
+                  []( const ObjectPoint &pt ) -> json { return {pt[0], pt[1], pt[2]}; });
 
   j["ids"] = p.ids;
 }
 
 void from_json(const json& j, Detection& p) {
+  json jids = j["ids"];
+  std::copy( jids.begin(), jids.end(), std::back_inserter( p.ids ) );
+
+  json jwp = j["world_points"];
+  std::transform( jwp.begin(), jwp.end(), std::back_inserter( p.corners ),
+                  []( const json &j ) -> ObjectPoint { return Vec3f( j.at(0), j.at(1), j.at(2) ); } );
+
+  json jip = j["image_points"];
+  std::transform( jip.begin(), jip.end(), std::back_inserter( p.points ),
+                  []( const json &j ) -> ImagePoint { return Vec2f( j.at(0), j.at(1) ); } );
 
 }
 

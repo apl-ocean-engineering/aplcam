@@ -13,16 +13,20 @@ namespace AplCam {
     : _filename(filename)
   {
     if( !filename.empty() ) {
-      //from_json()
+      load();
     }
   }
 
   InMemoryDetectionDb::~InMemoryDetectionDb()
   {
-    sync();
+    save();
   }
 
-  void InMemoryDetectionDb::sync()
+  void InMemoryDetectionDb::setFilename( const std::string &filename ) {
+    _filename = filename;
+  }
+
+  void InMemoryDetectionDb::save()
   {
     json j = *this;
 
@@ -30,6 +34,15 @@ namespace AplCam {
 
     // From the json.hpp docs: the setw manipulator was overloaded to set the indentation for pretty printing
     out << std::setw(4) << j;
+  }
+
+  void InMemoryDetectionDb::load()
+  {
+    ifstream in( _filename );
+    json j;
+    in >> j;
+
+    *this = j;
   }
 
   bool InMemoryDetectionDb::insert( const std::string &frame, const std::shared_ptr<Detection> &detection ) {
@@ -59,7 +72,21 @@ namespace AplCam {
     j["detections"] = detections;
   }
 
-  void from_json(const json& j, InMemoryDetectionDb& p) {
+  void from_json(const json& j, InMemoryDetectionDb& db) {
+    std::cerr << "Loading from JSON!" << std::endl;
+
+    db._map.clear();
+
+    json jdet = j["detections"];
+
+    for (json::iterator det = jdet.begin(); det != jdet.end(); ++det) {
+        std::cerr << "   loading: " << det.key() << std::endl;
+
+        std::shared_ptr<Detection> detection( new Detection );
+        *(detection.get()) = det.value();
+
+        db.insert( det.key(), detection );
+    }
 
   }
 

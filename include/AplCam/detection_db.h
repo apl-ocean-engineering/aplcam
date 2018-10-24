@@ -27,7 +27,7 @@ namespace AplCam {
        DetectionDb() {;}
        virtual ~DetectionDb() {;}
 
-       virtual void sync() {;}
+       virtual void save() {;}
 
   //     virtual Detection *load( const int frame ) = 0;
 
@@ -51,7 +51,10 @@ namespace AplCam {
     InMemoryDetectionDb( const std::string &filename = std::string("") );
     ~InMemoryDetectionDb();
 
-    virtual void sync();
+    void setFilename( const std::string &filename );
+
+    void load();
+    virtual void save();
 
     virtual bool insert( const std::string &frame, const std::shared_ptr<Detection> &detection );
     virtual std::shared_ptr<Detection> at( const std::string &frame );
@@ -63,6 +66,8 @@ namespace AplCam {
     friend void from_json(const json& j, InMemoryDetectionDb& p);
 
   protected:
+
+
 
     typedef std::map< std::string, std::shared_ptr<Detection> > DetectionMap;
 
