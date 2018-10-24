@@ -57,7 +57,7 @@ namespace Distortion {
           cv::TermCriteria criteria = cv::TermCriteria(cv::TermCriteria::COUNT+cv::TermCriteria::EPS, 100, DBL_EPSILON)  );
 
 
-      // This does the "prep work", then doCalibrate is the virtual "dirty work" for each distortion model
+      // This does the "prep work", then doCalibrate does the "dirty work" for each distortion model
       bool calibrate( const ObjectPointsVecVec &objectPoints,
           const ImagePointsVecVec &imagePoints,
           const Size& image_size,

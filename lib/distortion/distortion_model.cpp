@@ -103,9 +103,17 @@ namespace Distortion {
 
   //--- Statics related to unserailizing cameras... ----
 
+  // The string(string) function signature is what's used in CLI11
+  // Return empty string is valid, return error message if not valid
+  std::string DistortionModel::ValidateModelName( const std::string &name ) {
+    if( ParseDistortionModel( name ) == CALIBRATION_NONE ) return std::string("Did not recognize distortion model");
+
+    return std::string("");
+  }
+
   DistortionModel::DistortionModelType_t DistortionModel::ParseDistortionModel( const string &arg )
     {
-      // cout << arg << endl;
+      cout << arg << endl;
       if( arg.compare("angular") == 0 ) {
         return ANGULAR_POLYNOMIAL;
       } else if ( arg.compare("radial") == 0 ) {

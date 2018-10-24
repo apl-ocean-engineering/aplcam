@@ -48,7 +48,11 @@ namespace AplCam {
   class InMemoryDetectionDb {
   public:
 
-    InMemoryDetectionDb( const std::string &filename = std::string("") );
+    typedef std::map< std::string, std::shared_ptr<Detection> > DetectionMap;
+
+
+    InMemoryDetectionDb( );
+    InMemoryDetectionDb( const std::string &filename );
     ~InMemoryDetectionDb();
 
     void setFilename( const std::string &filename );
@@ -65,11 +69,9 @@ namespace AplCam {
     friend void to_json(json& j, const InMemoryDetectionDb& p);
     friend void from_json(const json& j, InMemoryDetectionDb& p);
 
+    const DetectionMap &map() const { return _map; }
+
   protected:
-
-
-
-    typedef std::map< std::string, std::shared_ptr<Detection> > DetectionMap;
 
     DetectionMap _map;
 

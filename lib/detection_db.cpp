@@ -9,6 +9,11 @@ namespace AplCam {
 
   using namespace std;
 
+  InMemoryDetectionDb::InMemoryDetectionDb(  )
+    : _filename("")
+  {
+  }
+
   InMemoryDetectionDb::InMemoryDetectionDb( const std::string &filename )
     : _filename(filename)
   {

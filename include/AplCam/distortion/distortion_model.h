@@ -64,18 +64,21 @@ class DistortionModel : public PinholeCamera {
   { undistortImage( distorted, undistorted, mat(), distorted.size() ); }
 
 
-      // This is actually meaningful in DistortionModel, the version in
-      // PinholeCamera does nothing
-     virtual ImagePointsVec undistortVec( const ImagePointsVec &pw ) const;
+    // This is actually meaningful in DistortionModel, the version in
+    // PinholeCamera does nothing
+   virtual ImagePointsVec undistortVec( const ImagePointsVec &pw ) const;
 
   //
 
   enum DistortionModelType_t { CALIBRATION_NONE,
-                 ANGULAR_POLYNOMIAL,
-                 RADIAL8_POLYNOMIAL,
-                 CERES_RADIAL, OPENCV_RADIAL };
+                               ANGULAR_POLYNOMIAL,
+                               RADIAL8_POLYNOMIAL,
+                               CERES_RADIAL,
+                               OPENCV_RADIAL };
 
+  static std::string           ValidateModelName( const std::string &name );
   static DistortionModelType_t ParseDistortionModel( const std::string &arg );
+  static DistortionModel      *MakeDistortionModel( const std::string &arg ) { return MakeDistortionModel( ParseDistortionModel( arg )); }
   static DistortionModel      *MakeDistortionModel( DistortionModelType_t type );
 
 
