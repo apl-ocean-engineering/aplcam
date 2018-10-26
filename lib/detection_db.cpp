@@ -78,14 +78,12 @@ namespace AplCam {
   }
 
   void from_json(const json& j, InMemoryDetectionDb& db) {
-    std::cerr << "Loading from JSON!" << std::endl;
-
     db._map.clear();
 
     json jdet = j["detections"];
 
     for (json::iterator det = jdet.begin(); det != jdet.end(); ++det) {
-        std::cerr << "   loading: " << det.key() << std::endl;
+        LOG(DEBUG) << "   loading: " << det.key();
 
         std::shared_ptr<Detection> detection( new Detection );
         *(detection.get()) = det.value();
