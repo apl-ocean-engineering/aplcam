@@ -6,12 +6,13 @@ fips_begin_lib( aplcam )
     types.cpp
     board/board.cpp
     board/circle.cpp
+    board/trailer_hitch.cpp
     image.cpp
     video.cpp
     detection/detection.cpp
     detection/circle.cpp
     detection_db.cpp
-    leveldb_detection_db.cpp
+    #leveldb_detection_db.cpp
     detection_set.cpp
     my_undistort.cpp
     ${APRILTAG_SRCS}
@@ -32,7 +33,7 @@ fips_begin_lib( aplcam )
     feature_tracker.cpp
     calibration_db.cpp
     calibration_result.cpp
-    leveldb_calibration_db.cpp
+    #leveldb_calibration_db.cpp
     splitter_common.cpp
     hough_circles.cpp
     image_accumulator.cpp
@@ -53,6 +54,8 @@ fips_begin_lib( aplcam )
     else()
       message( INFO " USE_APRILTAGS not set" )
     endif()
+
+  fips_deps( g3logger )
 
   fips_libs(
     ${OpenCV_LIBS}

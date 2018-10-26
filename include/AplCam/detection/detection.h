@@ -11,8 +11,6 @@
 #include "AplCam/board/board.h"
 #include "AplCam/types.h"
 
-#include <kchashdb.h>
-
 namespace AplCam {
 
   using std::string;
@@ -24,7 +22,7 @@ namespace AplCam {
     ObjectPointsVec worldPoints;
   };
 
-  class Detection;
+  struct Detection;
 
   void   to_json(json& j, const Detection& p);
   void from_json(const json& j, Detection& p);

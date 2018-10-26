@@ -1,4 +1,6 @@
 
+#include <iostream>
+
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
@@ -9,13 +11,13 @@
 #include "AplCam/detection/apriltags.h"
 #include "AplCam/detection/circle.h"
 
-using namespace std;
-using cv::FileStorage;
-using cv::Scalar;
-using cv::Point2f;
-using cv::Point3f;
-
 namespace AplCam {
+
+  using namespace std;
+  using cv::FileStorage;
+  using cv::Scalar;
+  using cv::Point2f;
+  using cv::Point3f;
 
 // void Detection::calculateCorners( const Board &board )
 // {

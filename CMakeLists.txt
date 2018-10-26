@@ -25,7 +25,7 @@ find_package( Eigen3 REQUIRED )
 
 ## As suggested, always build a local copy of GTest
 
-find_package( LevelDB REQUIRED )
+#find_package( LevelDB REQUIRED )
 
 ## KyotoCabinet stuff
 # find_path(KyotoCabinet_INCLUDE_DIR kcdb.h

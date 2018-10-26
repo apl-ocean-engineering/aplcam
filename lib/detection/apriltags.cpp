@@ -70,7 +70,7 @@ namespace AplCam {
     size_t idx = 0;
 
     for( size_t i = 0; i < maxVal; ++i ) {
-      for( size_t j = 0; j < maxVal; ++i ) {
+      for( size_t j = 0; j < maxVal; ++j ) {
         if( i == j ) continue;
 
         for( size_t k = 0; k < maxVal; ++k ) {

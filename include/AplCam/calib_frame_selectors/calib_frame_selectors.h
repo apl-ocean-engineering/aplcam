@@ -1,10 +1,7 @@
-#ifndef __CALIB_FRAME_SELECTOR_H__
-#define __CALIB_FRAME_SELECTOR_H__
+#pragma once
 
 #include <string>
 #include <sstream>
-
-#include <kchashdb.h>
 
 #include "AplCam/bits_to_hex.h"
 #include "AplCam/random.h"
@@ -17,7 +14,6 @@ namespace AplCam {
 
     using std::string;
     using std::stringstream;
-    using kyotocabinet::DB;
 
     class FrameSelector {
       public:
@@ -182,6 +178,3 @@ namespace AplCam {
 
   }
 }
-
-
-#endif

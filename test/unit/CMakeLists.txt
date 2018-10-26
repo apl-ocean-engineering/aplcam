@@ -1,6 +1,6 @@
 
 gtest_begin(aplcam)
-    fips_src( . )
+    fips_files( InMemoryDetectionDb.cpp )
 
     fips_deps(aplcam g3logger)
 

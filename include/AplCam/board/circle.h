@@ -1,5 +1,4 @@
-#ifndef __CIRCLE_BOARD_H__
-#define __CIRCLE_BOARD_H__
+#pragma once
 
 #include <vector>
 #include <string>
@@ -71,5 +70,3 @@ class CircleGridBoard : public Board {
 };
 
 }
-
-#endif

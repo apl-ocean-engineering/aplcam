@@ -1,5 +1,4 @@
-#ifndef __APLCAM_APRILTAGS_DETECTION_H__
-#define __APLCAM_APRILTAGS_DETECTION_H__
+#pragma once
 
 #include <string>
 #include <vector>
@@ -8,7 +7,6 @@
 
 #include "AplCam/board/apriltags.h"
 
-#include <kchashdb.h>
 #include <AprilTags/TagDetection.h>
 
 #include "AplCam/detection/detection.h"
@@ -30,9 +28,5 @@ namespace AplCam {
   };
 
 }
-
-
-
-#endif
 
 #endif

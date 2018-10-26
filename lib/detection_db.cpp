@@ -2,6 +2,8 @@
 #include <fstream>
 #include <iomanip>
 
+#include "libg3logger/g3logger.h"
+
 #include "AplCam/detection_db.h"
 
 

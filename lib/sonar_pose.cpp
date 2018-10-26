@@ -31,6 +31,8 @@ bool SonarPose::write( const string &filename )
   fs << "rot" << _rot;
   fs << "trans" << _trans;
   fs << "scale" << _scale;
+
+  return true;
 }
 
 SonarPose *SonarPose::Load( const string &filename )
