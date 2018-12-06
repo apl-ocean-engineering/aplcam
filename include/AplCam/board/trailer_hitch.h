@@ -19,7 +19,9 @@ namespace AplCam {
 
      struct HueTarget {
        HueTarget( const std::string &n, unsigned int hue = 0 )
-        : name(n), _hue(hue) {;}
+        : _hue(hue), name(n) {;}
+
+       virtual ~HueTarget() {;}
 
        virtual Detection *detectPattern( const cv::Mat &img ) const;
 

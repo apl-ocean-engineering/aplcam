@@ -37,7 +37,9 @@ namespace AplCam {
   {
     json j = *this;
 
+    LOG(INFO) << "Saving to " << _filename << " : " << j;
     ofstream out( _filename );
+    CHECK(out.is_open()) << "Funny, couldn't write to file " << _filename;
 
     // From the json.hpp docs: the setw manipulator was overloaded to set the indentation for pretty printing
     out << std::setw(4) << j;
@@ -47,14 +49,10 @@ namespace AplCam {
   {
     ifstream in( _filename );
     json j;
-    try {
-      in >> j;
-      *this = j;
-    }
-    catch( ... )
-    {
-      LOG(INFO) << "Unable to parse JSON, starting with empty db...";
-    }
+
+    in >> j;
+
+    *this = j;
 
   }
 
@@ -88,15 +86,17 @@ namespace AplCam {
   void from_json(const json& j, InMemoryDetectionDb& db) {
     db._map.clear();
 
+    if( j.count("detections") ) {
+
     json jdet = j["detections"];
+      for (json::iterator det = jdet.begin(); det != jdet.end(); ++det) {
+          LOG(DEBUG) << "   loading: " << det.key();
 
-    for (json::iterator det = jdet.begin(); det != jdet.end(); ++det) {
-        LOG(DEBUG) << "   loading: " << det.key();
+          std::shared_ptr<Detection> detection( new Detection );
+          *(detection.get()) = det.value();
 
-        std::shared_ptr<Detection> detection( new Detection );
-        *(detection.get()) = det.value();
-
-        db.insert( det.key(), detection );
+          db.insert( det.key(), detection );
+      }
     }
 
   }

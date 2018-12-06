@@ -24,11 +24,9 @@ namespace {
     InMemoryDetectionDb db;
 
     json j = db;
-
   }
 
   TEST( InMemoryDetectionDb, SerializeFromJson ) {
-
     json j;
 
     InMemoryDetectionDb db = j;
