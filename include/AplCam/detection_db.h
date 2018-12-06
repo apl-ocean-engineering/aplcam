@@ -53,7 +53,7 @@ namespace AplCam {
 
     InMemoryDetectionDb( );
     InMemoryDetectionDb( const std::string &filename );
-    ~InMemoryDetectionDb();
+    virtual ~InMemoryDetectionDb();
 
     void setFilename( const std::string &filename );
 

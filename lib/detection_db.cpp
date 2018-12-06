@@ -47,9 +47,15 @@ namespace AplCam {
   {
     ifstream in( _filename );
     json j;
-    in >> j;
+    try {
+      in >> j;
+      *this = j;
+    }
+    catch( ... )
+    {
+      LOG(INFO) << "Unable to parse JSON, starting with empty db...";
+    }
 
-    *this = j;
   }
 
   bool InMemoryDetectionDb::insert( const std::string &frame, const std::shared_ptr<Detection> &detection ) {
